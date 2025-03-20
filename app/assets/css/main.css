@@ -4,3 +4,7 @@
 @theme {
   --font-sans: 'Public Sans', sans-serif;
 }
+
+html {
+  @apply motion-safe:scroll-smooth;
+}
