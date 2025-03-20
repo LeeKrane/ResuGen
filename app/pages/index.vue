@@ -3,11 +3,11 @@ import {useWindowScroll} from "@vueuse/core";
 
 const forms = ref<HTMLDivElement>()
 
-const scrollToTopButtonVisible = ref(false)
+const hoveringMenuVisible = ref(false)
 const { y } = useWindowScroll()
 
 const handleScroll = () => {
-	scrollToTopButtonVisible.value = y.value > 750
+	hoveringMenuVisible.value = y.value > 750
 }
 
 onMounted(() => {
@@ -23,13 +23,19 @@ onUnmounted(() => {
 	<div class="relative">
 		<Transition>
 			<UButton
-				:class="{ 'opacity-0 invisible': !scrollToTopButtonVisible }"
+				:class="{ 'opacity-0 invisible': !hoveringMenuVisible }"
 				class="fixed right-0 bottom-0 m-4 z-50 motion-safe:transition-all"
 				as="a"
 				label="to top"
 				icon="i-lucide-arrow-up-from-dot"
 				aria-label="scroll-to-top"
 				href="#" />
+		</Transition>
+
+		<Transition>
+			<EditMenu
+				:class="{ 'opacity-0 invisible': !hoveringMenuVisible }"
+				class="fixed left-0 bottom-0 m-4 z-50 motion-safe:transition-all"/>
 		</Transition>
 
 		<div class="flex flex-col items-center justify-center gap-4 h-screen">
