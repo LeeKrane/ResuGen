@@ -1,13 +1,11 @@
 <script setup lang="ts">
 import {useWindowScroll} from "@vueuse/core";
 
-const forms = ref<HTMLDivElement>()
-
 const hoveringMenuVisible = ref(false)
 const { y } = useWindowScroll()
 
 const handleScroll = () => {
-	hoveringMenuVisible.value = y.value > 500
+	hoveringMenuVisible.value = y.value > 600
 }
 
 onMounted(() => {
@@ -22,14 +20,23 @@ onUnmounted(() => {
 <template>
 	<div class="relative">
 		<Transition>
+			<div
+				:class="{ 'opacity-0 invisible': !hoveringMenuVisible }"
+				class="flex bg-(--ui-bg-elevated) p-4 fixed top-0 w-full z-50 motion-safe:transition-all">
+				<h1 class="font-bold text-2xl text-(--ui-primary) mx-auto">
+					Krane's Resume Generator
+				</h1>
+			</div>
+		</Transition>
+
+		<Transition>
 			<UButton
 				:class="{ 'opacity-0 invisible': !hoveringMenuVisible }"
 				class="fixed right-0 bottom-0 m-4 z-50 motion-safe:transition-all"
-				as="a"
-				label="to top"
-				icon="i-lucide-arrow-up-from-dot"
-				aria-label="scroll-to-top"
-				href="#" />
+				label="Back to top"
+				to="#"
+				icon="i-lucide-chevron-up"
+				aria-label="scroll-to-top" />
 		</Transition>
 
 		<Transition>
@@ -63,12 +70,23 @@ onUnmounted(() => {
 				/>
 			</div>
 
-			<div>
-				<EditMenu />
-			</div>
+			<EditMenu />
+
+			<UIcon name="i-lucide-dot" class="text-(--ui-primary)" />
+
+			<UButton
+				label="Configure Resume Data"
+				to="#forms"
+				icon="i-lucide-square-pen"
+				aria-label="scroll-to-forms"
+			/>
 		</div>
 
-		<div ref="forms" class="grid grid-cols-1 mx-auto items-center justify-center gap-4 p-16 w-[clamp(28rem,80vw,56rem)]">
+		<div id="forms" class="grid grid-cols-1 mx-auto items-center justify-center gap-4 px-16 py-32 w-[clamp(28rem,80vw,56rem)]">
+			<h1 class="font-bold text-2xl text-(--ui-primary) mx-auto">
+				Resume Data
+			</h1>
+
 			<FormCollapsible label="Personal Information">
 				<FormPersonalInformation />
 			</FormCollapsible>
