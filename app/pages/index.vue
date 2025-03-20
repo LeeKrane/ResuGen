@@ -7,7 +7,7 @@ const hoveringMenuVisible = ref(false)
 const { y } = useWindowScroll()
 
 const handleScroll = () => {
-	hoveringMenuVisible.value = y.value > 750
+	hoveringMenuVisible.value = y.value > 500
 }
 
 onMounted(() => {
