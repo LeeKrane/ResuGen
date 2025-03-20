@@ -6,6 +6,7 @@ const open = ref(false)
 	<UModal v-model:open="open"
 			title="Load data from file">
 		<UButton
+			class="cursor-pointer"
 			label="Import"
 			icon="i-material-symbols-upload-file"
 			variant="outline"

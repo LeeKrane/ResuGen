@@ -11,6 +11,7 @@ import {sleep} from "@antfu/utils";
 		/>
 		<GeneralResumeLoader />
 		<UButton
+			class="cursor-pointer"
 			label="Export"
 			icon="i-material-symbols-file-export-rounded"
 			variant="outline"
