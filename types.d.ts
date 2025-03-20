@@ -12,3 +12,12 @@ interface SkillCategory {
 	name: string
 	skills: Skill[]
 }
+
+interface Link {
+	name: string
+	url: string
+	icon?: {
+		label: string
+		value: string
+	}
+}
