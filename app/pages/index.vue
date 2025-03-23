@@ -8,6 +8,34 @@ const handleScroll = () => {
 	hoveringMenuVisible.value = y.value > 600
 }
 
+const tabItems = [
+	{
+		label: "General",
+		icon: "i-lucide-user",
+		slot: "general",
+	},
+	{
+		label: "Education",
+		icon: "i-lucide-graduation-cap",
+		slot: "education",
+	},
+	{
+		label: "Experience",
+		icon: "i-lucide-briefcase",
+		slot: "experience",
+	},
+	{
+		label: "Projects",
+		icon: "i-lucide-code",
+		slot: "projects",
+	},
+	{
+		label: "Colors",
+		icon: "i-lucide-palette",
+		slot: "colors",
+	}
+]
+
 onMounted(() => {
 	window.addEventListener('scroll', handleScroll)
 })
@@ -19,31 +47,25 @@ onUnmounted(() => {
 
 <template>
 	<div class="relative">
-		<Transition>
-			<div
-				:class="{ 'opacity-0 invisible': !hoveringMenuVisible }"
-				class="flex bg-(--ui-bg-elevated) p-4 fixed top-0 w-full z-50 motion-safe:transition-all">
-				<h1 class="font-bold text-2xl text-(--ui-primary) mx-auto">
-					Krane's Resume Generator
-				</h1>
-			</div>
-		</Transition>
+		<div
+			:class="{ 'opacity-0 invisible': !hoveringMenuVisible }"
+			class="flex bg-(--ui-bg-elevated) p-4 fixed top-0 w-full z-50 motion-safe:transition-all">
+			<h1 class="font-bold text-2xl text-(--ui-primary) mx-auto">
+				Krane's Resume Generator
+			</h1>
+		</div>
 
-		<Transition>
+		<div
+			:class="{ 'opacity-0 invisible': !hoveringMenuVisible }"
+			class="flex bg-(--ui-bg-elevated) p-4 fixed bottom-0 w-full z-50 motion-safe:transition-all">
+			<GeneralEditMenu />
+			<div class="grow" />
 			<UButton
-				:class="{ 'opacity-0 invisible': !hoveringMenuVisible }"
-				class="fixed right-0 bottom-0 m-4 z-50 motion-safe:transition-all"
 				label="Back to top"
 				to="#"
 				icon="i-lucide-chevron-up"
 				aria-label="scroll-to-top" />
-		</Transition>
-
-		<Transition>
-			<EditMenu
-				:class="{ 'opacity-0 invisible': !hoveringMenuVisible }"
-				class="fixed left-0 bottom-0 m-4 z-50 motion-safe:transition-all"/>
-		</Transition>
+		</div>
 
 		<div class="flex flex-col items-center justify-center gap-4 h-screen">
 			<h1 class="font-bold text-2xl text-(--ui-primary)">
@@ -70,29 +92,38 @@ onUnmounted(() => {
 				/>
 			</div>
 
-			<EditMenu />
+			<GeneralEditMenu />
 
 			<UIcon name="i-lucide-dot" class="text-(--ui-primary)" />
 
 			<UButton
-				label="Configure Resume Data"
+				label="Get started"
 				to="#forms"
 				icon="i-lucide-square-pen"
 				aria-label="scroll-to-forms"
 			/>
 		</div>
 
-		<div id="forms" class="grid grid-cols-1 mx-auto items-center justify-center gap-4 px-16 py-32 w-[clamp(28rem,80vw,56rem)]">
-			<h1 class="font-bold text-2xl text-(--ui-primary) mx-auto">
-				Resume Data
-			</h1>
-
-			<FormCollapsible label="Personal Information">
-				<FormPersonalInformation />
-			</FormCollapsible>
-			<FormCollapsible label="Technical Information">
-				<FormTechnicalInformation />
-			</FormCollapsible>
+		<div id="forms" class="grid grid-cols-1 mx-auto gap-8 px-16 mt-32 mb-48 w-[clamp(28rem,80vw,56rem)] min-h-[75vh]">
+			<div class="w-full sticky top-16 z-40 bg-(--ui-bg)">
+				<UTabs
+					:unmount-on-hide="false"
+					:items="tabItems"
+					class="mt-4">
+					<template #general>
+						<FormGeneral />
+					</template>
+					<template #education>
+						<FormEducation />
+					</template>
+					<template #experience>
+						<FormExperience />
+					</template>
+					<template #projects>
+						<FormProjects />
+					</template>
+				</UTabs>
+			</div>
 		</div>
 	</div>
 </template>

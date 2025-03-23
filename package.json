@@ -14,11 +14,15 @@
   "dependencies": {
     "@iconify-json/lucide": "^1.2.31",
     "@iconify-json/simple-icons": "^1.2.29",
+    "@nuxt/image": "1.10.0",
     "@nuxt/ui": "^3.0.0",
-    "nuxt": "^3.16.0"
+    "jszip": "^3.10.1",
+    "nuxt": "^3.16.0",
+    "uuid": "^11.1.0"
   },
   "devDependencies": {
     "@nuxt/eslint": "^1.2.0",
+    "@types/uuid": "^10.0.0",
     "eslint": "^9.22.0",
     "typescript": "^5.8.2"
   }
