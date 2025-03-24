@@ -79,21 +79,22 @@ const completionPercentage = computed(() => {
 
 		<div
 			:class="{ 'opacity-0 invisible': !hoveringMenuVisible }"
-			class="grid grid-cols-3 bg-(--ui-bg-elevated) fixed bottom-0 w-full z-50 motion-safe:transition-all">
-			<GeneralEditMenu class="m-4 mr-auto" />
-			<div class="flex flex-col w-full items-center gap-1 px-8 m-auto">
-				<span class="text-sm text-gray-500 mx-auto">Resume completion</span>
-				<div class="flex w-full items-center gap-2">
+			class="grid md:grid-cols-[1fr_1fr_1fr] max-md:grid-cols-2 bg-(--ui-bg-elevated) fixed bottom-0 w-full z-50 motion-safe:transition-all">
+			<GeneralEditMenu class="m-4 mr-auto max-md:hidden" />
+			<div class="flex md:flex-col max-md:col-span-2 w-full items-center gap-1 px-8 max-md:pt-4 m-auto max-md:gap-8">
+				<span class="text-sm text-gray-500 md:mx-auto">Resume completion</span>
+				<div class="flex md:w-full max-md:grow items-center gap-2">
 					<UProgress
 						v-model="completionPercentage"
 						:max="100"
 						:value="completionPercentage"
-						class="min-w-32 grow"
+						class="min-w-24 grow"
 						size="sm"
 					/>
 					<span class="text-sm text-gray-500">{{ completionPercentage }}%</span>
 				</div>
 			</div>
+			<GeneralEditMenu class="m-4 mr-auto md:hidden" />
 			<UButton
 				label="Back to top"
 				to="#"
