@@ -61,6 +61,7 @@ interface Project {
 	repoLink?: Link,
 	technologies: Technology[]
 	openSource?: boolean
+	collapsibleOpen?: boolean
 }
 
 interface ImgData {
