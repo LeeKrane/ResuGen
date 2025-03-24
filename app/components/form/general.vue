@@ -4,6 +4,7 @@ const state = reactive({
 	subtitle: useRefResumeData().subtitle,
 	email: useRefResumeData().email,
 	phone: useRefResumeData().phone,
+	address: useRefResumeData().address,
 	summary: useRefResumeData().summary,
 	hobbies: useRefResumeData().hobbies,
 	languages: useRefResumeData().languages,
@@ -157,6 +158,15 @@ watch(state.links, (newVal) => {
 				variant="soft"
 				placeholder="+43 123 456 789"
 				icon="i-lucide-phone" />
+		</UFormField>
+
+		<UFormField label="Address">
+			<UInput
+				v-model="state.address"
+				class="w-full"
+				variant="soft"
+				placeholder="123 Main Street, City, Country"
+				icon="i-lucide-map-pin" />
 		</UFormField>
 
 		<UFormField label="Professional Summary">

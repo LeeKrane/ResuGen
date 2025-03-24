@@ -7,6 +7,7 @@ export const useResumeData: () => { data: ResumeData, avatar: File | null } = ()
 			subtitle: useState("subtitle", () => "").value,
 			email: useState("email", () => "").value,
 			phone: useState("phone", () => "").value,
+			address: useState("address", () => "").value,
 			summary: useState("summary", () => "").value,
 			hobbies: useState("hobbies", (): string[] => [""]).value,
 			languages: useState("languages", (): Language[] => [ { name: "" } ]).value,

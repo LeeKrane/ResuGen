@@ -73,6 +73,7 @@ interface ResumeData {
 	subtitle: string,
 	email: string,
 	phone: string,
+	address: string,
 	summary: string,
 	hobbies: string[],
 	languages: Language[],
@@ -89,6 +90,7 @@ interface RefResumeData {
 	subtitle: Ref<string>
 	email: Ref<string>
 	phone: Ref<string>
+	address: Ref<string>,
 	summary: Ref<string>
 	hobbies: Ref<string[]>
 	languages: Ref<Language[]>

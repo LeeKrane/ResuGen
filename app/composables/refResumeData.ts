@@ -6,6 +6,7 @@ export const useRefResumeData: () => RefResumeData = () => {
 		subtitle: useState("subtitle", () => ""),
 		email: useState("email", () => ""),
 		phone: useState("phone", () => ""),
+		address: useState("address", () => ""),
 		summary: useState("summary", () => ""),
 		hobbies: useState("hobbies", (): string[] => [""]),
 		languages: useState("languages", (): Language[] => [ { name: "" } ]),
