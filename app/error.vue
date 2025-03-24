@@ -68,14 +68,14 @@ defineProps<{
 				label="Go Home"
 				to="/"
 				icon="i-lucide-home"
-				:color="error.statusCode === 404 ? 'primary' : 'red'"
+				:color="error.statusCode === 404 ? 'primary' : 'error'"
 			/>
 			<UButton
 				label="Go Back"
 				icon="i-lucide-arrow-left"
-				color="gray"
-				variant="soft"
-				@click="() => window.history.back()"
+				color="neutral"
+				variant="ghost"
+				@click="() => useRouter().back()"
 			/>
 		</div>
 
