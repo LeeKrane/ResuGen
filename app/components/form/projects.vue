@@ -77,7 +77,7 @@ const state = reactive({
 						<FormModifyButtons
 							v-model="state.projects"
 							:index
-							:vertical="state.projects[index]!.collapsibleOpen || true" />
+							:vertical="state.projects[index]!.collapsibleOpen ?? true" />
 					</div>
 				</div>
 			</div>

@@ -99,7 +99,7 @@ const computedCollapsableNames = computed(() => state.experience
 						<FormModifyButtons
 							v-model="state.experience"
 							:index
-							:vertical="state.experience[index]!.collapsibleOpen || true" />
+							:vertical="state.experience[index]!.collapsibleOpen ?? true" />
 					</div>
 				</div>
 			</div>
