@@ -21,11 +21,6 @@ const downloadZip = () => {
 
 <template>
 	<UButtonGroup>
-		<UButton
-			label="Generate"
-			icon="i-ri-ai-generate"
-			to="/resume"
-		/>
 		<GeneralResumeLoader/>
 		<UButton
 			class="cursor-pointer"
