@@ -139,7 +139,7 @@ const completionPercentage = computed(() => {
 			/>
 		</div>
 
-		<div id="forms" class="flex flex-col mx-auto gap-8 px-16 pb-48 w-[clamp(28rem,80vw,56rem)] min-h-[calc(100vh-16rem)]">
+		<div id="forms" class="flex flex-col mx-auto gap-8 px-2 pb-48 w-[clamp(32rem,80vw,80rem)] min-h-[calc(100vh-16rem)]">
 			<div class="sticky w-full top-16 pt-4 bg-(--ui-bg) z-40 h-fit">
 				<UTabs
 					v-model="activeTab"
