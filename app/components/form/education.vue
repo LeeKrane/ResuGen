@@ -82,7 +82,7 @@ const computedCollapsableNames = computed(() => state.education
 						<FormModifyButtons
 							v-model="state.education"
 							:index
-							:vertical="state.education[index]!.collapsibleOpen" />
+							:vertical="state.education[index]!.collapsibleOpen || true" />
 					</div>
 				</div>
 			</div>
