@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {useWindowScroll} from "@vueuse/core";
+import {useWindowScroll} from "@vueuse/core"
 
 const hoveringMenuVisible = ref(false)
 const { y } = useWindowScroll()
@@ -44,6 +44,27 @@ onMounted(() => {
 onUnmounted(() => {
 	window.removeEventListener('scroll', handleScroll)
 })
+
+const resumeData = useRefResumeData()
+
+const completionPercentage = computed(() => {
+	const fields = {
+		avatar: !!resumeData.avatar.value,
+		name: resumeData.name.value?.trim().length > 0,
+		subtitle: resumeData.subtitle.value?.trim().length > 0,
+		email: resumeData.email.value?.trim().length > 0,
+		phone: resumeData.phone.value?.trim().length > 0,
+		address: resumeData.address.value?.trim().length > 0,
+		summary: resumeData.summary.value?.trim().length > 0,
+		education: resumeData.education.value.some(e => e.degree?.trim().length > 0),
+		experience: resumeData.experience.value.some(e => e.position?.trim().length > 0),
+		languages: resumeData.languages.value.some(l => l.name?.trim().length > 0),
+		skillCategories: resumeData.skillCategories.value.some(c => c.name?.trim().length > 0)
+	}
+
+	const filledFields = Object.values(fields).filter(Boolean).length
+	return Math.round((filledFields / Object.keys(fields).length) * 100)
+})
 </script>
 
 <template>
@@ -58,12 +79,25 @@ onUnmounted(() => {
 
 		<div
 			:class="{ 'opacity-0 invisible': !hoveringMenuVisible }"
-			class="flex bg-(--ui-bg-elevated) p-4 fixed bottom-0 w-full z-50 motion-safe:transition-all">
-			<GeneralEditMenu />
-			<div class="grow" />
+			class="grid grid-cols-3 bg-(--ui-bg-elevated) fixed bottom-0 w-full z-50 motion-safe:transition-all">
+			<GeneralEditMenu class="m-4 mr-auto" />
+			<div class="flex flex-col w-full items-center gap-1 px-8 m-auto">
+				<span class="text-sm text-gray-500 mx-auto">Resume completion</span>
+				<div class="flex w-full items-center gap-2">
+					<UProgress
+						v-model="completionPercentage"
+						:max="100"
+						:value="completionPercentage"
+						class="min-w-32 grow"
+						size="sm"
+					/>
+					<span class="text-sm text-gray-500">{{ completionPercentage }}%</span>
+				</div>
+			</div>
 			<UButton
 				label="Back to top"
 				to="#"
+				class="m-4 ml-auto"
 				icon="i-lucide-chevron-up"
 				aria-label="scroll-to-top" />
 		</div>
