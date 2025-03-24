@@ -46,12 +46,6 @@ const options = {
 		}
 	},
 }
-
-const onLoad = (container: any) => {
-	// Do something with the container
-	container.pause()
-	container.play()
-}
 </script>
 
 <template>
@@ -59,6 +53,5 @@ const onLoad = (container: any) => {
 		class="-z-50"
 		id="tsparticles"
 		:options="options"
-		@load="onLoad"
 	></NuxtParticles>
 </template>
