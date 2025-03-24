@@ -56,7 +56,7 @@ async function onFileChange(event) {
 		state.projects.value = resumeData.projects
 
 		if (avatarBlob) {
-			useRefreshAvatar(new File([avatarBlob], "avatar.webp", { type: "image/webp" }))
+			useRefreshAvatar(new File([avatarBlob], "avatar.webp", {type: "image/webp"}))
 		}
 	} catch (error) {
 		errorMessage.value = 'Error reading the zip file: ' + error.message;
@@ -85,7 +85,7 @@ async function onFileChange(event) {
 				@submit.prevent="onFileChange"
 				class="flex flex-col items-center justify-center gap-4 p-16">
 				<UFormField label="Resume data" name="resumeData" :error="errorMessage">
-					<UInput type="file" accept=".zip" @change="onFileChange" :disabled="disabled" />
+					<UInput type="file" accept=".zip" @change="onFileChange" :disabled="disabled"/>
 				</UFormField>
 			</UForm>
 		</template>

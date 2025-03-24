@@ -1,5 +1,5 @@
 <script setup lang="ts">
-const { fn, soft, error } = defineProps<{
+const {fn, soft, error} = defineProps<{
 	fn: () => void
 	soft?: boolean
 	error?: boolean
@@ -14,5 +14,5 @@ const { fn, soft, error } = defineProps<{
 		size="sm"
 		icon="i-lucide-trash-2"
 		aria-label="clear input"
-		@click="fn" />
+		@click="fn"/>
 </template>

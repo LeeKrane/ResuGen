@@ -2,7 +2,7 @@
 import {useWindowScroll} from "@vueuse/core"
 
 const hoveringMenuVisible = ref(false)
-const { y } = useWindowScroll()
+const {y} = useWindowScroll()
 
 const handleScroll = () => {
 	hoveringMenuVisible.value = y.value > 600
@@ -80,8 +80,9 @@ const completionPercentage = computed(() => {
 		<div
 			:class="{ 'opacity-0 invisible': !hoveringMenuVisible }"
 			class="grid md:grid-cols-[1fr_1fr_1fr] max-md:grid-cols-2 bg-(--ui-bg-elevated) fixed bottom-0 w-full z-50 motion-safe:transition-all">
-			<GeneralEditMenu class="m-4 mr-auto max-md:hidden" />
-			<div class="flex md:flex-col max-md:col-span-2 w-full items-center gap-1 px-8 max-md:pt-4 m-auto max-md:gap-8">
+			<GeneralEditMenu class="m-4 mr-auto max-md:hidden"/>
+			<div
+				class="flex md:flex-col max-md:col-span-2 w-full items-center gap-1 px-8 max-md:pt-4 m-auto max-md:gap-8">
 				<span class="text-sm text-gray-500 md:mx-auto">Resume completion</span>
 				<div class="flex md:w-full max-md:grow items-center gap-2">
 					<UProgress
@@ -94,13 +95,13 @@ const completionPercentage = computed(() => {
 					<span class="text-sm text-gray-500">{{ completionPercentage }}%</span>
 				</div>
 			</div>
-			<GeneralEditMenu class="m-4 mr-auto md:hidden" />
+			<GeneralEditMenu class="m-4 mr-auto md:hidden"/>
 			<UButton
 				label="Back to top"
 				to="#"
 				class="m-4 ml-auto"
 				icon="i-lucide-chevron-up"
-				aria-label="scroll-to-top" />
+				aria-label="scroll-to-top"/>
 		</div>
 
 		<div class="flex flex-col items-center justify-center gap-4 h-screen">
@@ -128,9 +129,9 @@ const completionPercentage = computed(() => {
 				/>
 			</div>
 
-			<GeneralEditMenu />
+			<GeneralEditMenu/>
 
-			<UIcon name="i-lucide-dot" class="text-(--ui-primary)" />
+			<UIcon name="i-lucide-dot" class="text-(--ui-primary)"/>
 
 			<UButton
 				label="Get started"
@@ -140,27 +141,29 @@ const completionPercentage = computed(() => {
 			/>
 		</div>
 
-		<div id="forms" class="flex flex-col mx-auto gap-8 px-2 pb-48 w-[clamp(32rem,80vw,80rem)] min-h-[calc(100vh-16rem)]">
+		<div
+			id="forms"
+			class="flex flex-col mx-auto gap-8 px-2 pb-48 w-[clamp(32rem,80vw,80rem)] min-h-[calc(100vh-16rem)]">
 			<div class="sticky w-full top-16 pt-4 bg-(--ui-bg) z-40 h-fit">
 				<UTabs
 					v-model="activeTab"
-					:items="tabItems" />
+					:items="tabItems"/>
 			</div>
 
 			<div :class="activeTab === '0' ? 'block' : 'hidden'">
-				<FormGeneral />
+				<FormGeneral/>
 			</div>
 
 			<div :class="activeTab === '1' ? 'block' : 'hidden'">
-				<FormEducation />
+				<FormEducation/>
 			</div>
 
 			<div :class="activeTab === '2' ? 'block' : 'hidden'">
-				<FormExperience />
+				<FormExperience/>
 			</div>
 
 			<div :class="activeTab === '3' ? 'block' : 'hidden'">
-				<FormProjects />
+				<FormProjects/>
 			</div>
 		</div>
 	</div>

@@ -25,10 +25,10 @@ const state = reactive({
 										v-model="state.projects[index]!.name"
 										class="grow"
 										variant="soft"
-										placeholder="Project Name" />
+										placeholder="Project Name"/>
 								</FormTooltip>
 								<UFormField>
-									<UCheckbox v-model="state.projects[index]!.openSource" label="Open Source" />
+									<UCheckbox v-model="state.projects[index]!.openSource" label="Open Source"/>
 								</UFormField>
 							</div>
 							<FormTooltip text="URL">
@@ -36,7 +36,7 @@ const state = reactive({
 									v-model="state.projects[index]!.url!"
 									class="grow"
 									variant="soft"
-									placeholder="https://example.com/" />
+									placeholder="https://example.com/"/>
 							</FormTooltip>
 							<FormTooltip text="Repository">
 								<div class="flex gap-1">
@@ -45,12 +45,12 @@ const state = reactive({
 										git-platforms-only
 										placeholder="Repository Platform"
 										:icon="state.projects[index]!.repoLink!.icon?.icon"
-										single />
+										single/>
 									<UInput
 										v-model="state.projects[index]!.repoLink!.url!"
 										class="grow"
 										variant="soft"
-										placeholder="https://github.com/example/repo.git" />
+										placeholder="https://github.com/example/repo.git"/>
 								</div>
 							</FormTooltip>
 							<FormTooltip text="Description">
@@ -59,12 +59,13 @@ const state = reactive({
 									class="w-full"
 									variant="soft"
 									placeholder="Project Description"
-									autoresize />
+									autoresize/>
 							</FormTooltip>
 							<div class="grid grid-cols-[1fr_auto_auto] items-center gap-1">
-								<FormTechSelectMenu v-model="state.projects[index]!.technologies" class="grow" />
+								<FormTechSelectMenu v-model="state.projects[index]!.technologies" class="grow"/>
 								<UFormField>
-									<FormClearInputButton :fn="() => { state.projects[index]!.technologies = [] }" trailing label="Clear Technologies" />
+									<FormClearInputButton :fn="() => { state.projects[index]!.technologies = [] }"
+														  trailing label="Clear Technologies"/>
 								</UFormField>
 							</div>
 							<div
@@ -75,7 +76,7 @@ const state = reactive({
 									:key="tIndex"
 									class="text-(--ui-primary) m-1"
 									size="1.5rem"
-									:name="t.icon" />
+									:name="t.icon"/>
 							</div>
 						</div>
 					</FormCollapsible>
@@ -84,7 +85,7 @@ const state = reactive({
 						<FormModifyButtons
 							v-model="state.projects"
 							:index
-							:vertical="state.projects[index]!.collapsibleOpen ?? true" />
+							:vertical="state.projects[index]!.collapsibleOpen ?? true"/>
 					</div>
 				</div>
 			</div>

@@ -6,7 +6,9 @@ const state = reactive({
 
 const selectableInstitutions = computed(() => state.institutions
 	.filter((i) => i.name.length > 0)
-	.map((i) => { return { label: i.name, value: i.uuid } })
+	.map((i) => {
+		return {label: i.name, value: i.uuid}
+	})
 	.sort((a, b) => a.label.localeCompare(b.label))
 )
 
@@ -23,9 +25,9 @@ const computedCollapsableNames = computed(() => state.education
 	<UForm
 		:state="state"
 		class="flex flex-col gap-8 m-4">
-		<FormInstitutions />
+		<FormInstitutions/>
 
-		<USeparator icon="i-lucide-graduation-cap" />
+		<USeparator icon="i-lucide-graduation-cap"/>
 
 		<UFormField>
 			<div class="flex flex-col gap-8">
@@ -45,7 +47,7 @@ const computedCollapsableNames = computed(() => state.education
 										:items="selectableInstitutions"
 										class="grow"
 										variant="soft"
-										placeholder="Institution" />
+										placeholder="Institution"/>
 								</FormTooltip>
 
 								<FormTooltip text="Degree" right>
@@ -53,18 +55,18 @@ const computedCollapsableNames = computed(() => state.education
 										v-model="state.education[index]!.degree"
 										class="grow"
 										variant="soft"
-										placeholder="Bachelor of Science" />
+										placeholder="Bachelor of Science"/>
 								</FormTooltip>
 							</div>
 							<div class="flex items-center gap-1">
 								<label>from</label>
-								<FormDatePicker v-model="state.education[index]!.start" />
+								<FormDatePicker v-model="state.education[index]!.start"/>
 								<label>until</label>
-								<FormDatePicker v-model="state.education[index]!.end" />
+								<FormDatePicker v-model="state.education[index]!.end"/>
 								<UFormField>
 									<UCheckbox
 										v-model="state.education[index]!.active"
-										label="Active" />
+										label="Active"/>
 								</UFormField>
 							</div>
 							<FormTooltip text="Description">
@@ -73,7 +75,7 @@ const computedCollapsableNames = computed(() => state.education
 									class="w-full"
 									variant="soft"
 									placeholder="Graduated with honors..."
-									autoresize />
+									autoresize/>
 							</FormTooltip>
 						</div>
 					</FormCollapsible>
@@ -82,7 +84,7 @@ const computedCollapsableNames = computed(() => state.education
 						<FormModifyButtons
 							v-model="state.education"
 							:index
-							:vertical="state.education[index]!.collapsibleOpen ?? true" />
+							:vertical="state.education[index]!.collapsibleOpen ?? true"/>
 					</div>
 				</div>
 			</div>

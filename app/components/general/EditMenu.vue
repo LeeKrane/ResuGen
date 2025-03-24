@@ -7,7 +7,7 @@ const downloadZip = () => {
 	zip.file("resume-data.json", JSON.stringify(resumeData.data, null, 2))
 	if (resumeData.avatar)
 		zip.file("resume-avatar.webp", resumeData.avatar)
-	zip.generateAsync({ type: "blob" }).then((blob) => {
+	zip.generateAsync({type: "blob"}).then((blob) => {
 		const url = URL.createObjectURL(blob)
 		const a = document.createElement("a")
 		a.href = url
@@ -26,7 +26,7 @@ const downloadZip = () => {
 			icon="i-ri-ai-generate"
 			to="/resume"
 		/>
-		<GeneralResumeLoader />
+		<GeneralResumeLoader/>
 		<UButton
 			class="cursor-pointer"
 			label="Export"

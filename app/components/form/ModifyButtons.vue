@@ -1,6 +1,6 @@
 <script setup lang="ts">
 const model = defineModel<any[]>()
-const { index, vertical } = defineProps<{
+const {index, vertical} = defineProps<{
 	index: number
 	vertical?: boolean
 }>()
@@ -16,12 +16,12 @@ const { index, vertical } = defineProps<{
 			icon="i-lucide-chevron-up"
 			size="sm"
 			aria-label="move up"
-			@click="() => { model!.splice(index - 1, 2, model![index]!, model![index - 1]!) }" />
+			@click="() => { model!.splice(index - 1, 2, model![index]!, model![index - 1]!) }"/>
 		<FormClearInputButton
 			v-if="vertical"
 			:fn="() => { model!.splice(index, 1) }"
 			soft
-			error />
+			error/>
 		<UButton
 			class="cursor-pointer"
 			variant="soft"
@@ -30,12 +30,12 @@ const { index, vertical } = defineProps<{
 			icon="i-lucide-chevron-down"
 			size="sm"
 			aria-label="move down"
-			@click="() => { model!.splice(index, 2, model![index + 1]!, model![index]!) }" />
+			@click="() => { model!.splice(index, 2, model![index + 1]!, model![index]!) }"/>
 		<FormClearInputButton
 			v-if="!vertical"
 			:fn="() => { model!.splice(index, 1) }"
 			soft
-			error />
+			error/>
 	</UButtonGroup>
 </template>
 

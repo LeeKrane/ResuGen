@@ -2,9 +2,9 @@
 @import "@nuxt/ui";
 
 @theme {
-  --font-sans: 'Public Sans', sans-serif;
+    --font-sans: 'Public Sans', sans-serif;
 }
 
 html {
-  @apply motion-safe:scroll-smooth;
+    @apply motion-safe:scroll-smooth;
 }

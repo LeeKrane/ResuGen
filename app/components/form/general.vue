@@ -18,19 +18,19 @@ const state = reactive({
 const previewImage = useState<string | null>("previewImage", () => null)
 
 const iconItems = ref([
-	{ label: "Website", value: "website", icon: "i-lucide-globe" },
-	{ label: "GitHub", value: "github", icon: "i-simple-icons-github" },
-	{ label: "GitLab", value: "gitlab", icon: "i-simple-icons-gitlab" },
-	{ label: "LinkedIn", value: "linkedin", icon: "i-simple-icons-linkedin" },
-	{ label: "Xing", value: "xing", icon: "i-simple-icons-xing" },
-	{ label: "Stack Overflow", value: "stack-overflow", icon: "i-simple-icons-stackoverflow" },
-	{ label: "Discord", value: "discord", icon: "i-simple-icons-discord" },
-	{ label: "X", value: "x", icon: "i-simple-icons-x" },
-	{ label: "Instagram", value: "instagram", icon: "i-simple-icons-instagram" },
-	{ label: "Reddit", value: "reddit", icon: "i-simple-icons-reddit" },
-	{ label: "Facebook", value: "facebook", icon: "i-simple-icons-facebook" },
-	{ label: "YouTube", value: "youtube", icon: "i-simple-icons-youtube" },
-	{ label: "Twitch", value: "twitch", icon: "i-simple-icons-twitch" },
+	{label: "Website", value: "website", icon: "i-lucide-globe"},
+	{label: "GitHub", value: "github", icon: "i-simple-icons-github"},
+	{label: "GitLab", value: "gitlab", icon: "i-simple-icons-gitlab"},
+	{label: "LinkedIn", value: "linkedin", icon: "i-simple-icons-linkedin"},
+	{label: "Xing", value: "xing", icon: "i-simple-icons-xing"},
+	{label: "Stack Overflow", value: "stack-overflow", icon: "i-simple-icons-stackoverflow"},
+	{label: "Discord", value: "discord", icon: "i-simple-icons-discord"},
+	{label: "X", value: "x", icon: "i-simple-icons-x"},
+	{label: "Instagram", value: "instagram", icon: "i-simple-icons-instagram"},
+	{label: "Reddit", value: "reddit", icon: "i-simple-icons-reddit"},
+	{label: "Facebook", value: "facebook", icon: "i-simple-icons-facebook"},
+	{label: "YouTube", value: "youtube", icon: "i-simple-icons-youtube"},
+	{label: "Twitch", value: "twitch", icon: "i-simple-icons-twitch"},
 ].sort((a, b) => a.label.localeCompare(b.label)))
 
 const onFileChange = async (event: Event) => {
@@ -52,11 +52,11 @@ const onFileChange = async (event: Event) => {
 					variant="soft"
 					placeholder="Image"
 					icon="i-lucide-image"
-					@change="onFileChange" />
+					@change="onFileChange"/>
 				<NuxtImg
 					v-if="previewImage"
 					:src="previewImage"
-					class="w-32 h-32 rounded-lg" />
+					class="w-32 h-32 rounded-lg"/>
 			</div>
 		</UFormField>
 
@@ -66,7 +66,7 @@ const onFileChange = async (event: Event) => {
 				class="w-full"
 				variant="soft"
 				placeholder="MSc. John Doe"
-				icon="i-lucide-user" />
+				icon="i-lucide-user"/>
 		</UFormField>
 
 		<UFormField label="Subtitle">
@@ -75,7 +75,7 @@ const onFileChange = async (event: Event) => {
 				class="w-full"
 				variant="soft"
 				placeholder="Software Engineer"
-				icon="i-lucide-message-square-text" />
+				icon="i-lucide-message-square-text"/>
 		</UFormField>
 
 		<UFormField label="Email">
@@ -84,7 +84,7 @@ const onFileChange = async (event: Event) => {
 				class="w-full"
 				variant="soft"
 				placeholder="john.doe@example.com"
-				icon="i-lucide-at-sign" />
+				icon="i-lucide-at-sign"/>
 		</UFormField>
 
 		<UFormField label="Phone">
@@ -93,7 +93,7 @@ const onFileChange = async (event: Event) => {
 				class="w-full"
 				variant="soft"
 				placeholder="+43 123 456 789"
-				icon="i-lucide-phone" />
+				icon="i-lucide-phone"/>
 		</UFormField>
 
 		<UFormField label="Address">
@@ -102,7 +102,7 @@ const onFileChange = async (event: Event) => {
 				class="w-full"
 				variant="soft"
 				placeholder="123 Main Street, City, Country"
-				icon="i-lucide-map-pin" />
+				icon="i-lucide-map-pin"/>
 		</UFormField>
 
 		<UFormField label="Professional Summary">
@@ -112,7 +112,7 @@ const onFileChange = async (event: Event) => {
 				variant="soft"
 				placeholder="Experienced software engineer..."
 				icon="i-lucide-user"
-				autoresize />
+				autoresize/>
 		</UFormField>
 
 		<UFormField label="Hobbies">
@@ -125,10 +125,10 @@ const onFileChange = async (event: Event) => {
 					class="w-full"
 					variant="soft"
 					icon="i-lucide-volleyball"
-					placeholder="Volleyball" />
+					placeholder="Volleyball"/>
 				<FormModifyButtons
 					v-model="state.hobbies"
-					:index="index" />
+					:index="index"/>
 			</div>
 
 			<FormAddButton
@@ -148,16 +148,16 @@ const onFileChange = async (event: Event) => {
 					icon="i-lucide-languages"
 					variant="soft"
 					placeholder="English"
-					class="flex-1" />
+					class="flex-1"/>
 				<USelect
 					v-if="state.languages[index]"
 					v-model="state.languages[index].level"
 					placeholder="Level"
 					variant="soft"
-					:items="['A1', 'A2', 'B1', 'B2', 'C1', 'C2', 'Native']" />
+					:items="['A1', 'A2', 'B1', 'B2', 'C1', 'C2', 'Native']"/>
 				<FormModifyButtons
 					v-model="state.languages"
-					:index="index" />
+					:index="index"/>
 			</div>
 
 			<FormAddButton
@@ -178,17 +178,17 @@ const onFileChange = async (event: Event) => {
 						icon="i-lucide-folder"
 						variant="soft"
 						placeholder="Programming Languages"
-						class="flex-1" />
+						class="flex-1"/>
 					<FormModifyButtons
 						v-model="state.skillCategories"
-						:index="index" />
+						:index="index"/>
 				</div>
 
 				<div class="grid grid-cols-[auto_1fr] gap-x-1 mx-5">
 					<USeparator
 						v-if="state.skillCategories[index] && state.skillCategories[index].skills.length > 0"
 						orientation="vertical"
-						class="h-[calc(100%-1.25rem)] mr-4" />
+						class="h-[calc(100%-1.25rem)] mr-4"/>
 
 					<div
 						v-if="state.skillCategories[index] && state.skillCategories[index].skills.length > 0"
@@ -197,23 +197,23 @@ const onFileChange = async (event: Event) => {
 							v-for="(_s, skillIndex) in state.skillCategories[index].skills"
 							:key="skillIndex"
 							class="flex items-center gap-1">
-							<USeparator class="w-4 -ml-5" />
+							<USeparator class="w-4 -ml-5"/>
 							<UInput
 								v-if="state.skillCategories[index].skills[skillIndex]"
 								v-model="state.skillCategories[index].skills[skillIndex].name"
 								variant="soft"
 								placeholder="TypeScript"
-								class="flex-1" />
+								class="flex-1"/>
 							<USelect
 								v-if="state.skillCategories[index].skills[skillIndex]"
 								v-model="state.skillCategories[index].skills[skillIndex].level"
 								placeholder="Level"
 								class="min-w-24"
 								variant="soft"
-								:items="['Basic', 'Decent', 'Good', 'Proficient', 'Expert']" />
+								:items="['Basic', 'Decent', 'Good', 'Proficient', 'Expert']"/>
 							<FormModifyButtons
 								v-model="state.skillCategories[index].skills"
-								:index="skillIndex" />
+								:index="skillIndex"/>
 						</div>
 					</div>
 
@@ -244,23 +244,23 @@ const onFileChange = async (event: Event) => {
 					placeholder="Choose Website"
 					variant="soft"
 					:icon="state.links[index].icon ? state.links[index].icon.icon : undefined"
-					:items="iconItems" />
+					:items="iconItems"/>
 				<UInput
 					v-if="state.links[index] && state.links[index].icon && state.links[index].icon.label === 'Website'"
 					v-model="state.links[index].name"
 					variant="soft"
 					placeholder="Krane's Resume Generator"
-					class="grow" />
+					class="grow"/>
 				<UInput
 					v-if="state.links[index]"
 					v-model="state.links[index].url!"
 					icon="i-lucide-link"
 					variant="soft"
 					placeholder="https://resume.krane.dev/"
-					class="grow" />
+					class="grow"/>
 				<FormModifyButtons
 					v-model="state.links"
-					:index="index" />
+					:index="index"/>
 			</div>
 
 			<FormAddButton

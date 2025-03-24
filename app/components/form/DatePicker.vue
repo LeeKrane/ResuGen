@@ -35,14 +35,14 @@ watch(calendarDate, (newVal) => {
 				v-if="model"
 				:fn="() => { model = undefined }"
 				soft
-				error />
+				error/>
 		</UButtonGroup>
 
 		<template #content>
 			<UCalendar
 				v-model="calendarDate"
 				class="grow"
-				variant="soft" />
+				variant="soft"/>
 		</template>
 	</UPopover>
 </template>

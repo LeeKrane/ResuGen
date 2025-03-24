@@ -1,5 +1,5 @@
 <script setup lang="ts">
-const { text, right } = defineProps<{
+const {text, right} = defineProps<{
 	text: string
 	right?: boolean
 }>()
@@ -7,7 +7,7 @@ const { text, right } = defineProps<{
 
 <template>
 	<UTooltip :text :delay-duration="0" :content="{ side: right ? 'right' : 'left' }" arrow>
-		<slot />
+		<slot/>
 	</UTooltip>
 </template>
 

@@ -6,7 +6,9 @@ const state = reactive({
 
 const selectableInstitutions = computed(() => state.institutions
 	.filter((i) => i.name.length > 0)
-	.map((i) => { return { label: i.name, value: i.uuid } })
+	.map((i) => {
+		return {label: i.name, value: i.uuid}
+	})
 	.sort((a, b) => a.label.localeCompare(b.label))
 )
 
@@ -23,9 +25,9 @@ const computedCollapsableNames = computed(() => state.experience
 	<UForm
 		:state="state"
 		class="flex flex-col gap-8 m-4">
-		<FormInstitutions />
+		<FormInstitutions/>
 
-		<USeparator icon="i-lucide-briefcase" />
+		<USeparator icon="i-lucide-briefcase"/>
 
 		<UFormField>
 			<div class="flex flex-col gap-8">
@@ -45,7 +47,7 @@ const computedCollapsableNames = computed(() => state.experience
 										:items="selectableInstitutions"
 										class="grow"
 										variant="soft"
-										placeholder="Institution" />
+										placeholder="Institution"/>
 								</FormTooltip>
 
 								<FormTooltip text="Position" right>
@@ -53,18 +55,18 @@ const computedCollapsableNames = computed(() => state.experience
 										v-model="state.experience[index]!.position"
 										class="grow"
 										variant="soft"
-										placeholder="Software Engineer" />
+										placeholder="Software Engineer"/>
 								</FormTooltip>
 							</div>
 							<div class="flex items-center gap-1">
 								<label>from</label>
-								<FormDatePicker v-model="state.experience[index]!.start" />
+								<FormDatePicker v-model="state.experience[index]!.start"/>
 								<label>until</label>
-								<FormDatePicker v-model="state.experience[index]!.end" />
+								<FormDatePicker v-model="state.experience[index]!.end"/>
 								<UFormField>
 									<UCheckbox
 										v-model="state.experience[index]!.active"
-										label="Active" />
+										label="Active"/>
 								</UFormField>
 							</div>
 							<FormTooltip text="Description">
@@ -73,15 +75,16 @@ const computedCollapsableNames = computed(() => state.experience
 									class="w-full"
 									variant="soft"
 									placeholder="Developed a web application..."
-									autoresize />
+									autoresize/>
 							</FormTooltip>
 							<div class="grid grid-cols-[1fr_auto_auto] items-center gap-1">
-								<FormTechSelectMenu v-model="state.experience[index]!.technologies" class="grow" />
+								<FormTechSelectMenu v-model="state.experience[index]!.technologies" class="grow"/>
 								<UFormField>
-									<FormClearInputButton :fn="() => { state.experience[index]!.technologies = [] }" trailing label="Clear Technologies" />
+									<FormClearInputButton :fn="() => { state.experience[index]!.technologies = [] }"
+														  trailing label="Clear Technologies"/>
 								</UFormField>
 								<UFormField>
-									<UCheckbox v-model="state.experience[index]!.internship" label="Internship" />
+									<UCheckbox v-model="state.experience[index]!.internship" label="Internship"/>
 								</UFormField>
 							</div>
 							<div
@@ -92,7 +95,7 @@ const computedCollapsableNames = computed(() => state.experience
 									:key="tIndex"
 									class="text-(--ui-primary) m-1"
 									size="1.5rem"
-									:name="t.icon" />
+									:name="t.icon"/>
 							</div>
 						</div>
 					</FormCollapsible>
@@ -101,7 +104,7 @@ const computedCollapsableNames = computed(() => state.experience
 						<FormModifyButtons
 							v-model="state.experience"
 							:index
-							:vertical="state.experience[index]!.collapsibleOpen ?? true" />
+							:vertical="state.experience[index]!.collapsibleOpen ?? true"/>
 					</div>
 				</div>
 			</div>

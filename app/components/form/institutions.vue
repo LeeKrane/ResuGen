@@ -17,18 +17,18 @@ const state = reactive({
 					v-model="state.institutions[index]!.name"
 					class="w-full"
 					variant="soft"
-					placeholder="Harvard University" />
+					placeholder="Harvard University"/>
 			</FormTooltip>
 			<FormTooltip text="URL" right>
 				<UInput
 					v-model="state.institutions[index]!.url!"
 					class="w-full"
 					variant="soft"
-					placeholder="https://example.com/" />
+					placeholder="https://example.com/"/>
 			</FormTooltip>
 			<FormModifyButtons
 				v-model="state.institutions"
-				:index />
+				:index/>
 		</div>
 
 		<FormAddButton
