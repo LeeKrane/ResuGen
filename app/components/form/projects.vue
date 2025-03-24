@@ -40,7 +40,12 @@ const state = reactive({
 							</FormTooltip>
 							<FormTooltip text="Repository">
 								<div class="flex gap-1">
-									<FormTechSelectMenu git-platforms-only placeholder="Repository Platform" single />
+									<FormTechSelectMenu
+										v-model="state.projects[index]!.repoLink!.icon"
+										git-platforms-only
+										placeholder="Repository Platform"
+										:icon="state.projects[index]!.repoLink!.icon?.icon"
+										single />
 									<UInput
 										v-model="state.projects[index]!.repoLink!.url!"
 										class="grow"
