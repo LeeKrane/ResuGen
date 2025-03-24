@@ -8,6 +8,7 @@ const handleScroll = () => {
 	hoveringMenuVisible.value = y.value > 600
 }
 
+const activeTab = ref("0")
 const tabItems = [
 	{
 		label: "General",
@@ -104,25 +105,27 @@ onUnmounted(() => {
 			/>
 		</div>
 
-		<div id="forms" class="grid grid-cols-1 mx-auto gap-8 px-16 mt-32 mb-48 w-[clamp(28rem,80vw,56rem)] min-h-[75vh]">
-			<div class="w-full sticky top-16 z-40 bg-(--ui-bg)">
+		<div id="forms" class="flex flex-col mx-auto gap-8 px-16 pb-48 w-[clamp(28rem,80vw,56rem)] min-h-[calc(100vh-16rem)]">
+			<div class="sticky w-full top-16 pt-4 bg-(--ui-bg) z-40 h-fit">
 				<UTabs
-					:unmount-on-hide="false"
-					:items="tabItems"
-					class="mt-4">
-					<template #general>
-						<FormGeneral />
-					</template>
-					<template #education>
-						<FormEducation />
-					</template>
-					<template #experience>
-						<FormExperience />
-					</template>
-					<template #projects>
-						<FormProjects />
-					</template>
-				</UTabs>
+					v-model="activeTab"
+					:items="tabItems" />
+			</div>
+
+			<div :class="activeTab === '0' ? 'block' : 'hidden'">
+				<FormGeneral />
+			</div>
+
+			<div :class="activeTab === '1' ? 'block' : 'hidden'">
+				<FormEducation />
+			</div>
+
+			<div :class="activeTab === '2' ? 'block' : 'hidden'">
+				<FormExperience />
+			</div>
+
+			<div :class="activeTab === '3' ? 'block' : 'hidden'">
+				<FormProjects />
 			</div>
 		</div>
 	</div>
