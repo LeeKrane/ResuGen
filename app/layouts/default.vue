@@ -2,7 +2,6 @@
 const sideNavOpen = ref(false)
 
 useRouter().beforeEach(() => {
-	console.log("AAAA")
 	sideNavOpen.value = false
 })
 
@@ -148,8 +147,12 @@ const completionPercentage = computed(() => {
 						<div class="flex gap-3 max-w-[60vw] mx-auto">
 							<NuxtImg src="/logo.webp" class="w-16 h-16"/>
 							<div class="flex flex-col gap-1">
-								<p class="text-sm text-gray-600">Modern resume generator focused on simplicity and professional design. Built with Nuxt and NuxtUI.</p>
-								<p class="text-sm text-gray-500">Made with <UIcon name="i-material-symbols-favorite-rounded" class="text-red-500"/> by Krane Development</p>
+								<p class="text-sm text-gray-600">Modern resume generator focused on simplicity and
+									professional design. Built with Nuxt and NuxtUI.</p>
+								<p class="text-sm text-gray-500">Made with
+									<UIcon name="i-material-symbols-favorite-rounded" class="text-red-500"/>
+									by Krane Development
+								</p>
 							</div>
 						</div>
 					</div>
@@ -201,7 +204,7 @@ const completionPercentage = computed(() => {
 						</div>
 					</div>
 				</div>
-				
+
 				<div class="flex flex-col items-center gap-2 border-t border-(--ui-border) pt-4">
 					<GeneralCopyrightNotice class="text-sm text-gray-500"/>
 					<p class="text-xs text-gray-400">Built with Nuxt and NuxtUI</p>
