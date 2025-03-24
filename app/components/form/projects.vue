@@ -56,7 +56,7 @@ const state = reactive({
 									placeholder="Project Description"
 									autoresize />
 							</FormTooltip>
-							<div class="flex items-center gap-1">
+							<div class="grid grid-cols-[1fr_auto_auto] items-center gap-1">
 								<FormTechSelectMenu v-model="state.projects[index]!.technologies" class="grow" />
 								<UFormField>
 									<FormClearInputButton :fn="() => { state.projects[index]!.technologies = [] }" trailing label="Clear Technologies" />

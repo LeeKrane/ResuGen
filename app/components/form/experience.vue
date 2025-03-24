@@ -75,7 +75,7 @@ const computedCollapsableNames = computed(() => state.experience
 									placeholder="Developed a web application..."
 									autoresize />
 							</FormTooltip>
-							<div class="flex items-center gap-1">
+							<div class="grid grid-cols-[1fr_auto_auto] items-center gap-1">
 								<FormTechSelectMenu v-model="state.experience[index]!.technologies" class="grow" />
 								<UFormField>
 									<FormClearInputButton :fn="() => { state.experience[index]!.technologies = [] }" trailing label="Clear Technologies" />
