@@ -30,9 +30,9 @@ const computedCollapsableNames = computed(() => state.education
 		<UFormField>
 			<div class="flex flex-col gap-8">
 				<div
-					class="flex items-center grow gap-1"
 					v-for="(_, index) in state.education"
-					:key="index">
+					:key="index"
+					class="flex items-center grow gap-1">
 					<FormCollapsible
 						v-model:open="state.education[index]!.collapsibleOpen"
 						:label="computedCollapsableNames[index] || 'New Education'"
@@ -41,8 +41,8 @@ const computedCollapsableNames = computed(() => state.education
 							<div class="flex gap-1">
 								<FormTooltip text="Institution">
 									<USelect
-										:items="selectableInstitutions"
 										v-model="state.education[index]!.institution"
+										:items="selectableInstitutions"
 										class="grow"
 										variant="soft"
 										placeholder="Institution" />
