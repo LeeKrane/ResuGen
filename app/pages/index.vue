@@ -20,7 +20,7 @@
 				icon="i-lucide-square-pen"
 				size="xl"
 			/>
-			
+
 			<div class="flex items-center gap-3 text-sm">
 				<UButton
 					label="View Demo"
@@ -29,9 +29,9 @@
 					icon="i-lucide-presentation"
 					to="/demo"
 				/>
-				
+
 				<div class="h-4 w-px bg-gray-200"/>
-				
+
 				<UButton
 					label="Source"
 					color="neutral"
@@ -50,13 +50,13 @@
 					<h3 class="font-medium">Easy to Use</h3>
 					<p class="text-sm text-gray-500">Intuitive form-based editor</p>
 				</div>
-				
+
 				<div class="flex flex-col items-center gap-2">
 					<UIcon name="i-lucide-palette" class="text-2xl text-(--ui-primary)"/>
 					<h3 class="font-medium">Customizable</h3>
 					<p class="text-sm text-gray-500">Personalize colors and layout</p>
 				</div>
-				
+
 				<div class="flex flex-col items-center gap-2">
 					<UIcon name="i-lucide-download" class="text-2xl text-(--ui-primary)"/>
 					<h3 class="font-medium">Export Ready</h3>
