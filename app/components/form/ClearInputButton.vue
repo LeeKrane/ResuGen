@@ -9,7 +9,7 @@ const { fn, soft, error } = defineProps<{
 <template>
 	<UButton
 		:color="error ? 'error' : 'neutral'"
-		class="hover:text-(--ui-error)"
+		class="hover:text-(--ui-error) cursor-pointer"
 		:variant="soft ? 'soft' : 'link'"
 		size="sm"
 		icon="i-lucide-trash-2"

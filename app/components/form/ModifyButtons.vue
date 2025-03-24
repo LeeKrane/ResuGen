@@ -9,6 +9,7 @@ const { index, vertical } = defineProps<{
 <template>
 	<UButtonGroup :orientation="vertical ? 'vertical' : 'horizontal' ">
 		<UButton
+			class="cursor-pointer"
 			variant="soft"
 			color="neutral"
 			:disabled="index === 0"
@@ -22,6 +23,7 @@ const { index, vertical } = defineProps<{
 			soft
 			error />
 		<UButton
+			class="cursor-pointer"
 			variant="soft"
 			color="neutral"
 			:disabled="index === model?.length! - 1"
