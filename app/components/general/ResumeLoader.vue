@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import JSZip from "jszip"
+import {useRefreshAvatar} from "~/composables/refreshAvatar";
 
 const open = ref(false)
 const state = useRefResumeData()
@@ -55,7 +56,7 @@ async function onFileChange(event) {
 		state.projects.value = resumeData.projects
 
 		if (avatarBlob) {
-			state.avatar.value = new File([avatarBlob], "avatar.webp", { type: "image/webp" })
+			useRefreshAvatar(new File([avatarBlob], "avatar.webp", { type: "image/webp" }))
 		}
 	} catch (error) {
 		errorMessage.value = 'Error reading the zip file: ' + error.message;

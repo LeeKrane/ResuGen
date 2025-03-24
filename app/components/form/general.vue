@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import {useRefreshAvatar} from "~/composables/refreshAvatar";
+
 const state = reactive({
 	name: useRefResumeData().name,
 	subtitle: useRefResumeData().subtitle,
@@ -13,7 +15,7 @@ const state = reactive({
 	avatar: useRefResumeData().avatar,
 })
 
-const previewImage = ref<string | null>(null)
+const previewImage = useState<string | null>("previewImage", () => null)
 
 const iconItems = ref([
 	{ label: "Website", value: "website", icon: "i-lucide-globe" },
@@ -33,38 +35,7 @@ const iconItems = ref([
 
 const onFileChange = async (event: Event) => {
 	const file = (event.target as HTMLInputElement).files?.[0]
-
-	if (file) {
-		const reader = new FileReader()
-
-		reader.onload = () => {
-			const img = new Image()
-			img.onload = () => {
-				const canvas = document.createElement("canvas")
-				const ctx = canvas.getContext("2d")
-
-				canvas.width = Math.min(1024, img.width)
-				canvas.height = Math.min(1024, img.height)
-				ctx?.drawImage(img, 0, 0, canvas.width, canvas.height)
-				previewImage.value = canvas.toDataURL("image/webp", 0.7)
-
-				canvas.toBlob((blob) => {
-					if (blob) {
-						state.avatar = new File([blob], "avatar.webp", {
-							type: "image/webp"
-						})
-					}
-				}, "image/webp", 0.7)
-			}
-
-			img.src = reader.result as string
-		}
-
-		reader.readAsDataURL(file)
-	} else {
-		previewImage.value = null
-		state.avatar = null
-	}
+	useRefreshAvatar(file ?? null)
 }
 </script>
 
