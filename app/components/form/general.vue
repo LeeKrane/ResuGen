@@ -66,41 +66,6 @@ const onFileChange = async (event: Event) => {
 		state.avatar = null
 	}
 }
-
-watch(state.hobbies, (newVal) => {
-	if (newVal.length === 0 || newVal[newVal.length - 1] !== "")
-		state.hobbies.push("")
-	else if (newVal.length > 1 && newVal[newVal.length - 2] === "")
-		state.hobbies.pop()
-})
-
-watch(state.languages, (newVal) => {
-	if (newVal.length === 0 || newVal[newVal.length - 1]?.name !== "")
-		state.languages.push({ name: "" })
-	else if (newVal.length > 1 && newVal[newVal.length - 2]?.name === "")
-		state.languages.pop()
-})
-
-watch(state.skillCategories, (newVal) => {
-	if (newVal.length === 0 || newVal[newVal.length - 1]?.name !== "")
-		state.skillCategories.push({ name: "", skills: [ { name: "" } ] })
-	else if (newVal.length > 1 && newVal[newVal.length - 2]?.name === "")
-		state.skillCategories.pop()
-
-	for (const category of newVal) {
-		if (category.skills.length === 0 || category.skills[category.skills.length - 1]?.name !== "")
-			category.skills.push({ name: "" })
-		else if (category.skills.length > 1 && category.skills[category.skills.length - 2]?.name === "")
-			category.skills.pop()
-	}
-})
-
-watch(state.links, (newVal) => {
-	if (newVal.length === 0 || newVal[newVal.length - 1]?.url !== "")
-		state.links.push({ name: "", url: "" })
-	else if (newVal.length > 1 && newVal[newVal.length - 2]?.url === "")
-		state.links.pop()
-})
 </script>
 
 <template>
@@ -183,17 +148,24 @@ watch(state.links, (newVal) => {
 			<div
 				v-for="(_, index) in state.hobbies"
 				:key="index"
-				class="flex flex-col my-1">
+				class="flex gap-1 my-1">
 				<UInput
 					v-model="state.hobbies[index]"
 					class="w-full"
 					variant="soft"
 					icon="i-lucide-volleyball"
-					placeholder="Volleyball">
-					<template v-if="state.hobbies[index] && state.hobbies[index].length > 0" #trailing>
-						<FormClearInputButton :fn="() => { state.hobbies.splice(index, 1) }" />
-					</template>
-				</UInput>
+					placeholder="Volleyball" />
+				<FormModifyButtons
+					v-model="state.hobbies"
+					:index="index" />
+			</div>
+
+			<div class="flex">
+				<UButton
+					label="Add Hobby"
+					variant="soft"
+					class="mx-auto"
+					@click="() => { state.hobbies.push('') }" />
 			</div>
 		</UFormField>
 
@@ -215,9 +187,17 @@ watch(state.links, (newVal) => {
 					placeholder="Level"
 					variant="soft"
 					:items="['A1', 'A2', 'B1', 'B2', 'C1', 'C2', 'Native']" />
-				<FormClearInputButton
-					:class="state.languages[index] && state.languages[index].name && state.languages[index].name.length > 0 ? '' : 'invisible'"
-					:fn="() => { state.languages.splice(index, 1) }" />
+				<FormModifyButtons
+					v-model="state.languages"
+					:index="index" />
+			</div>
+
+			<div class="flex">
+				<UButton
+					label="Add Language"
+					variant="soft"
+					class="mx-auto"
+					@click="() => { state.languages.push({ name: '' }) }" />
 			</div>
 		</UFormField>
 
@@ -234,34 +214,60 @@ watch(state.links, (newVal) => {
 						variant="soft"
 						placeholder="Programming Languages"
 						class="flex-1" />
-					<FormClearInputButton
-						:class="state.skillCategories[index] && state.skillCategories[index].name && state.skillCategories[index].name.length > 0 ? '' : 'invisible'"
-						:fn="() => { state.skillCategories.splice(index, 1) }" />
+					<FormModifyButtons
+						v-model="state.skillCategories"
+						:index="index" />
 				</div>
 
-				<div
-					v-for="(_s, skillIndex) in state.skillCategories[index].skills"
-					v-if="state.skillCategories[index]"
-					:key="skillIndex"
-					class="flex items-center gap-1">
-					<UIcon name="i-lucide-minus" size="12" />
-					<UInput
-						v-if="state.skillCategories[index].skills[skillIndex]"
-						v-model="state.skillCategories[index].skills[skillIndex].name"
-						variant="soft"
-						placeholder="TypeScript"
-						class="flex-1" />
-					<USelect
-						v-if="state.skillCategories[index].skills[skillIndex]"
-						v-model="state.skillCategories[index].skills[skillIndex].level"
-						placeholder="Level"
-						class="min-w-24"
-						variant="soft"
-						:items="['Basic', 'Decent', 'Good', 'Proficient', 'Expert']" />
-					<FormClearInputButton
-						:class="state.skillCategories[index].skills[skillIndex] && state.skillCategories[index].skills[skillIndex].name && state.skillCategories[index].skills[skillIndex].name.length > 0 ? '' : 'invisible'"
-						:fn="() => { state.skillCategories![index!]!.skills.splice(skillIndex, 1) }" />
+				<div class="grid grid-cols-[auto_1fr] gap-x-1 mx-5">
+					<USeparator
+						v-if="state.skillCategories[index] && state.skillCategories[index].skills.length > 0"
+						orientation="vertical"
+						class="h-[calc(100%-1.25rem)] mr-4" />
+
+					<div
+						v-if="state.skillCategories[index] && state.skillCategories[index].skills.length > 0"
+						class="flex flex-col gap-1 mb-1">
+						<div
+							v-for="(_s, skillIndex) in state.skillCategories[index].skills"
+							:key="skillIndex"
+							class="flex items-center gap-1">
+							<USeparator class="w-4 -ml-5" />
+							<UInput
+								v-if="state.skillCategories[index].skills[skillIndex]"
+								v-model="state.skillCategories[index].skills[skillIndex].name"
+								variant="soft"
+								placeholder="TypeScript"
+								class="flex-1" />
+							<USelect
+								v-if="state.skillCategories[index].skills[skillIndex]"
+								v-model="state.skillCategories[index].skills[skillIndex].level"
+								placeholder="Level"
+								class="min-w-24"
+								variant="soft"
+								:items="['Basic', 'Decent', 'Good', 'Proficient', 'Expert']" />
+							<FormModifyButtons
+								v-model="state.skillCategories[index].skills"
+								:index="skillIndex" />
+						</div>
+					</div>
+
+					<div class="flex col-span-2">
+						<UButton
+							label="Add Skill"
+							variant="soft"
+							class="mx-auto"
+							@click="() => { state.skillCategories[index]!.skills.push({ name: '' }) }" />
+					</div>
 				</div>
+			</div>
+
+			<div class="flex -mt-6">
+				<UButton
+					label="Add Skill Category"
+					variant="soft"
+					class="mx-auto"
+					@click="() => { state.skillCategories.push({ name: '', skills: [] }) }" />
 			</div>
 		</UFormField>
 
@@ -291,9 +297,17 @@ watch(state.links, (newVal) => {
 					variant="soft"
 					placeholder="https://resume.krane.dev/"
 					class="grow" />
-				<FormClearInputButton
-					:class="state.links[index] && (state.links[index].icon || state.links[index].url!.length > 0) ? '' : 'invisible'"
-					:fn="() => { state.links.splice(index, 1) }" />
+				<FormModifyButtons
+					v-model="state.links"
+					:index="index" />
+			</div>
+
+			<div class="flex">
+				<UButton
+					label="Add Link"
+					variant="soft"
+					class="mx-auto"
+					@click="() => { state.links.push({ name: '', url: '' }) }" />
 			</div>
 		</UFormField>
 	</UForm>
