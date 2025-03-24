@@ -16,6 +16,7 @@ interface SkillCategory {
 interface Icon {
 	label: string
 	value: string
+	icon?: string
 }
 
 interface Link {
@@ -35,10 +36,16 @@ interface Institution {
 	url?: string,
 }
 
+interface EmploymentDate {
+	year?: number,
+	month?: number,
+	day?: number
+}
+
 interface Employment {
 	institution?: Institution,
-	start?: Date,
-	end?: Date,
+	start?: EmploymentDate,
+	end?: EmploymentDate,
 	text: string,
 	active?: boolean
 	collapsibleOpen?: boolean

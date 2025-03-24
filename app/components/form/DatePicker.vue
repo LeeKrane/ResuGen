@@ -1,5 +1,20 @@
 <script setup lang="ts">
-const model = defineModel<Date | undefined>()
+import {CalendarDate, DateFormatter, getLocalTimeZone} from "@internationalized/date"
+
+const model = defineModel<EmploymentDate | undefined>()
+const calendarDate = ref<CalendarDate | null>(
+	model.value
+		? new CalendarDate(model.value.year ?? 0, model.value.month ?? 0, model.value.day ?? 0)
+		: null
+)
+
+watch(calendarDate, (newVal) => {
+	model.value = {
+		year: newVal?.year ?? undefined,
+		month: newVal?.month ?? undefined,
+		day: newVal?.day ?? undefined,
+	}
+})
 </script>
 
 <template>
@@ -10,7 +25,10 @@ const model = defineModel<Date | undefined>()
 				color="neutral"
 				class="grow"
 				icon="i-lucide-calendar"
-				:label="model ? model : 'Select Date'">
+				:label="model
+					? new DateFormatter('de-AT', { dateStyle: 'medium' })
+						.format(new Date(model.year!, model.month! - 1, model.day!))
+					: 'Select a date'">
 			</UButton>
 
 			<FormClearInputButton
@@ -22,7 +40,7 @@ const model = defineModel<Date | undefined>()
 
 		<template #content>
 			<UCalendar
-				v-model="model"
+				v-model="calendarDate"
 				class="grow"
 				variant="soft" />
 		</template>
