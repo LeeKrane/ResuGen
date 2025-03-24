@@ -30,13 +30,11 @@ const state = reactive({
 				v-model="state.institutions"
 				:index />
 		</div>
-		<div class="w-full flex">
-			<UButton
-				label="Add Institution"
-				variant="soft"
-				class="mx-auto"
-				@click="() => { state.institutions.push({ uuid: v7(), name: '' }) }" />
-		</div>
+
+		<FormAddButton
+			v-model="state.institutions"
+			label="Add Institution"
+			:default-value-getter="() =>{  return ({ uuid: v7(), name: '' }) }"/>
 	</FormCollapsible>
 </template>
 

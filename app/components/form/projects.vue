@@ -82,13 +82,11 @@ const state = reactive({
 				</div>
 			</div>
 
-			<div class="flex">
-				<UButton
-					label="Add Project"
-					variant="soft"
-					class="mt-2 mx-auto"
-					@click="() => { state.projects.push({ name: '', description: '', url: '', repoLink: { name: '', url: '' }, technologies: [] }) }" />
-			</div>
+			<FormAddButton
+				v-model="state.projects"
+				class="mt-1"
+				label="Add Project"
+				:default-value-getter="() =>{  return ({ name: '', description: '', url: '', repoLink: { name: '', url: '' }, technologies: [] }) }"/>
 		</UFormField>
 	</UForm>
 </template>

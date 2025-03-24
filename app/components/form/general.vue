@@ -160,13 +160,10 @@ const onFileChange = async (event: Event) => {
 					:index="index" />
 			</div>
 
-			<div class="flex">
-				<UButton
-					label="Add Hobby"
-					variant="soft"
-					class="mx-auto"
-					@click="() => { state.hobbies.push('') }" />
-			</div>
+			<FormAddButton
+				v-model="state.hobbies"
+				label="Add Hobby"
+				:default-value-getter="() =>{  return ('') }"/>
 		</UFormField>
 
 		<UFormField label="Languages">
@@ -192,13 +189,10 @@ const onFileChange = async (event: Event) => {
 					:index="index" />
 			</div>
 
-			<div class="flex">
-				<UButton
-					label="Add Language"
-					variant="soft"
-					class="mx-auto"
-					@click="() => { state.languages.push({ name: '' }) }" />
-			</div>
+			<FormAddButton
+				v-model="state.languages"
+				label="Add Language"
+				:default-value-getter="() =>{  return ({ name: '' }) }"/>
 		</UFormField>
 
 		<UFormField label="Skills">
@@ -252,23 +246,19 @@ const onFileChange = async (event: Event) => {
 						</div>
 					</div>
 
-					<div class="flex col-span-2">
-						<UButton
-							label="Add Skill"
-							variant="soft"
-							class="mx-auto"
-							@click="() => { state.skillCategories[index]!.skills.push({ name: '' }) }" />
-					</div>
+					<FormAddButton
+						v-model="state.skillCategories[index]!.skills"
+						class="col-span-2"
+						label="Add Skill"
+						:default-value-getter="() =>{  return ({ name: '' }) }"/>
 				</div>
 			</div>
 
-			<div class="flex -mt-6">
-				<UButton
-					label="Add Skill Category"
-					variant="soft"
-					class="mx-auto"
-					@click="() => { state.skillCategories.push({ name: '', skills: [] }) }" />
-			</div>
+			<FormAddButton
+				v-model="state.skillCategories"
+				class="-mt-6"
+				label="Add Skill Category"
+				:default-value-getter="() =>{  return ({ name: '', skills: [] }) }"/>
 		</UFormField>
 
 		<UFormField label="Links">
@@ -302,13 +292,10 @@ const onFileChange = async (event: Event) => {
 					:index="index" />
 			</div>
 
-			<div class="flex">
-				<UButton
-					label="Add Link"
-					variant="soft"
-					class="mx-auto"
-					@click="() => { state.links.push({ name: '', url: '' }) }" />
-			</div>
+			<FormAddButton
+				v-model="state.links"
+				label="Add Link"
+				:default-value-getter="() =>{  return ({ name: '', url: '' }) }"/>
 		</UFormField>
 	</UForm>
 </template>

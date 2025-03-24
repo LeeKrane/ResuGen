@@ -87,13 +87,11 @@ const computedCollapsableNames = computed(() => state.education
 				</div>
 			</div>
 
-			<div class="flex">
-				<UButton
-					label="Add Education"
-					variant="soft"
-					class="mt-1 mx-auto"
-					@click="() => { state.education.push({ degree: '', text: '', collapsibleOpen: true }) }" />
-			</div>
+			<FormAddButton
+				v-model="state.education"
+				class="mt-1"
+				label="Add Education"
+				:default-value-getter="() =>{  return ({ degree: '', text: '', collapsibleOpen: true }) }"/>
 		</UFormField>
 	</UForm>
 </template>
