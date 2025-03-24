@@ -90,6 +90,8 @@ const computedCollapsableNames = computed(() => state.experience
 								<UIcon
 									v-for="(t, tIndex) in state.experience[index]!.technologies"
 									:key="tIndex"
+									class="text-(--ui-primary) m-1"
+									size="1.5rem"
 									:name="t.icon" />
 							</div>
 						</div>
