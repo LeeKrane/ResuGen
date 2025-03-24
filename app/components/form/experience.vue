@@ -45,17 +45,9 @@ const selectableInstitutions = computed(() => state.institutions
 						</div>
 						<div class="flex items-center gap-1">
 							<label>from</label>
-							<UInput
-								v-model="state.experience[index]!.start"
-								type="date"
-								class="grow"
-								variant="soft" />
+							<FormDatePicker v-model="state.experience[index]!.start" />
 							<label>until</label>
-							<UInput
-								v-model="state.experience[index]!.end"
-								type="date"
-								class="grow"
-								variant="soft" />
+							<FormDatePicker v-model="state.experience[index]!.end" />
 							<UFormField>
 								<UCheckbox
 									v-model="state.experience[index]!.active"
