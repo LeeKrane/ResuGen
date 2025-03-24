@@ -9,6 +9,14 @@ const selectableInstitutions = computed(() => state.institutions
 	.map((i) => { return { label: i.name, value: i.uuid } })
 	.sort((a, b) => a.label.localeCompare(b.label))
 )
+
+const computedCollapsableNames = computed(() => state.experience
+	.map((e) => {
+		return (e.position || e.institution)
+			? (e.position || '?') + ' at ' + (state.institutions.find((i) => i.uuid === e.institution)?.name || '?')
+			: undefined
+	})
+)
 </script>
 
 <template>
@@ -17,13 +25,14 @@ const selectableInstitutions = computed(() => state.institutions
 		class="flex flex-col gap-8 m-4">
 		<FormInstitutions />
 
+		<USeparator icon="i-lucide-briefcase" />
+
 		<UFormField>
 			<template
 				v-for="(_, index) in state.experience"
 				:key="index">
-				<USeparator v-if="index === 0" class="mb-7" icon="i-lucide-briefcase" />
 
-				<FormCollapsible :label="(state.experience[index]!.position || state.experience[index]!.institution) ? (state.experience[index]!.position || '?') + ' at ' + (state.institutions.find((i) => i.uuid === state.experience[index]!.institution)!.name || '?') : 'New Experience'" class="my-2">
+				<FormCollapsible :label="computedCollapsableNames[index] || 'New Experience'" class="my-2">
 					<div class="flex flex-col gap-1 not-first:mt-4 mb-4">
 						<div class="flex gap-1">
 							<FormTooltip text="Institution">

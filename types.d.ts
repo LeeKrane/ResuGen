@@ -41,6 +41,7 @@ interface Employment {
 	end?: Date,
 	text: string,
 	active?: boolean
+	collapsibleOpen?: boolean
 }
 
 interface Education extends Employment {
