@@ -1,14 +1,16 @@
 <script setup lang="ts">
-const { fn } = defineProps<{
+const { fn, soft, error } = defineProps<{
 	fn: () => void
+	soft?: boolean
+	error?: boolean
 }>()
 </script>
 
 <template>
 	<UButton
-		color="neutral"
+		:color="error ? 'error' : 'neutral'"
 		class="hover:text-(--ui-error)"
-		variant="link"
+		:variant="soft ? 'soft' : 'link'"
 		size="sm"
 		icon="i-lucide-trash-2"
 		aria-label="clear input"
