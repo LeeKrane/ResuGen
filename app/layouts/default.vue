@@ -140,53 +140,73 @@ const completionPercentage = computed(() => {
 		</div>
 
 		<footer class="print:hidden border-t border-(--ui-border) p-4">
-			<div class="flex flex-col gap-2">
-				<h1 class="text-2xl text-center mx-auto text-(--ui-primary)">Footer in development...</h1>
-				<div class="grid md:grid-cols-3 gap-8 max-w-[80rem] mx-auto">
-					<!-- First column -->
-					<div class="flex flex-col gap-4">
-						<USkeleton class="w-32 h-8"/> <!-- Title -->
-						<div class="flex gap-3">
-							<USkeleton class="w-12 h-12 rounded-full"/> <!-- Icon/Avatar -->
-							<div class="flex flex-col gap-2 flex-1">
-								<USkeleton class="w-full h-4"/> <!-- Text line -->
-								<USkeleton class="w-2/3 h-4"/> <!-- Shorter text line -->
+			<div class="flex flex-col gap-8">
+				<div class="grid md:grid-cols-[1fr_auto_1fr] gap-8 max-w-[80rem] mx-auto">
+					<!-- First column - About -->
+					<div class="flex flex-col gap-4 mx-auto">
+						<h3 class="font-semibold text-lg text-center">About ResuGen</h3>
+						<div class="flex gap-3 max-w-[60vw] mx-auto">
+							<NuxtImg src="/logo.webp" class="w-16 h-16"/>
+							<div class="flex flex-col gap-1">
+								<p class="text-sm text-gray-600">Modern resume generator focused on simplicity and professional design. Built with Nuxt and NuxtUI.</p>
+								<p class="text-sm text-gray-500">Made with <UIcon name="i-material-symbols-favorite-rounded" class="text-red-500"/> by Krane Development</p>
 							</div>
 						</div>
 					</div>
 
-					<!-- Second column -->
-					<div class="flex flex-col gap-4">
-						<USkeleton class="w-40 h-8"/> <!-- Title -->
-						<div class="flex flex-col gap-2">
-							<div class="flex items-center gap-2">
-								<USkeleton class="w-6 h-6"/> <!-- Small icon -->
-								<USkeleton class="w-3/4 h-4"/> <!-- Text -->
-							</div>
-							<div class="flex items-center gap-2">
-								<USkeleton class="w-6 h-6"/> <!-- Small icon -->
-								<USkeleton class="w-2/3 h-4"/> <!-- Text -->
-							</div>
-							<div class="flex items-center gap-2">
-								<USkeleton class="w-6 h-6"/> <!-- Small icon -->
-								<USkeleton class="w-4/5 h-4"/> <!-- Text -->
-							</div>
-						</div>
+					<!-- Second column - Quick Links -->
+					<div class="flex flex-col gap-4 mx-auto">
+						<h3 class="font-semibold text-lg text-center">Quick Links</h3>
+						<UNavigationMenu :items="navItems" orientation="vertical" variant="link" class="mx-auto"/>
 					</div>
 
-					<!-- Third column -->
-					<div class="flex flex-col gap-4">
-						<USkeleton class="w-36 h-8"/> <!-- Title -->
-						<div class="grid grid-cols-3 gap-3">
-							<USkeleton class="w-full h-20 rounded-lg"/> <!-- Image card -->
-							<USkeleton class="w-full h-20 rounded-lg"/> <!-- Image card -->
-							<USkeleton class="w-full h-20 rounded-lg"/> <!-- Image card -->
+					<!-- Third column - Resources -->
+					<div class="flex flex-col gap-4 mx-auto">
+						<h3 class="font-semibold text-lg text-center">Resources</h3>
+						<div class="grid grid-cols-2 gap-3">
+							<UButton
+								to="https://gitlab.com/krane.dev/kranes-resume-generator"
+								target="_blank"
+								color="neutral"
+								variant="ghost"
+								class="flex items-center gap-2">
+								<UIcon name="i-simple-icons-gitlab" class="w-5 h-5"/>
+								<span class="text-sm">GitLab</span>
+							</UButton>
+							<UButton
+								to="/docs"
+								color="neutral"
+								variant="ghost"
+								class="flex items-center gap-2">
+								<UIcon name="i-lucide-book-open" class="w-5 h-5"/>
+								<span class="text-sm">Documentation</span>
+							</UButton>
+							<UButton
+								to="https://github.com/LeeKrane/kranes-resume-generator"
+								target="_blank"
+								color="neutral"
+								variant="ghost"
+								class="flex items-center gap-2">
+								<UIcon name="i-simple-icons-github" class="w-5 h-5"/>
+								<span class="text-sm">GitHub (Mirror)</span>
+							</UButton>
+							<UButton
+								to="mailto:support+resugen@krane.dev"
+								color="neutral"
+								variant="ghost"
+								class="flex items-center gap-2">
+								<UIcon name="i-lucide-mail" class="w-5 h-5"/>
+								<span class="text-sm">Contact</span>
+							</UButton>
 						</div>
 					</div>
 				</div>
-				<GeneralCopyrightNotice class="mx-auto"/>
+				
+				<div class="flex flex-col items-center gap-2 border-t border-(--ui-border) pt-4">
+					<GeneralCopyrightNotice class="text-sm text-gray-500"/>
+					<p class="text-xs text-gray-400">Built with Nuxt and NuxtUI</p>
+				</div>
 			</div>
-
 		</footer>
 	</div>
 </template>
