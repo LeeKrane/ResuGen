@@ -28,79 +28,88 @@ const computedCollapsableNames = computed(() => state.experience
 		<USeparator icon="i-lucide-briefcase" />
 
 		<UFormField>
-			<template
-				v-for="(_, index) in state.experience"
-				:key="index">
+			<div class="flex flex-col gap-8">
+				<div
+					class="flex items-center grow gap-1"
+					v-for="(_, index) in state.experience"
+					:key="index">
+					<FormCollapsible
+						v-model:open="state.experience[index]!.collapsibleOpen"
+						:label="computedCollapsableNames[index] || 'New Experience'"
+						class="grow">
+						<div class="flex flex-col gap-1">
+							<div class="flex gap-1">
+								<FormTooltip text="Institution">
+									<USelect
+										:items="selectableInstitutions"
+										v-model="state.experience[index]!.institution"
+										class="grow"
+										variant="soft"
+										placeholder="Institution" />
+								</FormTooltip>
 
-				<FormCollapsible :label="computedCollapsableNames[index] || 'New Experience'" class="my-2">
-					<div class="flex flex-col gap-1 not-first:mt-4 mb-4">
-						<div class="flex gap-1">
-							<FormTooltip text="Institution">
-								<USelect
-									:items="selectableInstitutions"
-									v-model="state.experience[index]!.institution"
-									class="grow"
+								<FormTooltip text="Position" right>
+									<UInput
+										v-model="state.experience[index]!.position"
+										class="grow"
+										variant="soft"
+										placeholder="Software Engineer" />
+								</FormTooltip>
+							</div>
+							<div class="flex items-center gap-1">
+								<label>from</label>
+								<FormDatePicker v-model="state.experience[index]!.start" />
+								<label>until</label>
+								<FormDatePicker v-model="state.experience[index]!.end" />
+								<UFormField>
+									<UCheckbox
+										v-model="state.experience[index]!.active"
+										label="Active" />
+								</UFormField>
+							</div>
+							<FormTooltip text="Description">
+								<UTextarea
+									v-model="state.experience[index]!.text"
+									class="w-full"
 									variant="soft"
-									placeholder="Institution" />
+									placeholder="Developed a web application..."
+									autoresize />
 							</FormTooltip>
+							<div class="flex items-center gap-1">
+								<FormTechSelectMenu v-model="state.experience[index]!.technologies" class="grow" />
+								<UFormField>
+									<FormClearInputButton :fn="() => { state.experience[index]!.technologies = [] }" trailing label="Clear Technologies" />
+								</UFormField>
+								<UFormField>
+									<UCheckbox v-model="state.experience[index]!.internship" label="Internship" />
+								</UFormField>
+							</div>
+							<div
+								v-if="state.experience[index]!.technologies.length > 0"
+								class="flex flex-wrap gap-1">
+								<UIcon
+									v-for="(t, tIndex) in state.experience[index]!.technologies"
+									:key="tIndex"
+									:name="t.icon" />
+							</div>
+						</div>
+					</FormCollapsible>
 
-							<FormTooltip text="Position" right>
-								<UInput
-									v-model="state.experience[index]!.position"
-									class="grow"
-									variant="soft"
-									placeholder="Software Engineer" />
-							</FormTooltip>
-						</div>
-						<div class="flex items-center gap-1">
-							<label>from</label>
-							<FormDatePicker v-model="state.experience[index]!.start" />
-							<label>until</label>
-							<FormDatePicker v-model="state.experience[index]!.end" />
-							<UFormField>
-								<UCheckbox
-									v-model="state.experience[index]!.active"
-									label="Active" />
-							</UFormField>
-						</div>
-						<FormTooltip text="Description">
-							<UTextarea
-								v-model="state.experience[index]!.text"
-								class="w-full"
-								variant="soft"
-								placeholder="Developed a web application..."
-								autoresize />
-						</FormTooltip>
-						<div class="flex items-center gap-1">
-							<FormTechSelectMenu v-model="state.experience[index]!.technologies" class="grow" />
-							<UFormField>
-								<FormClearInputButton :fn="() => { state.experience[index]!.technologies = [] }" trailing label="Clear Technologies" />
-							</UFormField>
-							<UFormField>
-								<UCheckbox v-model="state.experience[index]!.internship" label="Internship" />
-							</UFormField>
-						</div>
-						<div
-							v-if="state.experience[index]!.technologies.length > 0"
-							class="flex flex-wrap gap-1">
-							<UIcon
-								v-for="(t, tIndex) in state.experience[index]!.technologies"
-								:key="tIndex"
-								:name="t.icon" />
-						</div>
-						<div class="flex">
-							<div class="grow" />
-							<FormClearInputButton :fn="() => { state.experience.splice(index, 1) }" trailing label="Remove Experience" />
-						</div>
+					<div class="flex h-full items-center">
+						<FormModifyButtons
+							v-model="state.experience"
+							:index
+							:vertical="state.experience[index]!.collapsibleOpen || true" />
 					</div>
-				</FormCollapsible>
-			</template>
+				</div>
+			</div>
 
 			<div class="flex">
 				<UButton
 					label="Add Experience"
-					class="mt-2 mx-auto"
-					@click="() => { state.experience.push({ position: '', text: '', technologies: [] }) }" />
+					variant="soft"
+					class="mt-1 mx-auto"
+					@click="() => { state.experience.push({ position: '', text: '', collapsibleOpen: true, technologies: [] }) }" />
 			</div>
 		</UFormField>
 	</UForm>
