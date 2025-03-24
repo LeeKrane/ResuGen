@@ -25,6 +25,7 @@
     "@nuxt/eslint": "^1.2.0",
     "@types/uuid": "^10.0.0",
     "eslint": "^9.22.0",
+    "nuxt-particles": "^0.3.0",
     "typescript": "^5.8.2"
   }
 }

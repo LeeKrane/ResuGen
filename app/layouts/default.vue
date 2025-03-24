@@ -52,6 +52,8 @@ const completionPercentage = computed(() => {
 
 <template>
 	<div class="flex flex-col">
+		<GeneralParticles/>
+
 		<div class="min-h-dvh grid grid-rows-[auto_1fr_auto]">
 			<header
 				class="print:hidden sticky top-0 z-50 bg-(--ui-bg)/75 backdrop-blur-sm border-b border-(--ui-border) grid md:grid-cols-[1fr_1fr_1fr] max-md:grid-cols-[1fr_1fr] items-center px-4 py-1">

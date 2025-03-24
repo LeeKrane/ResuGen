@@ -5,7 +5,8 @@ export default defineNuxtConfig({
 	modules: [
 		'@nuxt/ui',
 		'@nuxt/eslint',
-		'@nuxt/image'
+		'@nuxt/image',
+		'nuxt-particles'
 	],
 
 	css: ['~/assets/css/main.css'],
@@ -20,5 +21,10 @@ export default defineNuxtConfig({
 		options: {
 			scrollBehaviorType: 'smooth'
 		}
+	},
+
+	particles: {
+		mode: "full",
+		lazy: true
 	}
 })
