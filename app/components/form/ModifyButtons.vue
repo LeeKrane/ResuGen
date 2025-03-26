@@ -8,6 +8,7 @@ const {index, vertical} = defineProps<{
 
 <template>
 	<UButtonGroup :orientation="vertical ? 'vertical' : 'horizontal' ">
+		<slot name="leading"/>
 		<UButton
 			class="cursor-pointer"
 			variant="soft"
@@ -36,6 +37,7 @@ const {index, vertical} = defineProps<{
 			:fn="() => { model!.splice(index, 1) }"
 			soft
 			error/>
+		<slot name="trailing"/>
 	</UButtonGroup>
 </template>
 
