@@ -38,73 +38,105 @@ const onFileChange = async (event: Event) => {
 	const file = (event.target as HTMLInputElement).files?.[0]
 	useRefreshAvatar(file ?? null)
 }
+
+const avatarInput = ref<HTMLInputElement | null>(null)
 </script>
 
 <template>
 	<UForm
 		:state="state"
-		class="flex flex-col gap-8 m-4">
-		<UFormField label="Image">
-			<div class="flex flex-col items-start gap-1">
-				<UInput
-					type="file"
-					accept="image/*"
-					class="grow w-full"
-					variant="soft"
-					placeholder="Image"
-					icon="i-lucide-image"
-					@change="onFileChange"/>
-				<NuxtImg
-					v-if="previewImage"
-					:src="previewImage"
-					class="w-32 h-32 rounded-lg"/>
+		class="flex flex-col gap-4 m-4">
+		<div class="flex gap-4">
+			<div class="flex flex-col grow gap-4">
+				<UFormField label="Name">
+					<UInput
+						v-model="state.name"
+						class="w-full"
+						variant="soft"
+						placeholder="MSc. John Doe"
+						icon="i-lucide-user"/>
+				</UFormField>
+
+				<UFormField label="Subtitle">
+					<UInput
+						v-model="state.subtitle"
+						class="w-full"
+						variant="soft"
+						placeholder="Software Engineer"
+						icon="i-lucide-message-square-text"/>
+				</UFormField>
+
+				<UFormField label="Email">
+					<UInput
+						v-model="state.email"
+						class="w-full"
+						variant="soft"
+						placeholder="john.doe@example.com"
+						icon="i-lucide-at-sign"/>
+				</UFormField>
 			</div>
-		</UFormField>
 
-		<UFormField label="Name">
-			<UInput
-				v-model="state.name"
-				class="w-full"
-				variant="soft"
-				placeholder="MSc. John Doe"
-				icon="i-lucide-user"/>
-		</UFormField>
+			<UFormField label="Avatar">
+				<div class="flex flex-col items-start gap-4">
+					<NuxtImg
+						v-if="previewImage"
+						:src="previewImage"
+						class="w-32 h-32 rounded-lg"/>
+					<GeneralPlaceholder
+						v-else
+						class="w-32 h-32"
+					/>
+					<UButtonGroup class="w-full">
+						<UButton
+							icon="i-lucide-upload"
+							variant="soft"
+							placeholder="Upload Avatar"
+							class="cursor-pointer grow"
+							label="Upload"
+							@click="avatarInput!.click()"/>
+						<FormClearInputButton
+							v-if="previewImage"
+							:fn="() => {
+								previewImage = null
+								state.avatar = null
+							}"
+							error
+							soft
+						/>
+					</UButtonGroup>
+					<input
+						ref="avatarInput"
+						type="file"
+						accept="image/*"
+						class="hidden"
+						@change="onFileChange">
+				</div>
+			</UFormField>
+		</div>
 
-		<UFormField label="Subtitle">
-			<UInput
-				v-model="state.subtitle"
-				class="w-full"
-				variant="soft"
-				placeholder="Software Engineer"
-				icon="i-lucide-message-square-text"/>
-		</UFormField>
+		<div class="flex flex-wrap gap-4">
+			<UFormField label="Birthdate" class="grow">
+				<FormDatePicker v-model="state.birthdate"/>
+			</UFormField>
 
-		<UFormField label="Email">
-			<UInput
-				v-model="state.email"
-				class="w-full"
-				variant="soft"
-				placeholder="john.doe@example.com"
-				icon="i-lucide-at-sign"/>
-		</UFormField>
+			<UFormField label="Phone" class="grow">
+				<UInput
+					v-model="state.phone"
+					class="w-full"
+					variant="soft"
+					placeholder="+43 123 456 789"
+					icon="i-lucide-phone"/>
+			</UFormField>
 
-		<UFormField label="Phone">
-			<UInput
-				v-model="state.phone"
-				class="w-full"
-				variant="soft"
-				placeholder="+43 123 456 789"
-				icon="i-lucide-phone"/>
-		</UFormField>
-
-		<UFormField label="Address">
-			<UInput
-				v-model="state.address"
-				class="w-full"
-				variant="soft"
-				placeholder="123 Main Street, City, Country"
-				icon="i-lucide-map-pin"/>
-		</UFormField>
+			<UFormField label="Address" class="grow">
+				<UInput
+					v-model="state.address"
+					class="w-full"
+					variant="soft"
+					placeholder="123 Main Street, City, Country"
+					icon="i-lucide-map-pin"/>
+			</UFormField>
+		</div>
 
 		<UFormField label="Professional Summary">
 			<UTextarea
@@ -171,7 +203,7 @@ const onFileChange = async (event: Event) => {
 			<div
 				v-for="(_c, index) in state.skillCategories"
 				:key="index"
-				class="flex flex-col gap-1 mt-1 not-last:mb-7 last:mb-1">
+				class="flex flex-col gap-1 not-first:mt-3">
 				<div class="flex gap-1">
 					<UInput
 						v-if="state.skillCategories[index]"
@@ -182,7 +214,16 @@ const onFileChange = async (event: Event) => {
 						class="flex-1"/>
 					<FormModifyButtons
 						v-model="state.skillCategories"
-						:index="index"/>
+						:index="index">
+						<template #leading>
+							<FormAddButton
+								v-model="state.skillCategories[index]!.skills"
+								class="col-span-2"
+								label="+"
+								raw
+								:default-value-getter="() =>{  return ({ name: '' }) }"/>
+						</template>
+					</FormModifyButtons>
 				</div>
 
 				<div class="grid grid-cols-[auto_1fr] gap-x-1 mx-5">
@@ -217,18 +258,11 @@ const onFileChange = async (event: Event) => {
 								:index="skillIndex"/>
 						</div>
 					</div>
-
-					<FormAddButton
-						v-model="state.skillCategories[index]!.skills"
-						class="col-span-2"
-						label="Add Skill"
-						:default-value-getter="() =>{  return ({ name: '' }) }"/>
 				</div>
 			</div>
 
 			<FormAddButton
 				v-model="state.skillCategories"
-				class="-mt-6"
 				label="Add Skill Category"
 				:default-value-getter="() =>{  return ({ name: '', skills: [] }) }"/>
 		</UFormField>
