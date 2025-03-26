@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import {CalendarDate, DateFormatter, getLocalTimeZone} from "@internationalized/date"
+import {CalendarDate, DateFormatter} from "@internationalized/date"
 
 const model = defineModel<EmploymentDate | undefined>()
-const calendarDate = ref<CalendarDate | null>(
+const calendarDate = ref<CalendarDate | undefined>(
 	model.value
 		? new CalendarDate(model.value.year ?? 0, model.value.month ?? 0, model.value.day ?? 0)
-		: null
+		: undefined
 )
 
 watch(calendarDate, (newVal) => {
@@ -19,7 +19,7 @@ watch(calendarDate, (newVal) => {
 
 <template>
 	<UPopover>
-		<UButtonGroup class="grow">
+		<UButtonGroup class="grow w-full">
 			<UButton
 				variant="soft"
 				color="neutral"

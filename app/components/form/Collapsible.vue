@@ -5,7 +5,7 @@ const {label} = defineProps<{
 </script>
 
 <template>
-	<UCollapsible class="flex flex-col gap-2" default-open :unmount-on-hide="false">
+	<UCollapsible class="flex flex-col gap-2 max-w-full" default-open :unmount-on-hide="false">
 		<UButton
 			class="group"
 			:label
