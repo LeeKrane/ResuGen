@@ -5,6 +5,7 @@ export const useRefResumeData: () => RefResumeData = () => {
 		name: useState("name", () => ""),
 		subtitle: useState("subtitle", () => ""),
 		email: useState("email", () => ""),
+		birthdate: useState("birthdate", (): EmploymentDate | undefined => undefined),
 		phone: useState("phone", () => ""),
 		address: useState("address", () => ""),
 		summary: useState("summary", () => ""),

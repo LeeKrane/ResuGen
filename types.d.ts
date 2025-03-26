@@ -81,6 +81,7 @@ interface ResumeData {
 	name: string,
 	subtitle: string,
 	email: string,
+	birthdate: EmploymentDate | undefined,
 	phone: string,
 	address: string,
 	summary: string,
@@ -98,6 +99,7 @@ interface RefResumeData {
 	name: Ref<string>
 	subtitle: Ref<string>
 	email: Ref<string>
+	birthdate: Ref<EmploymentDate | undefined>
 	phone: Ref<string>
 	address: Ref<string>,
 	summary: Ref<string>

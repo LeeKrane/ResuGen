@@ -5,6 +5,7 @@ const state = reactive({
 	name: useRefResumeData().name,
 	subtitle: useRefResumeData().subtitle,
 	email: useRefResumeData().email,
+	birthdate: useRefResumeData().birthdate,
 	phone: useRefResumeData().phone,
 	address: useRefResumeData().address,
 	summary: useRefResumeData().summary,
