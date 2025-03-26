@@ -3,7 +3,7 @@
 </script>
 
 <template>
-
+	<ResumeStyleController/>
 </template>
 
 <style scoped>
