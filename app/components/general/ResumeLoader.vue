@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import JSZip from "jszip"
-import {useRefreshAvatar} from "~/composables/refreshAvatar";
 
 const open = ref(false)
 const state = useRefResumeData()

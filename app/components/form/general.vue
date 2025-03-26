@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import {useRefreshAvatar} from "~/composables/refreshAvatar";
-
 const state = reactive({
 	name: useRefResumeData().name,
 	subtitle: useRefResumeData().subtitle,
