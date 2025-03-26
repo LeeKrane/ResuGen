@@ -113,3 +113,31 @@ interface RefResumeData {
 	projects: Ref<Project[]>
 	avatar: Ref<File | null>
 }
+
+interface ResumeStyle {
+	font: {
+		family: string
+		size: number
+	}
+	colors: {
+		background?: string
+		backgroundPicked?: string
+		skillLevels: {
+			basic: string
+			decent: string
+			good: string
+			proficient: string
+			expert: string
+		}
+		techLogos: string
+	}
+	effects: {
+		useShades: boolean
+		useGradients: boolean
+	}
+	layout: {
+		type: "single-column" | "two-column" | "compact"
+		style: "fancy" | "simple"
+		showBackground: boolean
+	}
+}
