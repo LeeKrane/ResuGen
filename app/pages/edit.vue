@@ -21,26 +21,21 @@ const tabItems = [
 		icon: "i-lucide-code",
 		slot: "projects",
 	},
-	{
-		label: "Colors",
-		icon: "i-lucide-palette",
-		slot: "colors",
-	}
 ]
 </script>
 
 <template>
 	<div>
-		<div class="sticky top-[4.3rem] w-full z-40 bg-(--ui-bg) flex justify-center pt-2">
+		<div class="sticky top-[4.3rem] w-full z-40 flex justify-center">
 			<UTabs
 				v-model="activeTab"
-				class="mx-auto w-[clamp(36rem,60vw,56rem)]"
+				class="mx-auto w-[clamp(24rem,65vw,56rem)] bg-(--ui-bg)/75 backdrop-blur-sm pt-2"
 				color="neutral"
 				variant="pill"
 				:items="tabItems"/>
 		</div>
 
-		<div class="flex flex-col mx-auto w-[clamp(28rem,60vw,56rem)]">
+		<div class="flex flex-col mx-auto w-[clamp(24rem,65vw,56rem)]">
 			<div :class="activeTab === '0' ? 'block' : 'hidden'">
 				<FormGeneral/>
 			</div>
