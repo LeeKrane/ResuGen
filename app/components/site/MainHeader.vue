@@ -10,7 +10,7 @@ const navItems = useNavItems()
 
 <template>
 	<header
-		class="print:hidden sticky top-0 z-50 bg-(--ui-bg)/75 backdrop-blur-sm border-b border-(--ui-border) grid md:grid-cols-[1fr_1fr_1fr] max-md:grid-cols-[1fr_1fr] items-center px-4 py-1">
+		class="print:hidden sticky top-0 z-50 bg-(--ui-bg)/20 backdrop-blur-xs border-b border-(--ui-border) grid md:grid-cols-[1fr_1fr_1fr] max-md:grid-cols-[1fr_1fr] items-center px-4 py-1">
 		<GeneralResuGenButton class="justify-self-start"/>
 
 		<UNavigationMenu class="max-md:hidden justify-center" :items="navItems"/>

@@ -3,7 +3,7 @@ const navItems = useNavItems()
 </script>
 
 <template>
-	<footer class="print:hidden border-t border-(--ui-border) p-4 bg-(--ui-bg)/75 backdrop-blur-sm">
+	<footer class="print:hidden border-t border-(--ui-border) p-4 bg-(--ui-bg)/20 backdrop-blur-xs">
 		<div class="flex flex-col gap-8">
 			<div class="grid md:grid-cols-[1fr_auto_1fr] gap-8 max-w-[80rem] mx-auto">
 				<!-- First column - About -->

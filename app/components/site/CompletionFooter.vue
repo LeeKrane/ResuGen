@@ -23,7 +23,7 @@ const completionPercentage = computed(() => {
 
 <template>
 	<footer
-		class="print:hidden sticky bottom-0 z-50 bg-(--ui-bg)/75 backdrop-blur-sm border-t border-(--ui-border) grid md:grid-cols-[1fr_1fr_1fr] max-md:grid-cols-[1fr_1fr] items-center px-6 py-2">
+		class="print:hidden sticky bottom-0 z-50 bg-(--ui-bg)/20 backdrop-blur-xs border-t border-(--ui-border) grid md:grid-cols-[1fr_1fr_1fr] max-md:grid-cols-[1fr_1fr] items-center px-6 py-2">
 		<GeneralImportExportMenu class="my-2 mr-auto max-md:hidden"/>
 		<div
 			class="flex md:flex-col max-md:col-span-2 w-full items-center gap-1 px-8 max-md:pt-4 m-auto max-md:gap-8">
