@@ -1,3 +1,5 @@
+<!-- Make sure to add [DOC] before your issue title for automatic labeling -->
+
 **Describe the documentation issue**
 
 A clear and concise description of the problem with the documentation. Be specific about what is incorrect, missing, or unclear.

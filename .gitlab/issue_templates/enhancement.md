@@ -1,3 +1,5 @@
+<!-- Make sure to add [ENHANCEMENT] before your issue title for automatic labeling -->
+
 **Describe the current behavior**
 
 A clear and concise description of how the feature currently works.

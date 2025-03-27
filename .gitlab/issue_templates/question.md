@@ -1,3 +1,5 @@
+<!-- Make sure to add [QUESTION] before your issue title for automatic labeling -->
+
 **What is your question?**
 
 Provide a clear and concise description of your question.
