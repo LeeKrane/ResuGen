@@ -1,26 +1,26 @@
----
-name: Documentation Issue
-about: Report an issue with the project's documentation.
-title: "[DOCS] Short description of the documentation issue"
-labels: status::triage type:documentation
-assignees: ''
-
----
+<!--
+Please add [DOC] to the title of the issue if you are creating a documentation issue.
+labels: status::triage type::documentation
+-->
 
 **Describe the documentation issue**
 
-A clear and concise description of the problem with the documentation. Be specific about what is incorrect, missing, or unclear.
+<!-- A clear and concise description of the problem with the documentation. Be specific about what is incorrect, missing, or unclear. -->
+...
 
 **Location**
 
-Where is the issue located? (e.g., URL of the page, name of the file)
+<!-- Where is the issue located? (e.g., URL of the page, name of the file) -->
+...
 
 **Proposed solution**
 
-If you have a suggestion for how to fix the issue, please describe it here.
+<!-- If you have a suggestion for how to fix the issue, please describe it here. -->
+...
 
 **Additional context**
 
-Add any other context about the documentation issue here.
+<!-- Add any other context about the documentation issue here. -->
+...
 
 /label ~"status::triage" ~"type::documentation"
