@@ -1,4 +1,11 @@
-<!-- Make sure to add [FEATURE] before your issue title for automatic labeling -->
+---
+name: Feature Request
+about: Suggest a new feature or enhancement.
+title: "[FEATURE] Short description of the feature"
+labels: status::triage type::feature
+assignees: ''
+
+---
 
 **Is your feature request related to a problem? Please describe.**
 
@@ -16,5 +23,4 @@ A clear and concise description of any alternative solutions or features you've 
 
 Add any other context or screenshots about the feature request here.
 
-/label ~"status::triage"
-/label ~"type::feature"
+/label ~"status::triage" ~"type::feature"

@@ -1,4 +1,11 @@
-<!-- Make sure to add [ENHANCEMENT] before your issue title for automatic labeling -->
+---
+name: Enhancement
+about: Suggest an improvement to an existing feature.
+title: "[ENHANCEMENT] Short description of the enhancement"
+labels: status::triage type::enhancement
+assignees: ''
+
+---
 
 **Describe the current behavior**
 
@@ -20,5 +27,4 @@ Have you considered other ways to achieve the same result?
 
 Add any other context or screenshots about the enhancement here.
 
-/label ~"status::triage"
-/label ~"type::enhancement"
+/label ~"status::triage" ~"type::enhancement"

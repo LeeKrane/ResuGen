@@ -1,4 +1,11 @@
-<!-- Make sure to add [BUG] before your issue title for automatic labeling -->
+---
+name: Bug Report
+about: Report a problem or unexpected behavior.
+title: "[BUG] Short description of the bug"
+labels: status::triage type::bug
+assignees: ''
+
+---
 
 **Describe the bug**
 
@@ -31,5 +38,4 @@ If applicable, add screenshots to help explain your problem.
 
 Add any other context about the problem here.
 
-/label ~"status::triage"
-/label ~"type::bug"
+/label ~"status::triage" ~"type::bug"

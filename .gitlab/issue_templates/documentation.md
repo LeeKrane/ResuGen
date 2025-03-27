@@ -1,4 +1,11 @@
-<!-- Make sure to add [DOC] before your issue title for automatic labeling -->
+---
+name: Documentation Issue
+about: Report an issue with the project's documentation.
+title: "[DOCS] Short description of the documentation issue"
+labels: status::triage type:documentation
+assignees: ''
+
+---
 
 **Describe the documentation issue**
 
@@ -16,5 +23,4 @@ If you have a suggestion for how to fix the issue, please describe it here.
 
 Add any other context about the documentation issue here.
 
-/label ~"status::triage"
-/label ~"type::documentation"
+/label ~"status::triage" ~"type::documentation"
