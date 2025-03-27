@@ -83,7 +83,7 @@ const features = [
       <h2 class="text-2xl font-semibold text-center mb-12">Why Choose ResuGen?</h2>
       <div class="grid md:grid-cols-3 gap-8 px-4">
         <div v-for="feature in features" :key="feature.title" 
-             class="flex flex-col items-center gap-3 p-6 rounded-xl border border-(--ui-border) hover:shadow-lg transition-shadow">
+             class="flex flex-col items-center gap-3 p-6 rounded-xl border border-(--ui-border) hover:shadow-lg transition-shadow bg-(--ui-bg)/20 backdrop-blur-xs">
           <UIcon :name="feature.icon" class="text-3xl text-(--ui-primary)"/>
           <h3 class="font-medium text-lg">{{ feature.title }}</h3>
           <p class="text-sm text-gray-500 text-center">{{ feature.description }}</p>
