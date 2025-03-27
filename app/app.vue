@@ -1,5 +1,6 @@
 <template>
 	<UApp>
+		<GeneralParticles/>
 		<NuxtLayout>
 			<NuxtPage/>
 		</NuxtLayout>

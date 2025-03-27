@@ -4,8 +4,6 @@
 
 <template>
 	<div class="flex flex-col">
-		<GeneralParticles/>
-
 		<div class="min-h-dvh grid grid-rows-[auto_1fr]">
 			<SiteMainHeader/>
 
