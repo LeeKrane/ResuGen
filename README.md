@@ -1,75 +1,147 @@
-# Nuxt UI Starter
+# ResuGen
 
-Look at [Nuxt docs](https://nuxt.com/docs/getting-started/introduction) and [Nuxt UI docs](https://ui.nuxt.com) to learn more.
+<div align="center">
+  <img src="/public/logo.webp" alt="ResuGen Logo" width="120" height="120">
+  <p>A modern, intuitive resume generator built with Nuxt 3 and Nuxt UI</p>
+</div>
 
-## Setup
+## 🌟 Features
 
-Make sure to install the dependencies:
+- **Modern UI/UX**: Clean, responsive interface built with Nuxt UI components
+- **Real-time Preview**: See changes instantly as you build your resume
+- **ATS-Friendly**: Optimized for Applicant Tracking Systems
+- **Browser-based PDF Export**: Print to PDF directly through your browser
+- **Data Portability**: Import/Export your resume data as ZIP
+- **Flexible Customization**: Personalize colors, spacing, and typography
+- **Type-Safe**: Built with TypeScript for reliability
+- **Aesthetic Design**: Subtle particle animation background
 
-```bash
-# npm
-npm install
+## 🎯 How It Works
 
-# pnpm
-pnpm install
+1. **Fill Your Details**: Enter your information using our intuitive form-based editor
+2. **Customize Appearance**: Adjust colors, spacing, and typography to match your style
+3. **Generate PDF**: Use your browser's print function to save as PDF
+   - Click the "Print" button
+   - Select "Save as PDF" in your browser's print dialog
+   - Choose your preferred paper size (A4 recommended)
+   - Save your professional resume
 
-# yarn
-yarn install
+## 🚀 Quick Start
 
-# bun
-bun install
+### Prerequisites
+
+- Node.js 18 or higher
+- pnpm (recommended) or npm/yarn/bun
+
+### Installation
+
+1. Clone the repository:
+   ```bash
+   git clone https://gitlab.com/krane.dev/resugen.git
+   cd resugen
+   ```
+
+2. Install dependencies:
+   ```bash
+   pnpm install
+   ```
+
+3. Start the development server:
+   ```bash
+   pnpm dev
+   ```
+
+4. Open [http://localhost:3000](http://localhost:3000) in your browser
+
+## 🛠️ Tech Stack
+
+- **Framework**: [Nuxt 3](https://nuxt.com/) - Vue.js Framework
+- **UI Components**: [Nuxt UI](https://ui.nuxt.com/) - Ready-to-use Vue components
+- **Styling**: Tailwind CSS - Utility-first CSS framework
+- **Type Safety**: TypeScript - Static type checking
+- **File Handling**: JSZip - Resume data import/export
+- **Visual Effects**: Nuxt Particles - Decorative background
+- **Image Optimization**: Nuxt Image - Automatic image optimization
+
+## 📁 Project Structure
+
+```
+resugen/
+├── app/
+│   ├── components/
+│   │   ├── form/       # Form-related components
+│   │   ├── general/    # General-purpose components
+│   │   └── site/       # Site layout components
+│   └── pages/          # Application routes
+├── public/             # Static assets
+├── types/              # TypeScript type definitions
+└── nuxt.config.ts      # Nuxt configuration
 ```
 
-## Development Server
+## 🔧 Configuration
 
-Start the development server on `http://localhost:3000`:
+The application can be configured through `nuxt.config.ts`:
 
-```bash
-# npm
-npm run dev
+```ts
+export default defineNuxtConfig({
+  // Enable development tools
+  devtools: { enabled: true },
 
-# pnpm
-pnpm run dev
+  // Configure modules
+  modules: [
+    '@nuxt/ui',
+    '@nuxt/image',
+    'nuxt-particles'
+  ],
 
-# yarn
-yarn dev
-
-# bun
-bun run dev
+  // Additional configuration...
+})
 ```
 
-## Production
+## 🎨 Customization Options
 
-Build the application for production:
+- **Colors**: Customize all aspects of your resume's color scheme
+- **Typography**: Choose from various font combinations
+- **Spacing**: Adjust margins, padding, and layout spacing
+- **Sections**: Add, remove, or reorder resume sections
+- **Content**: Full control over text formatting and structure
 
-```bash
-# npm
-npm run build
+## 🤝 Contributing
 
-# pnpm
-pnpm run build
+We welcome contributions! Please see our [Contributing Guidelines](CONTRIBUTING.md) for details on:
 
-# yarn
-yarn build
+- Code style and conventions
+- Development workflow
+- Issue reporting
+- Pull request process
 
-# bun
-bun run build
-```
+## 📝 License
 
-Locally preview production build:
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-```bash
-# npm
-npm run preview
+## 🌐 Links
 
-# pnpm
-pnpm run preview
+- [Live Demo](https://resugen.krane.dev)
+- [Documentation](https://gitlab.com/krane.dev/resugen/-/blob/main/README.md)
+- [Issue Tracker](https://gitlab.com/krane.dev/resugen/-/issues)
+- [GitLab Repository](https://gitlab.com/krane.dev/resugen)
+- [GitHub Mirror](https://github.com/krane.dev/resugen)
 
-# yarn
-yarn preview
+## ✨ Acknowledgments
 
-# bun
-bun run preview
-```
+- [Nuxt.js Team](https://nuxt.com/) for the amazing framework
+- [Nuxt UI Team](https://ui.nuxt.com/) for the beautiful components
+- All our [contributors](https://gitlab.com/krane.dev/resugen/-/graphs/main)
 
-Check out the [deployment documentation](https://nuxt.com/docs/getting-started/deployment) for more information.
+## 📧 Support
+
+Need help? Have questions?
+
+- Create an [issue](https://gitlab.com/krane.dev/resugen/-/issues/new)
+- Email: support+resugen@krane.dev
+
+---
+
+<div align="center">
+  Made with ❤️ by <a href="https://krane.dev">Krane Development</a>
+</div>
