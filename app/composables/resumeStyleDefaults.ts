@@ -1,7 +1,7 @@
 export const useResumeStyleDefaults = (): ResumeStyle => {
 	return {
 		font: {
-			family: 'Inter',
+			family: 'inter',
 			size: 16,
 			titleSizes: {
 				h1: 24,
@@ -10,10 +10,8 @@ export const useResumeStyleDefaults = (): ResumeStyle => {
 			}
 		},
 		colors: {
-			bg: undefined,
-			bgPicked: "#FFFFFF",
-			bgElevated: undefined,
-			bgElevatedPicked: "#DDDDDD",
+			bg: "#FFFFFF",
+			bgElevated: "#DDDDDD",
 			skillLevels: {
 				basic: '#EF4444',
 				decent: '#F97316',
@@ -22,29 +20,43 @@ export const useResumeStyleDefaults = (): ResumeStyle => {
 				expert: '#22C55E'
 			},
 			techLogos: '#26DF69',
+			internship: '#60A5FA',
+			openSource: '#93C5FD'
 		},
 		effects: {
 			useShades: true,
 			useGradients: true,
 			useBorders: true,
 			borderWidth: 1,
-			borderColor: "#E2E8F0"
+			borderColor: "#C2C8D1"
 		},
 		layout: {
 			type: 'two-column',
 			style: 'fancy',
 			showBackground: true,
 			sectionSpacing: 2,
-			margin: 8,
-			sections: [
-				{ id: 'profile', enabled: true },
-				{ id: 'experience', enabled: true },
-				{ id: 'education', enabled: true },
-				{ id: 'skills', enabled: true },
-				{ id: 'projects', enabled: true },
-				{ id: 'certifications', enabled: true },
-				{ id: 'languages', enabled: true },
-				{ id: 'interests', enabled: false }
+			margin: 4,
+			additionalSections: [
+				{
+					id: 'avatar',
+					enabled: true
+				},
+				{
+					id: 'hobbies',
+					enabled: true
+				},
+				{
+					id: 'links',
+					enabled: true
+				},
+				{
+					id: 'projects',
+					enabled: true
+				},
+				{
+					id: 'certifications',
+					enabled: true
+				},
 			]
 		}
 	}

@@ -126,9 +126,7 @@ interface ResumeStyle {
 	}
 	colors: {
 		bg?: string
-		bgPicked?: string
 		bgElevated?: string
-		bgElevatedPicked?: string
 		skillLevels: {
 			basic: string
 			decent: string
@@ -137,6 +135,8 @@ interface ResumeStyle {
 			expert: string
 		}
 		techLogos: string
+		internship: string
+		openSource: string
 	}
 	effects: {
 		useShades: boolean
@@ -151,8 +151,9 @@ interface ResumeStyle {
 		showBackground: boolean
 		sectionSpacing: number
 		margin: number
-		sections: {
-
-		}
+		additionalSections: {
+			id: string
+			enabled: boolean
+		}[]
 	}
 }

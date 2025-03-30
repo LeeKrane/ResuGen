@@ -3,10 +3,18 @@ import JSZip from "jszip"
 
 const downloadZip = () => {
 	const resumeData = useResumeData()
+	const resumeStyle = useResumeStyle()
 	const zip = new JSZip()
+
 	zip.file("resume-data.json", JSON.stringify(resumeData.data, null, 2))
 	if (resumeData.avatar)
 		zip.file("resume-avatar.webp", resumeData.avatar)
+	zip.file("resume-style.json", JSON.stringify({
+		font: resumeStyle.value.font,
+		colors: resumeStyle.value.colors,
+		effects: resumeStyle.value.effects,
+		layout: resumeStyle.value.layout
+	}, null, 2))
 	zip.generateAsync({type: "blob"}).then((blob) => {
 		const url = URL.createObjectURL(blob)
 		const a = document.createElement("a")

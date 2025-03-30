@@ -18,9 +18,11 @@ async function onFileChange(event) {
 		const zip = new JSZip()
 		const loadedZip = await zip.loadAsync(file)
 		let resumeData: ResumeData
+		let resumeStyle: ResumeStyle
 
 		// Extract resume-data.json
-		const jsonData = await loadedZip.file('resume-data.json')?.async('string');
+		const jsonData = await loadedZip.file('resume-data.json')?.async('string')
+
 		if (jsonData) {
 			try {
 				resumeData = JSON.parse(jsonData)
@@ -56,6 +58,19 @@ async function onFileChange(event) {
 
 		if (avatarBlob) {
 			useRefreshAvatar(new File([avatarBlob], "avatar.webp", {type: "image/webp"}))
+		}
+
+		const styleJsonData = await loadedZip.file('resume-style.json')?.async('string')
+
+		if (styleJsonData) {
+			try {
+				resumeStyle = JSON.parse(styleJsonData)
+				useResumeStyle().value = resumeStyle
+			} catch (error) {
+				errorMessage.value = 'Error parsing resume-style.json'
+				disabled.value = false
+				return
+			}
 		}
 	} catch (error) {
 		errorMessage.value = 'Error reading the zip file: ' + error.message;
