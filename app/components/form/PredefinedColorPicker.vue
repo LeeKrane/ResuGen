@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import type {FormError} from "#ui/types";
-
 const predefinedColors = ref([
 	{
 		label: "Custom",
@@ -59,27 +57,8 @@ const predefinedColors = ref([
 ])
 
 const model = defineModel<string>()
-
-const state = reactive({
-	manualColor: model.value?.toUpperCase()
-})
-
-const validate = (state: any): FormError[] => {
-	const errors = []
-	if (!state.manualColor) {
-		errors.push({
-			path: "manualColor",
-			message: "Color is required"
-		})
-	}
-	if (!state.manualColor.match(/^#[0-9A-Fa-f]{6}$/i)) {
-		errors.push({
-			path: "manualColor",
-			message: "Color must be a valid hex color"
-		})
-	}
-	return errors
-}
+const manualColor = ref(model.value?.toUpperCase())
+const isManualInput = ref(false)
 
 const {defaultColor} = defineProps<{
 	defaultColor?: string
@@ -96,7 +75,34 @@ function resetColor() {
 	selection.value = defaultColor ? predefinedColors.value.find(item => item.value === "custom")?.value : undefined
 }
 
-watch(model, (newVal) => { state.manualColor = newVal })
+const manualColorError = computed(() => {
+	return manualColor.value && !manualColor.value.match(/^#([0-9A-F]{6})$/i)
+})
+
+let isUpdating = false
+
+function setColor(newVal: string | undefined, source: 'model' | 'manual') {
+	if (isUpdating)
+		return
+
+	isUpdating = true
+	newVal = newVal?.toUpperCase()
+
+	if (newVal === undefined || !newVal.match(/^#([0-9A-F]{6})$/i)) {
+		isUpdating = false
+		return
+	}
+
+	if (source === 'manual' && isManualInput.value)
+		model.value = newVal
+	else if (source === 'model' && !isManualInput.value)
+		manualColor.value = newVal
+	
+	isUpdating = false
+}
+
+watch(model, (newVal) => setColor(newVal, 'model'))
+watch(manualColor, (newVal) => setColor(newVal, 'manual'))
 </script>
 
 <template>
@@ -117,21 +123,20 @@ watch(model, (newVal) => { state.manualColor = newVal })
 				}"/>
 
 			<template #content>
-				<UForm
-					:state="state"
-					:validate="validate"
-					:validate-on="['input']"
-					class="flex flex-col gap-4 p-4 pr-0">
+				<div class="flex flex-col gap-4 p-4 pr-0">
 					<UFormField>
 						<UColorPicker v-model="model"/>
 					</UFormField>
-					<UFormField name="manualColor">
+					<UFormField name="manualColor" :error="manualColorError ? 'Invalid color' : undefined">
 						<UInput
-							v-model="state.manualColor"
+							v-model="manualColor"
+							maxlength="7"
 							class="w-[calc(100%-0.75rem)]"
-							variant="soft"/>
+							variant="soft"
+							@focus="isManualInput = true"
+							@blur="isManualInput = false"/>
 					</UFormField>
-				</UForm>
+				</div>
 			</template>
 		</UPopover>
 
