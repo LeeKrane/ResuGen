@@ -76,7 +76,7 @@ function resetColor() {
 }
 
 const manualColorError = computed(() => {
-	return manualColor.value && !manualColor.value.match(/^#([0-9A-F]{6})$/i)
+	return !manualColor.value || !manualColor.value.match(/^#([0-9A-F]{6})$/i)
 })
 
 let isUpdating = false
@@ -102,7 +102,15 @@ function setColor(newVal: string | undefined, source: 'model' | 'manual') {
 }
 
 watch(model, (newVal) => setColor(newVal, 'model'))
-watch(manualColor, (newVal) => setColor(newVal, 'manual'))
+watch(manualColor, (newVal, oldValue) => {
+	if (newVal!.match(/^.*([a-f]+).*$/i)){
+		manualColor.value = newVal!.toUpperCase()
+		return
+	}
+	if (!newVal!.match(/^#([0-9A-F]{0,6})$/i))
+		setTimeout(() => manualColor.value = oldValue, 1)
+	setColor(newVal, 'manual')
+})
 </script>
 
 <template>
