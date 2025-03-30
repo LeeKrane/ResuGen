@@ -97,13 +97,13 @@ function setColor(newVal: string | undefined, source: 'model' | 'manual') {
 		model.value = newVal
 	else if (source === 'model' && !isManualInput.value)
 		manualColor.value = newVal
-	
+
 	isUpdating = false
 }
 
 watch(model, (newVal) => setColor(newVal, 'model'))
 watch(manualColor, (newVal, oldValue) => {
-	if (newVal!.match(/^.*([a-f]+).*$/i)){
+	if (newVal!.match(/^.*([a-f]+).*$/i)) {
 		manualColor.value = newVal!.toUpperCase()
 		return
 	}
