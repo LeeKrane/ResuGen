@@ -44,6 +44,7 @@ async function onFileChange(event) {
 		state.name.value = resumeData.name
 		state.subtitle.value = resumeData.subtitle
 		state.email.value = resumeData.email
+		state.birthdate.value = resumeData.birthdate
 		state.phone.value = resumeData.phone
 		state.address.value = resumeData.address
 		state.summary.value = resumeData.summary
