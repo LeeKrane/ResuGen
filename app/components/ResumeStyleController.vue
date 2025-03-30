@@ -32,8 +32,7 @@ const defaults = useResumeStyleDefaults()
 						v-model="state.layout.type"
 						:items="['single-column', 'two-column', 'compact']"
 						variant="soft"
-						class="w-full"
-						default-value="two-column"/>
+						class="w-full"/>
 				</UFormField>
 
 				<UFormField label="Style" class="grow">
@@ -41,8 +40,48 @@ const defaults = useResumeStyleDefaults()
 						v-model="state.layout.style"
 						:items="['fancy', 'simple']"
 						variant="soft"
-						class="w-full"
-						default-value="fancy"/>
+						class="w-full"/>
+				</UFormField>
+
+				<UFormField label="Section Spacing" class="grow">
+					<UInput
+						v-model="state.layout.sectionSpacing"
+						type="range"
+						:min="1"
+						:max="4"
+						:step="0.5"/>
+				</UFormField>
+
+				<UFormField label="Show Background" class="grow">
+					<USwitch v-model="state.layout.showBackground"/>
+				</UFormField>
+			</div>
+		</UCard>
+
+		<UCard class="bg-(--ui-bg)/20 backdrop-blur-xs">
+			<template #header>
+				<div class="flex items-center gap-2">
+					<UIcon name="i-lucide-type" size="20"/>
+					<h3 class="font-bold text-lg">Typography</h3>
+				</div>
+			</template>
+
+			<div class="flex flex-wrap gap-4">
+				<UFormField label="Font Family" class="grow">
+					<USelect
+						v-model="state.font.family"
+						:items="['Inter', 'Public Sans', 'Roboto', 'Open Sans']"
+						variant="soft"
+						class="w-full"/>
+				</UFormField>
+
+				<UFormField label="Base Size" class="grow">
+					<UInput
+						v-model="state.font.size"
+						type="range"
+						:min="12"
+						:max="18"
+						:step="1"/>
 				</UFormField>
 			</div>
 		</UCard>
@@ -58,38 +97,49 @@ const defaults = useResumeStyleDefaults()
 			<div class="flex flex-wrap gap-4">
 				<UFormField label="Background" class="grow">
 					<FormPredefinedColorPicker
-						v-model="state.colors.backgroundPicked"
-						:default-color="defaults.colors.backgroundPicked"/>
+						v-model="state.colors.bgPicked"
+						:default-color="defaults.colors.bgPicked"/>
 				</UFormField>
 
-				<UFormField label="Basic Skills" class="grow">
+				<UFormField label="Elevated Background" class="grow">
 					<FormPredefinedColorPicker
-						v-model="state.colors.skillLevels.basic"
-						:default-color="defaults.colors.skillLevels.basic"/>
+						v-model="state.colors.bgElevatedPicked"
+						:default-color="defaults.colors.bgElevatedPicked"/>
 				</UFormField>
 
-				<UFormField label="Decent Skills" class="grow">
+				<UFormField label="Technology Logos" class="grow">
 					<FormPredefinedColorPicker
-						v-model="state.colors.skillLevels.decent"
-						:default-color="defaults.colors.skillLevels.decent"/>
+						v-model="state.colors.techLogos"
+						:default-color="defaults.colors.techLogos"/>
 				</UFormField>
 
-				<UFormField label="Good Skills" class="grow">
+				<UFormField
+					v-for="(level, key) in state.colors.skillLevels"
+					:key="key"
+					:label="`${key.charAt(0).toUpperCase() + key.slice(1)} Skills`"
+					class="grow">
 					<FormPredefinedColorPicker
-						v-model="state.colors.skillLevels.good"
-						:default-color="defaults.colors.skillLevels.good"/>
+						v-model="state.colors.skillLevels[key]"
+						:default-color="defaults.colors.skillLevels[key]"/>
+				</UFormField>
+			</div>
+		</UCard>
+
+		<UCard class="bg-(--ui-bg)/20 backdrop-blur-xs">
+			<template #header>
+				<div class="flex items-center gap-2">
+					<UIcon name="i-lucide-wand-2" size="20"/>
+					<h3 class="font-bold text-lg">Effects</h3>
+				</div>
+			</template>
+
+			<div class="flex flex-wrap gap-4">
+				<UFormField label="Use Shades" class="grow">
+					<USwitch v-model="state.effects.useShades"/>
 				</UFormField>
 
-				<UFormField label="Proficient Skills" class="grow">
-					<FormPredefinedColorPicker
-						v-model="state.colors.skillLevels.proficient"
-						:default-color="defaults.colors.skillLevels.proficient"/>
-				</UFormField>
-
-				<UFormField label="Expert Skills" class="grow">
-					<FormPredefinedColorPicker
-						v-model="state.colors.skillLevels.expert"
-						:default-color="defaults.colors.skillLevels.expert"/>
+				<UFormField label="Use Gradients" class="grow">
+					<USwitch v-model="state.effects.useGradients"/>
 				</UFormField>
 			</div>
 		</UCard>

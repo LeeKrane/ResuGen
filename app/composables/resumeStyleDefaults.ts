@@ -3,27 +3,49 @@ export const useResumeStyleDefaults = (): ResumeStyle => {
 		font: {
 			family: 'Inter',
 			size: 16,
+			titleSizes: {
+				h1: 24,
+				h2: 20,
+				h3: 18
+			}
 		},
 		colors: {
-			background: undefined,
-			backgroundPicked: "#ffffff",
+			bg: undefined,
+			bgPicked: "#FFFFFF",
+			bgElevated: undefined,
+			bgElevatedPicked: "#DDDDDD",
 			skillLevels: {
-				basic: '#ef4444',
-				decent: '#f97316',
-				good: '#eab308',
-				proficient: '#84cc16',
-				expert: '#22c55e'
+				basic: '#EF4444',
+				decent: '#F97316',
+				good: '#EAB308',
+				proficient: '#84CC16',
+				expert: '#22C55E'
 			},
-			techLogos: '#64748b',
+			techLogos: '#26DF69',
 		},
 		effects: {
 			useShades: true,
-			useGradients: false
+			useGradients: true,
+			useBorders: true,
+			borderWidth: 1,
+			borderColor: "#E2E8F0"
 		},
 		layout: {
 			type: 'two-column',
 			style: 'fancy',
-			showBackground: true
+			showBackground: true,
+			sectionSpacing: 2,
+			margin: 8,
+			sections: [
+				{ id: 'profile', enabled: true },
+				{ id: 'experience', enabled: true },
+				{ id: 'education', enabled: true },
+				{ id: 'skills', enabled: true },
+				{ id: 'projects', enabled: true },
+				{ id: 'certifications', enabled: true },
+				{ id: 'languages', enabled: true },
+				{ id: 'interests', enabled: false }
+			]
 		}
 	}
 }

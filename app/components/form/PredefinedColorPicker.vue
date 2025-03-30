@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import type {FormError} from "#ui/types";
+
 const predefinedColors = ref([
 	{
 		label: "Custom",
@@ -58,6 +60,27 @@ const predefinedColors = ref([
 
 const model = defineModel<string>()
 
+const state = reactive({
+	manualColor: model.value?.toUpperCase()
+})
+
+const validate = (state: any): FormError[] => {
+	const errors = []
+	if (!state.manualColor) {
+		errors.push({
+			path: "manualColor",
+			message: "Color is required"
+		})
+	}
+	if (!state.manualColor.match(/^#[0-9A-Fa-f]{6}$/i)) {
+		errors.push({
+			path: "manualColor",
+			message: "Color must be a valid hex color"
+		})
+	}
+	return errors
+}
+
 const {defaultColor} = defineProps<{
 	defaultColor?: string
 }>()
@@ -72,6 +95,8 @@ function resetColor() {
 	model.value = defaultColor
 	selection.value = defaultColor ? predefinedColors.value.find(item => item.value === "custom")?.value : undefined
 }
+
+watch(model, (newVal) => { state.manualColor = newVal })
 </script>
 
 <template>
@@ -92,7 +117,21 @@ function resetColor() {
 				}"/>
 
 			<template #content>
-				<UColorPicker v-model="model"/>
+				<UForm
+					:state="state"
+					:validate="validate"
+					:validate-on="['input']"
+					class="flex flex-col gap-4 p-4 pr-0">
+					<UFormField>
+						<UColorPicker v-model="model"/>
+					</UFormField>
+					<UFormField name="manualColor">
+						<UInput
+							v-model="state.manualColor"
+							class="w-[calc(100%-0.75rem)]"
+							variant="soft"/>
+					</UFormField>
+				</UForm>
 			</template>
 		</UPopover>
 

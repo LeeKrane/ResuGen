@@ -118,10 +118,17 @@ interface ResumeStyle {
 	font: {
 		family: string
 		size: number
+		titleSizes: {
+			h1: number
+			h2: number
+			h3: number
+		}
 	}
 	colors: {
-		background?: string
-		backgroundPicked?: string
+		bg?: string
+		bgPicked?: string
+		bgElevated?: string
+		bgElevatedPicked?: string
 		skillLevels: {
 			basic: string
 			decent: string
@@ -134,10 +141,18 @@ interface ResumeStyle {
 	effects: {
 		useShades: boolean
 		useGradients: boolean
+		useBorders: boolean
+		borderWidth: number
+		borderColor?: string
 	}
 	layout: {
 		type: "single-column" | "two-column" | "compact"
 		style: "fancy" | "simple"
 		showBackground: boolean
+		sectionSpacing: number
+		margin: number
+		sections: {
+
+		}
 	}
 }
