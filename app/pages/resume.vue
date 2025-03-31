@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import {useElementSize, useMediaQuery, useWindowSize} from "@vueuse/core";
-import {onMounted, onUnmounted, ref} from "vue";
 
 definePageMeta({
 	layout: "resume-view"
@@ -10,26 +9,12 @@ const slideOverBody = ref<HTMLDivElement | null>(null)
 const slideOverBodyWidth = useElementSize(slideOverBody).width
 
 const mobile = useMediaQuery("(max-width: 640px)")
+const styleSliderBottom = useMediaQuery("(max-width: 1024px)")
+
 const stylingOpen = ref(false)
 const isPrinting = ref(false)
 
-const width = ref(210*4)
-const height = ref(297*4)
-
-const updateSize = () => {
-	width.value = Math.max(1, (useWindowSize().width.value - 32))
-	height.value = Math.max(1, (((useWindowSize().width.value / 210) * 297) - 32))
-}
-
-watch(stylingOpen, () => updateSize())
-
-onMounted(() => {
-	window.addEventListener('resize', updateSize)
-	setTimeout(() => {updateSize()}, 1000)
-})
-
-onUnmounted(() => window.removeEventListener('resize', updateSize))
-
+const maxWidth = computed (() => useWindowSize().width.value - (mobile.value ? 32 : slideOverBodyWidth.value + 32 + 48))
 </script>
 
 <template>
@@ -37,7 +22,7 @@ onUnmounted(() => window.removeEventListener('resize', updateSize))
 		<UButtonGroup class="print:hidden sticky top-20 z-50">
 			<USlideover
 				v-model:open="stylingOpen"
-				:side="mobile ? 'bottom' : 'right'"
+				:side="styleSliderBottom ? 'bottom' : 'right'"
 				:overlay="false"
 				:close-threshold="0.2">
 				<UButton
@@ -65,8 +50,8 @@ onUnmounted(() => window.removeEventListener('resize', updateSize))
 						ref="slideOverBody"
 						class="overflow-auto w-full"
 						:class="{
-							'max-h-[50dvh]': mobile,
-							'max-h-full': !mobile
+							'max-h-[50dvh]': styleSliderBottom,
+							'max-h-full': !styleSliderBottom
 						}"
 					>
 						<ResumeStyleController/>
@@ -80,16 +65,24 @@ onUnmounted(() => window.removeEventListener('resize', updateSize))
 				variant="soft"
 				class="mx-auto cursor-pointer"
 				icon="i-lucide-printer"/>
-
 		</UButtonGroup>
 
+		<div v-if="mobile" class="flex flex-col items-center justify-center gap-4 px-4 py-16 text-center">
+			<UIcon name="i-lucide-smartphone" class="text-4xl text-(--ui-primary)"/>
+			<h3 class="font-medium text-lg">Mobile Preview Unavailable</h3>
+			<p class="text-sm text-gray-500">Please use a larger screen to preview and edit your resume. The current viewport is too small to display the resume properly.</p>
+			<p class="text-xs text-gray-400">Recommended minimum width: 640px</p>
+		</div>
 		<div
-				:style="!isPrinting && {
-					width: `${width - slideOverBodyWidth}px`,
-					height: `${height - slideOverBodyWidth}px`
-				}"
-				class="print:w-[210mm] print:h-[297mm] max-w-3xl max-h-[calc(var(--container-3xl)*297/210)] bg-(--ui-primary) shadow-xl mx-auto origin-top-left print:shadow-none not-print:m-4 not-print:rounded-lg">
-			Content
+			v-else
+			:style="!isPrinting && {
+				maxWidth: `${maxWidth}px`,
+				transform: `translateX(${-(!styleSliderBottom && slideOverBodyWidth > 0 ? slideOverBodyWidth + 48 : 0)/2}px)`,
+			}"
+			class="max-h-[calc(100vh-15rem)] print:w-[210mm] print:h-[297mm] not-print:w-3xl not-print:h-[calc(var(--container-3xl)*297/210)] shadow-xl mx-auto origin-top-left print:shadow-none not-print:m-4 not-print:rounded-lg transition-transform overflow-scroll">
+			<div class="not-print:w-3xl not-print:h-[calc(var(--container-3xl)*297/210)] bg-(--ui-bg-elevated)">
+				Test
+			</div>
 		</div>
 	</div>
 </template>
