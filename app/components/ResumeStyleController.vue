@@ -4,8 +4,8 @@ const defaults = useResumeStyleDefaults()
 </script>
 
 <template>
-	<UForm :state="state" class="flex flex-col gap-8 p-4 max-w-3xl mx-auto">
-		<UCard class="bg-(--ui-bg)/20 backdrop-blur-xs">
+	<UForm :state="state" class="flex flex-col gap-8 p-2 max-w-xl mx-auto">
+		<UCard>
 			<template #header>
 				<div class="flex items-center gap-2">
 					<UIcon name="i-lucide-layout" size="20"/>
@@ -72,7 +72,7 @@ const defaults = useResumeStyleDefaults()
 			</div>
 		</UCard>
 
-		<UCard class="bg-(--ui-bg)/20 backdrop-blur-xs">
+		<UCard>
 			<template #header>
 				<div class="flex items-center gap-2">
 					<UIcon name="i-lucide-type" size="20"/>
@@ -172,7 +172,7 @@ const defaults = useResumeStyleDefaults()
 			</div>
 		</UCard>
 
-		<UCard class="bg-(--ui-bg)/20 backdrop-blur-xs">
+		<UCard>
 			<template #header>
 				<div class="flex items-center gap-2">
 					<UIcon name="i-lucide-palette" size="20"/>
@@ -261,7 +261,7 @@ const defaults = useResumeStyleDefaults()
 			</div>
 		</UCard>
 
-		<UCard class="bg-(--ui-bg)/20 backdrop-blur-xs">
+		<UCard>
 			<template #header>
 				<div class="flex items-center gap-2">
 					<UIcon name="i-lucide-wand-2" size="20"/>
@@ -312,7 +312,7 @@ const defaults = useResumeStyleDefaults()
 			</div>
 		</UCard>
 
-		<UCard class="bg-(--ui-bg)/20 backdrop-blur-xs">
+		<UCard>
 			<template #header>
 				<div class="flex items-center gap-2">
 					<UIcon name="i-lucide-layout-grid" size="20"/>
