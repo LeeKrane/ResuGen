@@ -21,7 +21,11 @@ const styleSliderBottom = useMediaQuery("(max-width: 1024px)")
 const stylingOpen = ref(false)
 const isPrinting = ref(false)
 
-const maxWidth = computed (() => useWindowSize().width.value - (mobile.value ? 32 : slideOverBodyWidth.value + 32 + 48))
+let maxWidth = ref(10000)
+
+onMounted(() => {
+	maxWidth = computed (() => useWindowSize().width.value - (mobile.value ? 32 : slideOverBodyWidth.value + 32 + 48))
+})
 </script>
 
 <template>
