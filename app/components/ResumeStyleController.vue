@@ -216,7 +216,7 @@ const defaults = useResumeStyleDefaults()
 							:default-color="defaults.colors.text.sectionTitle"/>
 					</UFormField>
 
-					<UFormField label="Base" class="grow">
+					<UFormField label="Base Text" class="grow">
 						<FormColorPicker
 							v-model="state.colors.text.base"
 							:default-color="defaults.colors.text.base"/>
