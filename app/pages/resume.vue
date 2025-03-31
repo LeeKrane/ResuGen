@@ -34,7 +34,7 @@ onUnmounted(() => window.removeEventListener('resize', updateSize))
 
 <template>
 	<div class="flex flex-col items-center justify-center gap-4">
-		<UButtonGroup class="print:hidden sticky top-[calc(3.33rem+1rem)] z-50">
+		<UButtonGroup class="print:hidden sticky top-20 z-50">
 			<USlideover
 				v-model:open="stylingOpen"
 				:side="mobile ? 'bottom' : 'right'"
