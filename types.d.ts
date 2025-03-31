@@ -127,6 +127,12 @@ interface ResumeStyle {
 	colors: {
 		bg?: string
 		bgElevated?: string
+		text: {
+			title: string
+			subtitle: string
+			sectionTitle: string
+			base: string
+		}
 		skillLevels: {
 			basic: string
 			decent: string

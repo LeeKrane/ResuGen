@@ -198,6 +198,34 @@ const defaults = useResumeStyleDefaults()
 				<USeparator/>
 
 				<div class="flex flex-wrap gap-4">
+					<UFormField label="Title" class="grow">
+						<FormColorPicker
+							v-model="state.colors.text.title"
+							:default-color="defaults.colors.text.title"/>
+					</UFormField>
+
+					<UFormField label="Subtitle" class="grow">
+						<FormColorPicker
+							v-model="state.colors.text.subtitle"
+							:default-color="defaults.colors.text.subtitle"/>
+					</UFormField>
+
+					<UFormField label="Section Title" class="grow">
+						<FormColorPicker
+							v-model="state.colors.text.sectionTitle"
+							:default-color="defaults.colors.text.sectionTitle"/>
+					</UFormField>
+
+					<UFormField label="Base" class="grow">
+						<FormColorPicker
+							v-model="state.colors.text.base"
+							:default-color="defaults.colors.text.base"/>
+					</UFormField>
+				</div>
+
+				<USeparator/>
+
+				<div class="flex flex-wrap gap-4">
 					<UFormField label="Technology Logos" class="grow">
 						<FormColorPicker
 							v-model="state.colors.techLogos"

@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import type {Vector0to7} from "~/composables/rbg2oklch";
+
 const model = defineModel<string>()
 const manualColor = ref(model.value?.toUpperCase())
 const isManualInput = ref(false)
@@ -47,6 +49,17 @@ watch(manualColor, (newVal, oldValue) => {
 		setTimeout(() => manualColor.value = oldValue, 1)
 	setColor(newVal, 'manual')
 })
+
+const textColor = computed(() => {
+	if (!model.value) return '#000000'
+
+	const rgb = model.value.split('').map((c, i) => {
+		if (i === 0) return 0
+		return parseInt(c, 16)
+	})
+
+	return useRGB2OKLCH(rgb as Vector0to7)[0] < 5.0 ? '#FFFFFF' : '#000000'
+})
 </script>
 
 <template>
@@ -55,10 +68,13 @@ watch(manualColor, (newVal, oldValue) => {
 			<UPopover>
 				<UButton
 					variant="soft"
-					class="cursor-pointer grow text-black"
+					class="cursor-pointer grow"
 					icon="i-mage-color-picker"
 					label="Select Color"
-					:style="{ backgroundColor: model }"/>
+					:style="{
+						backgroundColor: model,
+						color: textColor
+					}"/>
 
 				<template #content>
 					<div class="flex flex-col gap-4 p-4 pr-0">

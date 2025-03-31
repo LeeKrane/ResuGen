@@ -12,6 +12,12 @@ export const useResumeStyleDefaults = (): ResumeStyle => {
 		colors: {
 			bg: "#FFFFFF",
 			bgElevated: "#DDDDDD",
+			text: {
+				title: "#1C1C1C",
+				subtitle: "#262626",
+				sectionTitle: "#1C1C1C",
+				base: "#262626"
+			},
 			skillLevels: {
 				basic: '#EF4444',
 				decent: '#F97316',
