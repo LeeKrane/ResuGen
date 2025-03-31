@@ -7,7 +7,7 @@
 		<div class="min-h-dvh grid grid-rows-[auto_1fr_auto]">
 			<SiteMainHeader/>
 
-			<main class="grow mb-16">
+			<main class="grow">
 				<slot/>
 			</main>
 

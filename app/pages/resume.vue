@@ -79,7 +79,7 @@ const maxWidth = computed (() => useWindowSize().width.value - (mobile.value ? 3
 				maxWidth: `${maxWidth}px`,
 				transform: `translateX(${-(!styleSliderBottom && slideOverBodyWidth > 0 ? slideOverBodyWidth + 48 : 0)/2}px)`,
 			}"
-			class="max-h-[calc(100vh-15rem)] print:w-[210mm] print:h-[297mm] not-print:w-3xl not-print:h-[calc(var(--container-3xl)*297/210)] shadow-xl mx-auto origin-top-left print:shadow-none not-print:m-4 not-print:rounded-lg transition-transform overflow-scroll">
+			class="max-h-[calc(100vh-13rem)] print:w-[210mm] print:h-[297mm] not-print:w-3xl not-print:h-[calc(var(--container-3xl)*297/210)] shadow-xl mx-auto origin-top-left print:shadow-none not-print:m-4 not-print:rounded-lg transition-transform overflow-scroll">
 			<div class="not-print:w-3xl not-print:h-[calc(var(--container-3xl)*297/210)] bg-(--ui-bg-elevated)">
 				Test
 			</div>
