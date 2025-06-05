@@ -1,8 +1,8 @@
 <template>
 	<UApp>
-		<GeneralParticles class="print:hidden"/>
+		<GeneralParticles class="invert-100 dark:invert-0 print:hidden" />
 		<NuxtLayout>
-			<NuxtPage/>
+			<NuxtPage />
 		</NuxtLayout>
 	</UApp>
 </template>
