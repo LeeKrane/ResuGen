@@ -18,11 +18,12 @@ const isDark = computed({
 				arrow
 				:delay-duration="0">
 				<UButton
-      :icon="isDark ? 'i-lucide-moon' : 'i-lucide-sun'"
-      color="neutral"
-      variant="ghost"
-      @click="isDark = !isDark"
-    />
+          color="neutral"
+					variant="ghost"
+					target="_blank"
+          :icon="isDark ? 'i-lucide-moon' : 'i-lucide-sun'"
+          @click="isDark = !isDark"
+        />
     </UTooltip>
 
     <template #fallback>
