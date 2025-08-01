@@ -38,6 +38,10 @@ const onFileChange = async (event: Event) => {
 }
 
 const avatarInput = ref<HTMLInputElement | null>(null)
+
+const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+
+const isEmailValid = computed(() => emailRegex.test(state.email))
 </script>
 
 <template>
@@ -64,13 +68,16 @@ const avatarInput = ref<HTMLInputElement | null>(null)
 						icon="i-lucide-message-square-text"/>
 				</UFormField>
 
-				<UFormField label="Email">
+				<UFormField label="Email" :error="state.email !== '' && !isEmailValid">
 					<UInput
 						v-model="state.email"
 						class="w-full"
 						variant="soft"
 						placeholder="john.doe@example.com"
 						icon="i-lucide-at-sign"/>
+						<template #hint>
+							<span v-if="state.email !== '' && !isEmailValid" class="text-(--ui-error)">Please enter a valid email address.</span>
+						</template>
 				</UFormField>
 			</div>
 
