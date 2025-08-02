@@ -1,7 +1,7 @@
 # ResuGen
 
 <div align="center">
-  <img src="/public/logo.webp" alt="ResuGen Logo" width="120" height="120">
+  <img src="/public/logo.png" alt="ResuGen Logo" width="120">
   <p>A modern, intuitive resume generator built with Nuxt 3 and Nuxt UI</p>
 </div>
 

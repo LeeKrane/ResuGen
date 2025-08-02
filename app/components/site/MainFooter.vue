@@ -10,7 +10,7 @@ const navItems = useNavItems()
 				<div class="flex flex-col gap-4 mx-auto">
 					<h3 class="font-semibold text-lg text-center">About ResuGen</h3>
 					<div class="flex gap-3 max-w-[60vw] mx-auto">
-						<NuxtImg src="/logo.webp" class="w-16 h-16"/>
+						<NuxtImg src="/logo.png" class="w-16 object-contain"/>
 						<div class="flex flex-col gap-1">
 							<p class="text-sm text-gray-600">Modern resume generator focused on simplicity and
 								professional design. Built with Nuxt and NuxtUI.</p>
