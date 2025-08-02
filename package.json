@@ -5,28 +5,21 @@
   "scripts": {
     "dev": "nuxt dev",
     "dev:host": "nuxt dev --host",
-
     "build": "nuxt build",
     "build:analyze": "nuxt build --analyze",
-
     "preview": "nuxt preview",
     "start": "node .output/server/index.mjs",
     "serve": "pnpm run build && pnpm run start",
-
     "generate": "nuxt generate",
     "generate:modern": "nuxt generate --modern",
-
     "clean": "rm -rf .nuxt .output dist .cache",
     "clean:all": "npm run clean && rm -rf node_modules",
-
     "postinstall": "nuxt prepare",
     "update-deps": "pnpm update",
     "lint": "eslint .",
     "lint:fix": "eslint --fix .",
     "typecheck": "nuxt typecheck",
-
     "prod:build": "pnpm run clean && pnpm run build",
-
     "deploy": "pnpm run clean && pnpm run build && pnpm run start"
   },
   "dependencies": {
@@ -34,10 +27,11 @@
     "@iconify-json/simple-icons": "^1.2.29",
     "@internationalized/date": "^3.7.0",
     "@nuxt/image": "1.10.0",
-    "@nuxt/ui": "^3.0.0",
+    "@nuxt/ui": "^3.3.0",
     "jszip": "^3.10.1",
     "nuxt": "^3.16.0",
-    "uuid": "^11.1.0"
+    "uuid": "^11.1.0",
+    "valibot": "^1.0.0"
   },
   "devDependencies": {
     "@nuxt/eslint": "^1.2.0",

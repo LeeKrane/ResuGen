@@ -118,10 +118,21 @@ interface ResumeStyle {
 	font: {
 		family: string
 		size: number
+		titleSizes: {
+			h1: number
+			h2: number
+			h3: number
+		}
 	}
 	colors: {
-		background?: string
-		backgroundPicked?: string
+		bg?: string
+		bgElevated?: string
+		text: {
+			title: string
+			subtitle: string
+			sectionTitle: string
+			base: string
+		}
 		skillLevels: {
 			basic: string
 			decent: string
@@ -130,14 +141,25 @@ interface ResumeStyle {
 			expert: string
 		}
 		techLogos: string
+		internship: string
+		openSource: string
 	}
 	effects: {
 		useShades: boolean
 		useGradients: boolean
+		useBorders: boolean
+		borderWidth: number
+		borderColor?: string
 	}
 	layout: {
 		type: "single-column" | "two-column" | "compact"
 		style: "fancy" | "simple"
 		showBackground: boolean
+		sectionSpacing: number
+		margin: number
+		additionalSections: {
+			id: string
+			enabled: boolean
+		}[]
 	}
 }

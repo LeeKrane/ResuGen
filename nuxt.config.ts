@@ -15,6 +15,16 @@ export default defineNuxtConfig({
 		compatibilityVersion: 4
 	},
 
+	ui: {
+    	colorMode: true,
+  	},
+
+	colorMode: {
+		preference: 'system',
+		fallback: 'dark',
+		disableTransition: false
+	},
+
 	compatibilityDate: '2024-11-27',
 
 	router: {
