@@ -1,19 +1,44 @@
 <script setup lang="ts">
 const state = useResumeStyle()
 const defaults = useResumeStyleDefaults()
+
+const showLayout = useState("showLayoutSC", () => true)
+const showTypography = useState("showTypographySC", () => true)
+const showColors = useState("showColorsSC", () => true)
+const showSections = useState("showSectionsSC", () => true)
+const showEffects = useState("showEffectsSC", () => true)
 </script>
 
 <template>
 	<UForm :state="state" class="flex flex-col gap-8 p-2 max-w-xl mx-auto">
 		<UCard>
-			<template #header>
+			<template v-if="showLayout" #header>
 				<div class="flex items-center gap-2">
 					<UIcon name="i-lucide-layout" size="20"/>
 					<h3 class="font-bold text-lg">Layout</h3>
+					<span class="grow"/>
+					<UButton
+							class="cursor-pointer"
+							icon="i-lucide-chevron-down"
+							color="neutral"
+							variant="ghost"
+							@click="showLayout = !showLayout"/>
 				</div>
 			</template>
 
-			<div class="flex flex-wrap gap-4">
+			<div v-if="!showLayout" class="flex items-center gap-2 -my-2">
+				<UIcon name="i-lucide-layout" size="20"/>
+				<h3 class="font-bold text-lg">Layout</h3>
+				<span class="grow"/>
+				<UButton
+						class="cursor-pointer"
+						icon="i-lucide-chevron-up"
+						color="neutral"
+						variant="ghost"
+						@click="showLayout = !showLayout"/>
+			</div>
+
+			<div v-else class="flex flex-wrap gap-4">
 				<UFormField label="Type" class="grow">
 					<!-- :items="['single-column', 'two-column', 'compact']" -->
 					<USelect
@@ -75,11 +100,11 @@ const defaults = useResumeStyleDefaults()
 
 				<UFormField label="Margin" class="grow min-w-36">
 					<USlider
-						v-model="state.layout.margin"
-						class="mt-2 z-10"
-						:min="1"
-						:max="16"
-						:step="1"/>
+							v-model="state.layout.margin"
+							class="mt-2 z-10"
+							:min="1"
+							:max="16"
+							:step="1"/>
 					<div class="relative flex w-full pt-1">
 						<span class="absolute w-full text-center text-(--ui-primary)">
 							{{ state.layout.margin }}
@@ -99,36 +124,83 @@ const defaults = useResumeStyleDefaults()
 					</template>
 				</UFormField>
 
-				<UFormField label="Show Background" class="grow">
-					<USwitch v-model="state.layout.showBackground"/>
+				<UFormField label="Size Ratio" class="grow min-w-36">
+					<USlider
+							v-model="state.layout.sizeRatio"
+							class="mt-2 z-10"
+							:min="20"
+							:max="50"
+							:step="1"/>
+					<div class="relative flex w-full pt-1">
+						<span class="absolute w-full text-center text-(--ui-primary)">
+							{{ state.layout.sizeRatio }}%
+						</span>
+
+						<span class="ml-1">20%</span>
+						<span class="grow"/>
+						<span class="mr-1">50%</span>
+					</div>
+
+					<template #hint>
+						<div class="flex items-center gap-1">
+							<UTooltip text="The size ratio refers to the size ratio of the main parts of your resume.">
+								<UIcon name="i-lucide-help-circle" size="15"/>
+							</UTooltip>
+						</div>
+					</template>
 				</UFormField>
+
+<!--				<UFormField label="Show Background" class="grow">-->
+<!--					<USwitch v-model="state.layout.showBackground"/>-->
+<!--				</UFormField>-->
 			</div>
 		</UCard>
 
+
+
 		<UCard>
-			<template #header>
+			<template v-if="showTypography" #header>
 				<div class="flex items-center gap-2">
 					<UIcon name="i-lucide-type" size="20"/>
 					<h3 class="font-bold text-lg">Typography</h3>
+					<span class="grow"/>
+					<UButton
+							class="cursor-pointer"
+							icon="i-lucide-chevron-down"
+							color="neutral"
+							variant="ghost"
+							@click="showTypography = !showTypography"/>
 				</div>
 			</template>
 
-			<div class="flex flex-wrap gap-4">
+			<div v-if="!showTypography" class="flex items-center gap-2 -my-2">
+				<UIcon name="i-lucide-type" size="20"/>
+				<h3 class="font-bold text-lg">Typography</h3>
+				<span class="grow"/>
+				<UButton
+						class="cursor-pointer"
+						icon="i-lucide-chevron-up"
+						color="neutral"
+						variant="ghost"
+						@click="showTypography = !showTypography"/>
+			</div>
+
+			<div v-else class="flex flex-wrap gap-4">
 				<UFormField label="Base Size" class="grow min-w-36">
 					<USlider
 						v-model="state.font.size"
 						class="mt-2 z-10"
-						:min="10"
-						:max="20"
-						:step="1"/>
+						:min="8"
+						:max="16"
+						:step="0.5"/>
 					<div class="relative flex w-full pt-1">
 							<span class="absolute w-full text-center text-(--ui-primary)">
 								{{ state.font.size }}
 							</span>
 
-						<span class="ml-1">10</span>
+						<span class="ml-1">8</span>
 						<span class="grow"/>
-						<span class="mr-1">20</span>
+						<span class="mr-1">16</span>
 					</div>
 
 					<template #hint>
@@ -144,17 +216,17 @@ const defaults = useResumeStyleDefaults()
 					<USlider
 						v-model="state.font.titleSizes.h1"
 						class="mt-2 z-10"
-						:min="12"
-						:max="36"
-						:step="1"/>
+						:min="10"
+						:max="30"
+						:step="0.5"/>
 					<div class="relative flex w-full pt-1">
 							<span class="absolute w-full text-center text-(--ui-primary)">
 								{{ state.font.titleSizes.h1 }}
 							</span>
 
-						<span class="ml-1">12</span>
+						<span class="ml-1">10</span>
 						<span class="grow"/>
-						<span class="mr-1">36</span>
+						<span class="mr-1">30</span>
 					</div>
 
 					<template #hint>
@@ -170,17 +242,17 @@ const defaults = useResumeStyleDefaults()
 					<USlider
 						v-model="state.font.titleSizes.h2"
 						class="mt-2 z-10"
-						:min="12"
-						:max="36"
-						:step="1"/>
+						:min="10"
+						:max="30"
+						:step="0.5"/>
 					<div class="relative flex w-full pt-1">
 							<span class="absolute w-full text-center text-(--ui-primary)">
 								{{ state.font.titleSizes.h2 }}
 							</span>
 
-						<span class="ml-1">12</span>
+						<span class="ml-1">10</span>
 						<span class="grow"/>
-						<span class="mr-1">36</span>
+						<span class="mr-1">30</span>
 					</div>
 
 					<template #hint>
@@ -194,19 +266,19 @@ const defaults = useResumeStyleDefaults()
 
 				<UFormField label="Section titles" class="grow min-w-36">
 					<USlider
-						v-model="state.font.titleSizes.h3"
-						class="mt-2 z-10"
-						:min="12"
-						:max="36"
-						:step="1"/>
+							v-model="state.font.titleSizes.h3"
+							class="mt-2 z-10"
+							:min="10"
+							:max="30"
+							:step="0.5"/>
 					<div class="relative flex w-full pt-1">
 							<span class="absolute w-full text-center text-(--ui-primary)">
 								{{ state.font.titleSizes.h3 }}
 							</span>
 
-						<span class="ml-1">12</span>
+						<span class="ml-1">10</span>
 						<span class="grow"/>
-						<span class="mr-1">36</span>
+						<span class="mr-1">30</span>
 					</div>
 
 					<template #hint>
@@ -218,34 +290,81 @@ const defaults = useResumeStyleDefaults()
 					</template>
 				</UFormField>
 
-				<UFormField label="Font Family" class="grow">
-					<USelect
-						v-model="state.font.family"
-						:items="[
-							{ label: 'Inter', value: 'inter' },
-							{ label: 'Roboto', value: 'roboto' },
-							{ label: 'Public Sans', value: 'public-sans' },
-							{ label: 'Open Sans', value: 'open-sans' },
-							{ label: 'Lato', value: 'lato' },
-							{ label: 'Calibri', value: 'calibri' },
-							{ label: 'Garamond', value: 'garamond' },
-							{ label: 'Verdana', value: 'verdana' }
-						]"
-						variant="soft"
-						class="w-full"/>
+				<UFormField label="Line Height" class="grow min-w-36">
+					<USlider
+							v-model="state.font.lineHeight"
+							class="mt-2 z-10"
+							:min="1.25"
+							:max="2"
+							:step="0.05"/>
+					<div class="relative flex w-full pt-1">
+							<span class="absolute w-full text-center text-(--ui-primary)">
+								{{ state.font.lineHeight }}
+							</span>
+
+						<span class="ml-1">1.25</span>
+						<span class="grow"/>
+						<span class="mr-1">2</span>
+					</div>
+
+					<template #hint>
+						<div class="flex items-center gap-1">
+							<UTooltip text="The line height refers to the height of each line of text in your resume.">
+								<UIcon name="i-lucide-help-circle" size="15"/>
+							</UTooltip>
+						</div>
+					</template>
 				</UFormField>
+
+<!--				<UFormField label="Font Family" class="grow">-->
+<!--					<USelect-->
+<!--						v-model="state.font.family"-->
+<!--						:items="[-->
+<!--							{ label: 'Inter', value: 'inter' },-->
+<!--							{ label: 'Roboto', value: 'roboto' },-->
+<!--							{ label: 'Public Sans', value: 'public-sans' },-->
+<!--							{ label: 'Open Sans', value: 'open-sans' },-->
+<!--							{ label: 'Lato', value: 'lato' },-->
+<!--							{ label: 'Calibri', value: 'calibri' },-->
+<!--							{ label: 'Garamond', value: 'garamond' },-->
+<!--							{ label: 'Verdana', value: 'verdana' }-->
+<!--						]"-->
+<!--						variant="soft"-->
+<!--						class="w-full"/>-->
+<!--				</UFormField>-->
 			</div>
 		</UCard>
 
+
+
 		<UCard>
-			<template #header>
+			<template v-if="showColors" #header>
 				<div class="flex items-center gap-2">
 					<UIcon name="i-lucide-palette" size="20"/>
 					<h3 class="font-bold text-lg">Colors</h3>
+					<span class="grow"/>
+					<UButton
+							class="cursor-pointer"
+							icon="i-lucide-chevron-down"
+							color="neutral"
+							variant="ghost"
+							@click="showColors = !showColors"/>
 				</div>
 			</template>
 
-			<div class="flex flex-col gap-4">
+			<div v-if="!showColors" class="flex items-center gap-2 -my-2">
+				<UIcon name="i-lucide-palette" size="20"/>
+				<h3 class="font-bold text-lg">Colors</h3>
+				<span class="grow"/>
+				<UButton
+						class="cursor-pointer"
+						icon="i-lucide-chevron-up"
+						color="neutral"
+						variant="ghost"
+						@click="showColors = !showColors"/>
+			</div>
+
+			<div v-else class="flex flex-col gap-4">
 				<div class="flex flex-wrap gap-4">
 					<UFormField label="Background" class="grow">
 						<FormColorPicker
@@ -265,36 +384,60 @@ const defaults = useResumeStyleDefaults()
 				<div class="flex flex-wrap gap-4">
 					<UFormField label="Title" class="grow">
 						<FormColorPicker
-							v-model="state.colors.text.title"
-							:default-color="defaults.colors.text.title"/>
+								v-model="state.colors.text.title"
+								:default-color="defaults.colors.text.title"/>
 					</UFormField>
 
 					<UFormField label="Subtitle" class="grow">
 						<FormColorPicker
-							v-model="state.colors.text.subtitle"
-							:default-color="defaults.colors.text.subtitle"/>
+								v-model="state.colors.text.subtitle"
+								:default-color="defaults.colors.text.subtitle"/>
 					</UFormField>
 
 					<UFormField label="Section Title" class="grow">
 						<FormColorPicker
-							v-model="state.colors.text.sectionTitle"
-							:default-color="defaults.colors.text.sectionTitle"/>
+								v-model="state.colors.text.sectionTitle"
+								:default-color="defaults.colors.text.sectionTitle"/>
+					</UFormField>
+
+					<UFormField label="Elevated Section Title" class="grow">
+						<FormColorPicker
+								v-model="state.colors.text.sectionTitleElevated"
+								:default-color="defaults.colors.text.sectionTitleElevated"/>
 					</UFormField>
 
 					<UFormField label="Base Text" class="grow">
 						<FormColorPicker
-							v-model="state.colors.text.base"
-							:default-color="defaults.colors.text.base"/>
+								v-model="state.colors.text.base"
+								:default-color="defaults.colors.text.base"/>
+					</UFormField>
+
+					<UFormField label="Elevated Base Text" class="grow">
+						<FormColorPicker
+								v-model="state.colors.text.baseElevated"
+								:default-color="defaults.colors.text.baseElevated"/>
 					</UFormField>
 				</div>
 
 				<USeparator/>
 
 				<div class="flex flex-wrap gap-4">
+					<UFormField label="Language Badges" class="grow">
+						<FormColorPicker
+								v-model="state.colors.languageBadges"
+								:default-color="defaults.colors.languageBadges"/>
+					</UFormField>
+
+					<UFormField label="Active Badge" class="grow">
+						<FormColorPicker
+								v-model="state.colors.active"
+								:default-color="defaults.colors.active"/>
+					</UFormField>
+
 					<UFormField label="Technology Logos" class="grow">
 						<FormColorPicker
-							v-model="state.colors.techLogos"
-							:default-color="defaults.colors.techLogos"/>
+								v-model="state.colors.techLogos"
+								:default-color="defaults.colors.techLogos"/>
 					</UFormField>
 
 					<UFormField label="Internship Badge" class="grow">
@@ -326,15 +469,96 @@ const defaults = useResumeStyleDefaults()
 			</div>
 		</UCard>
 
+
+
 		<UCard>
-			<template #header>
+			<template v-if="showSections" #header>
 				<div class="flex items-center gap-2">
-					<UIcon name="i-lucide-wand-2" size="20"/>
-					<h3 class="font-bold text-lg">Effects</h3>
+					<UIcon name="i-lucide-layout-grid" size="20"/>
+					<h3 class="font-bold text-lg">Sections</h3>
+					<span class="grow"/>
+					<UButton
+							class="cursor-pointer"
+							icon="i-lucide-chevron-down"
+							color="neutral"
+							variant="ghost"
+							@click="showSections = !showSections"/>
 				</div>
 			</template>
 
-			<div class="flex flex-col gap-4">
+			<div v-if="!showSections" class="flex items-center gap-2 -my-2">
+				<UIcon name="i-lucide-layout-grid" size="20"/>
+				<h3 class="font-bold text-lg">Sections</h3>
+				<span class="grow"/>
+				<UButton
+						class="cursor-pointer"
+						icon="i-lucide-chevron-up"
+						color="neutral"
+						variant="ghost"
+						@click="showSections = !showSections"/>
+			</div>
+
+			<div v-else class="flex flex-col gap-4">
+				<h3>Minor Sections</h3>
+
+				<div class="flex flex-col gap-2">
+					<div
+							v-for="(section, key) in state.sections.minor"
+							:key="key"
+							class="flex items-center gap-2">
+						<USwitch v-model="section.enabled"/>
+						<span>{{ key![0]!.toUpperCase() + key!.slice(1) }}</span>
+						<span class="grow"/>
+						<!-- todo: allow order changing (possible data structure change needed) -->
+					</div>
+				</div>
+
+				<h3>Major Sections</h3>
+
+				<div class="flex flex-col gap-2">
+					<div
+							v-for="(section, key) in state.sections.major"
+							:key="key"
+							class="flex items-center gap-2">
+						<USwitch v-model="section.enabled"/>
+						<span>{{ key![0]!.toUpperCase() + key!.slice(1) }}</span>
+						<span class="grow"/>
+						<!-- todo: allow order changing (possible data structure change needed) -->
+					</div>
+				</div>
+			</div>
+		</UCard>
+
+
+
+		<UCard>
+			<template v-if="showEffects" #header>
+				<div class="flex items-center gap-2">
+					<UIcon name="i-lucide-wand-2" size="20"/>
+					<h3 class="font-bold text-lg">Effects</h3>
+					<span class="grow"/>
+					<UButton
+							class="cursor-pointer"
+							icon="i-lucide-chevron-down"
+							color="neutral"
+							variant="ghost"
+							@click="showEffects = !showEffects"/>
+				</div>
+			</template>
+
+			<div v-if="!showEffects" class="flex items-center gap-2 -my-2">
+				<UIcon name="i-lucide-wand-2" size="20"/>
+				<h3 class="font-bold text-lg">Effects</h3>
+				<span class="grow"/>
+				<UButton
+						class="cursor-pointer"
+						icon="i-lucide-chevron-up"
+						color="neutral"
+						variant="ghost"
+						@click="showEffects = !showEffects"/>
+			</div>
+
+			<div v-else class="flex flex-col gap-4">
 				<div class="flex flex-wrap gap-4">
 					<UFormField label="Use Shades" class="grow">
 						<USwitch v-model="state.effects.useShades"/>
@@ -372,27 +596,6 @@ const defaults = useResumeStyleDefaults()
 						<FormColorPicker
 							v-model="state.effects.borderColor"
 							:default-color="defaults.effects.borderColor"/>
-					</UFormField>
-				</div>
-			</div>
-		</UCard>
-
-		<UCard>
-			<template #header>
-				<div class="flex items-center gap-2">
-					<UIcon name="i-lucide-layout-grid" size="20"/>
-					<h3 class="font-bold text-lg">Additional Sections</h3>
-				</div>
-			</template>
-
-			<div class="flex flex-col gap-4">
-				<div class="flex flex-wrap gap-4">
-					<UFormField
-						v-for="(value, key) in state.layout.additionalSections"
-						:key="key"
-						:label="state.layout.additionalSections[key]!.id"
-						class="grow">
-						<USwitch v-model="state.layout.additionalSections[key]!.enabled"/>
 					</UFormField>
 				</div>
 			</div>
