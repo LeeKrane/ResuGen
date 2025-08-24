@@ -33,7 +33,7 @@ const defaults = useResumeStyleDefaults()
 				<UFormField label="Section Spacing" class="grow min-w-36">
 					<USlider
 						v-model="state.layout.sectionSpacing"
-						class="mt-2"
+						class="mt-2 z-10"
 						:min="1"
 						:max="8"
 						:step="1"/>
@@ -51,7 +51,7 @@ const defaults = useResumeStyleDefaults()
 				<UFormField label="Margin" class="grow min-w-36">
 					<USlider
 						v-model="state.layout.margin"
-						class="mt-2"
+						class="mt-2 z-10"
 						:min="1"
 						:max="16"
 						:step="1"/>
@@ -84,7 +84,7 @@ const defaults = useResumeStyleDefaults()
 				<UFormField label="Base Size" class="grow min-w-36">
 					<USlider
 						v-model="state.font.size"
-						class="mt-2"
+						class="mt-2 z-10"
 						:min="10"
 						:max="20"
 						:step="1"/>
@@ -102,7 +102,7 @@ const defaults = useResumeStyleDefaults()
 				<UFormField label="Title" class="grow min-w-36">
 					<USlider
 						v-model="state.font.titleSizes.h1"
-						class="mt-2"
+						class="mt-2 z-10"
 						:min="12"
 						:max="36"
 						:step="1"/>
@@ -120,7 +120,7 @@ const defaults = useResumeStyleDefaults()
 				<UFormField label="Subtitle" class="grow min-w-36">
 					<USlider
 						v-model="state.font.titleSizes.h2"
-						class="mt-2"
+						class="mt-2 z-10"
 						:min="12"
 						:max="36"
 						:step="1"/>
@@ -138,7 +138,7 @@ const defaults = useResumeStyleDefaults()
 				<UFormField label="Section titles" class="grow min-w-36">
 					<USlider
 						v-model="state.font.titleSizes.h3"
-						class="mt-2"
+						class="mt-2 z-10"
 						:min="12"
 						:max="36"
 						:step="1"/>
@@ -288,7 +288,7 @@ const defaults = useResumeStyleDefaults()
 					<UFormField v-if="state.effects.useBorders" label="Border Width" class="grow">
 						<USlider
 							v-model="state.effects.borderWidth"
-							class="mt-2"
+							class="mt-2 z-10"
 							:min="1"
 							:max="4"
 							:step="1"/>
