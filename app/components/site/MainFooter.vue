@@ -14,9 +14,10 @@ const navItems = useNavItems()
 						<div class="flex flex-col gap-1">
 							<p class="text-sm text-gray-600">Modern resume generator focused on simplicity and
 								professional design. Built with Nuxt and NuxtUI.</p>
-							<p class="text-sm text-gray-500">Made with
-								<UIcon name="i-material-symbols-favorite-rounded" class="text-red-500"/>
-								by Krane Development
+							<p class="flex gap-1 items-center text-sm text-gray-500">
+								<span>Made with</span>
+								<span><UIcon name="i-material-symbols-favorite-rounded" class="text-red-500"/></span>
+								<span>by Krane Development</span>
 							</p>
 						</div>
 					</div>
