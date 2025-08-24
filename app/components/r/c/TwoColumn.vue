@@ -28,7 +28,7 @@ const data = useRefResumeData()
 					gap: `${style.layout.sectionSpacing/8}rem`,
 					color: style.colors.text.baseElevated,
 				}"
-				class="flex flex-col h-full shrink-0">
+				class="flex flex-col min-h-full shrink-0">
 
 			<!-- Avatar -->
 
