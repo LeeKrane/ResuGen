@@ -40,7 +40,7 @@ onMounted(() => {
 					label="Configure Styling"
 					color="info"
 					variant="soft"
-					class="mx-auto cursor-pointer"
+					class="mx-auto cursor-pointer bg-(--ui-info)/20 backdrop-blur-sm"
 					icon="i-lucide-wand-2"/>
 
 				<template #header>
@@ -74,7 +74,7 @@ onMounted(() => {
 				label="Print"
 				color="primary"
 				variant="soft"
-				class="mx-auto cursor-pointer"
+				class="mx-auto cursor-pointer bg-(--ui-primary)/20 backdrop-blur-sm"
 				icon="i-lucide-printer"
 				@click="handlePrint"/>
 		</UButtonGroup>
