@@ -4,7 +4,9 @@ interface Language {
 }
 
 interface Skill {
+	technology?: Icon
 	name: string
+	displayType?: Icon
 	level?: "Basic" | "Decent" | "Good" | "Proficient" | "Expert"
 }
 
