@@ -382,6 +382,70 @@ const data = useRefResumeData()
 					</div>
 				</div>
 			</div>
+
+			<!-- Projects -->
+
+			<div
+					v-if="style.sections.major.projects.enabled"
+					class="flex flex-col">
+				<HSeparator label="Projects" icon="i-lucide-code-xml" />
+
+				<div
+						v-for="(project, pIndex) in data.projects.value"
+						:key="project.name"
+						class="relative flex flex-col gap-1 px-2 py-1 nth-[2]:mt-1 not-last:mb-2 border rounded-md"
+						:style="{ borderLeftColor: style.colors.text.base }"
+				>
+
+				<div class="flex flex-wrap justify-between items-center gap-1">
+						<h3 class="font-bold">{{ project.name }}</h3>
+						<div class="flex items-center gap-1">
+							<ULink
+								v-if="project.repoLink"
+								:to="project.repoLink.url!"
+								class="flex items-center">
+								<UIcon
+									:name="project.repoLink.icon!.icon!"
+									:style="{ color: style.colors.text.base }"
+									:size="style.font.size * 1.5"/>
+							</ULink>
+							<ULink
+								v-if="project.url"
+								:to="project.url!"
+								class="flex items-center">
+								<UIcon
+										name="i-lucide-globe"
+										:style="{ color: style.colors.text.base }"
+										:size="style.font.size * 1.5"/>
+							</ULink>
+						</div>
+					</div>
+
+					<p>{{ project.description }}</p>
+
+					<div class="flex flex-wrap items-center justify-between gap-1">
+						<div class="flex flex-wrap gap-1">
+							<UIcon
+									v-for="(t, tIndex) in project.technologies"
+									:key="tIndex"
+									:style="{
+										color: style.colors.techLogos,
+									}"
+									size="medium"
+									:name="t.icon"/>
+						</div>
+
+						<span
+								v-if="project.openSource"
+								class="py-px px-1.5 rounded-md"
+								:style="{
+									backgroundColor: style.colors.openSource,
+								}">
+								Open-Source
+							</span>
+					</div>
+				</div>
+			</div>
 		</div>
 	</div>
 </template>
