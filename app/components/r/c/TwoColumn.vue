@@ -263,7 +263,7 @@ const data = useRefResumeData()
 					<div
 							class="absolute w-px top-1.5 left-1.5 -translate-x-1/2 z-10"
 							:class="edIndex === data.education.value.length - 1 ? 'h-[calc(100%-0.5rem)]' : 'h-full'"
-							 :style="{
+							:style="{
 									backgroundColor: style.colors.text.base,
 							}"/>
 
@@ -274,8 +274,8 @@ const data = useRefResumeData()
 
 						<div class="flex items-center gap-1">
 							<UIcon name="i-lucide-clock" :size="style.font.size * 1.5"/>
-								<span>
-									{{ education.start?.month?.toString().padStart(2, '0') }}.{{ education.start?.year }} - {{ education.active ? "(" : "" }}{{ education.end?.month?.toString().padStart(2, '0') }}.{{ education.end?.year }}{{ education.active ? ")" : "" }}
+							<span>
+									{{ education.start?.month?.toString().padStart(2, '0') }}.{{ education.start?.year }} - {{ education.active && !education.end ? "Present" : `${education.active ? "(" : ""}${education.end?.month?.toString().padStart(2, '0')}.${education.end?.year}${education.active ? ")" : ""}` }}
 								</span>
 						</div>
 					</div>
@@ -299,6 +299,87 @@ const data = useRefResumeData()
 					</div>
 
 					<p>{{ education.text }}</p>
+				</div>
+			</div>
+
+			<!-- Experiences -->
+
+			<div
+					v-if="style.sections.major.experience.enabled"
+					class="flex flex-col">
+				<HSeparator label="Work Experience" icon="i-lucide-graduation-cap" />
+
+				<div
+						v-for="(experience, exIndex) in data.experience.value"
+						:key="experience.position"
+						class="relative flex flex-col gap-1 pl-5.5 nth-[2]:mt-1 not-last:pb-2">
+					<div
+							class="absolute w-3 h-3 top-1 left-1.5 -translate-x-1/2 border rounded-full z-20"
+							:style="{
+									backgroundColor: style.colors.bg,
+									borderColor: style.colors.text.base,
+								}"/>
+
+					<div
+							class="absolute w-px top-1.5 left-1.5 -translate-x-1/2 z-10"
+							:class="exIndex === data.experience.value.length - 1 ? 'h-[calc(100%-0.5rem)]' : 'h-full'"
+							:style="{
+									backgroundColor: style.colors.text.base,
+							}"/>
+
+					<div class="flex flex-wrap justify-between items-center gap-1">
+						<h3 class="font-bold">
+							{{ experience.position }}
+						</h3>
+
+						<div class="flex items-center gap-1">
+							<UIcon name="i-lucide-clock" :size="style.font.size * 1.5"/>
+							<span>
+									{{ experience.start?.month?.toString().padStart(2, '0') }}.{{ experience.start?.year }} - {{ experience.active && !experience.end ? "Present" : `${experience.active ? "(" : ""}${experience.end?.month?.toString().padStart(2, '0')}.${experience.end?.year}${experience.active ? ")" : ""}` }}
+								</span>
+						</div>
+					</div>
+
+					<div class="flex flex-wrap justify-between items-center gap-1">
+						<div class="flex items-center gap-1 grow">
+							<UIcon name="i-lucide-building-2" :size="style.font.size * 1.5"/>
+							<h3 class="font-bold">
+								{{ data.institutions.value.find((i) => i.uuid === experience.institution)?.name }}
+							</h3>
+							<span class="grow"/>
+							<span
+									v-if="experience.internship"
+									class="py-px px-1.5 rounded-md"
+									:style="{
+										backgroundColor: style.colors.internship,
+									}">
+								Internship
+							</span>
+							<span
+									v-if="experience.active"
+									class="py-px px-1.5 rounded-md"
+									:style="{
+										backgroundColor: style.colors.active,
+									}">
+								Active
+							</span>
+						</div>
+					</div>
+
+					<p>{{ experience.text }}</p>
+
+					<div
+							v-if="experience.technologies.length > 0"
+							class="flex flex-wrap gap-1">
+						<UIcon
+								v-for="(t, tIndex) in experience.technologies"
+								:key="tIndex"
+								:style="{
+									color: style.colors.techLogos,
+								}"
+								size="medium"
+								:name="t.icon"/>
+					</div>
 				</div>
 			</div>
 		</div>
