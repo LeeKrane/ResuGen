@@ -12,7 +12,7 @@ export const useResumeStyleDefaults = (): ResumeStyle => {
 		},
 		colors: {
 			bg: "#FFFFFF",
-			bgElevated: "#DDDDDD",
+			bgElevated: "#142338",
 			text: {
 				title: "#1C1C1C",
 				subtitle: "#262626",
@@ -22,15 +22,15 @@ export const useResumeStyleDefaults = (): ResumeStyle => {
 				baseElevated: "#EBEBEB"
 			},
 			skillLevels: {
-				basic: '#EF4444',
-				decent: '#F97316',
-				good: '#EAB308',
-				proficient: '#84CC16',
-				expert: '#22C55E'
+				basic: '#E95057',
+				decent: '#F0853C',
+				good: '#00A989',
+				proficient: '#0080C4',
+				expert: '#AB3E8F'
 			},
 			languageBadges: '#273954',
-			active: '#26DF69',
-			techLogos: '#26DF69',
+			active: '#A5F3DF',
+			techLogos: '#00CC8B',
 			internship: '#60A5FA',
 			openSource: '#93C5FD'
 		},
@@ -43,7 +43,7 @@ export const useResumeStyleDefaults = (): ResumeStyle => {
 		},
 		layout: {
 			type: 'two-column',
-			style: 'fancy',
+			style: 'simple',
 			showBackground: true,
 			sizeRatio: 34,
 			sectionSpacing: 2,
