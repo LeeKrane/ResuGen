@@ -307,7 +307,7 @@ const data = useRefResumeData()
 			<div
 					v-if="style.sections.major.experience.enabled"
 					class="flex flex-col">
-				<HSeparator label="Work Experience" icon="i-lucide-graduation-cap" />
+				<HSeparator label="Work Experience" icon="i-lucide-briefcase" />
 
 				<div
 						v-for="(experience, exIndex) in data.experience.value"
