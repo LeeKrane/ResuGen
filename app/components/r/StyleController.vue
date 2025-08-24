@@ -15,11 +15,20 @@ const defaults = useResumeStyleDefaults()
 
 			<div class="flex flex-wrap gap-4">
 				<UFormField label="Type" class="grow">
+					<!-- :items="['single-column', 'two-column', 'compact']" -->
 					<USelect
 						v-model="state.layout.type"
-						:items="['single-column', 'two-column', 'compact']"
+						:items="['two-column']"
 						variant="soft"
 						class="w-full"/>
+
+					<template #hint>
+						<div class="flex items-center gap-1">
+							<UTooltip text="The layout type defines the overall structure of your resume.">
+								<UIcon name="i-lucide-help-circle" size="15"/>
+							</UTooltip>
+						</div>
+					</template>
 				</UFormField>
 
 				<UFormField label="Style" class="grow">
@@ -28,6 +37,14 @@ const defaults = useResumeStyleDefaults()
 						:items="['fancy', 'simple']"
 						variant="soft"
 						class="w-full"/>
+
+					<template #hint>
+						<div class="flex items-center gap-1">
+							<UTooltip text="The style defines the visual theme of your resume.">
+								<UIcon name="i-lucide-help-circle" size="15"/>
+							</UTooltip>
+						</div>
+					</template>
 				</UFormField>
 
 				<UFormField label="Section Spacing" class="grow min-w-36">
@@ -35,7 +52,7 @@ const defaults = useResumeStyleDefaults()
 						v-model="state.layout.sectionSpacing"
 						class="mt-2 z-10"
 						:min="1"
-						:max="8"
+						:max="16"
 						:step="1"/>
 					<div class="relative flex w-full pt-1">
 						<span class="absolute w-full text-center text-(--ui-primary)">
@@ -44,8 +61,16 @@ const defaults = useResumeStyleDefaults()
 
 						<span class="ml-1">1</span>
 						<span class="grow"/>
-						<span class="mr-1">8</span>
+						<span class="mr-1">16</span>
 					</div>
+
+					<template #hint>
+						<div class="flex items-center gap-1">
+							<UTooltip text="Section spacing refers to the space between different sections like personal information, languages, skills, etc. of your resume.">
+								<UIcon name="i-lucide-help-circle" size="15"/>
+							</UTooltip>
+						</div>
+					</template>
 				</UFormField>
 
 				<UFormField label="Margin" class="grow min-w-36">
@@ -64,6 +89,14 @@ const defaults = useResumeStyleDefaults()
 						<span class="grow"/>
 						<span class="mr-1">16</span>
 					</div>
+
+					<template #hint>
+						<div class="flex items-center gap-1">
+							<UTooltip text="The margin refers to the space between the edge of the page and the content of your resume.">
+								<UIcon name="i-lucide-help-circle" size="15"/>
+							</UTooltip>
+						</div>
+					</template>
 				</UFormField>
 
 				<UFormField label="Show Background" class="grow">
@@ -97,6 +130,14 @@ const defaults = useResumeStyleDefaults()
 						<span class="grow"/>
 						<span class="mr-1">20</span>
 					</div>
+
+					<template #hint>
+						<div class="flex items-center gap-1">
+							<UTooltip text="The base size refers to the font size of the main text in your resume.">
+								<UIcon name="i-lucide-help-circle" size="15"/>
+							</UTooltip>
+						</div>
+					</template>
 				</UFormField>
 
 				<UFormField label="Title" class="grow min-w-36">
@@ -115,6 +156,14 @@ const defaults = useResumeStyleDefaults()
 						<span class="grow"/>
 						<span class="mr-1">36</span>
 					</div>
+
+					<template #hint>
+						<div class="flex items-center gap-1">
+							<UTooltip text="The title size refers to the font size of the main title in your resume.">
+								<UIcon name="i-lucide-help-circle" size="15"/>
+							</UTooltip>
+						</div>
+					</template>
 				</UFormField>
 
 				<UFormField label="Subtitle" class="grow min-w-36">
@@ -133,6 +182,14 @@ const defaults = useResumeStyleDefaults()
 						<span class="grow"/>
 						<span class="mr-1">36</span>
 					</div>
+
+					<template #hint>
+						<div class="flex items-center gap-1">
+							<UTooltip text="The subtitle size refers to the font size of the main subtitle in your resume.">
+								<UIcon name="i-lucide-help-circle" size="15"/>
+							</UTooltip>
+						</div>
+					</template>
 				</UFormField>
 
 				<UFormField label="Section titles" class="grow min-w-36">
@@ -151,6 +208,14 @@ const defaults = useResumeStyleDefaults()
 						<span class="grow"/>
 						<span class="mr-1">36</span>
 					</div>
+
+					<template #hint>
+						<div class="flex items-center gap-1">
+							<UTooltip text="The section title size refers to the font size of the titles of each section in your resume.">
+								<UIcon name="i-lucide-help-circle" size="15"/>
+							</UTooltip>
+						</div>
+					</template>
 				</UFormField>
 
 				<UFormField label="Font Family" class="grow">
