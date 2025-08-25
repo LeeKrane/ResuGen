@@ -2,13 +2,13 @@ export const useResumeStyleDefaults = (): ResumeStyle => {
 	return {
 		font: {
 			family: 'inter',
-			size: 16,
+			size: 10,
 			titleSizes: {
-				h1: 24,
-				h2: 20,
-				h3: 18
+				h1: 20,
+				h2: 15,
+				h3: 12.5
 			},
-			lineHeight: 1.5
+			lineHeight: 1.4
 		},
 		colors: {
 			bg: "#FFFFFF",
@@ -22,11 +22,11 @@ export const useResumeStyleDefaults = (): ResumeStyle => {
 				baseElevated: "#EBEBEB"
 			},
 			skillLevels: {
-				basic: '#E95057',
-				decent: '#F0853C',
-				good: '#00A989',
-				proficient: '#0080C4',
-				expert: '#AB3E8F'
+				basic: '#638475',
+				decent: '#507A84',
+				good: '#30516F',
+				proficient: '#353D9B',
+				expert: '#7B27DD'
 			},
 			languageBadges: '#273954',
 			active: '#A5F3DF',

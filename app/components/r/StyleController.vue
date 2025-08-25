@@ -128,17 +128,17 @@ const showEffects = useState("showEffectsSC", () => true)
 					<USlider
 							v-model="state.layout.sizeRatio"
 							class="mt-2 z-10"
-							:min="20"
-							:max="50"
-							:step="1"/>
+							:min="30"
+							:max="40"
+							:step="0.5"/>
 					<div class="relative flex w-full pt-1">
 						<span class="absolute w-full text-center text-(--ui-primary)">
 							{{ state.layout.sizeRatio }}%
 						</span>
 
-						<span class="ml-1">20%</span>
+						<span class="ml-1">30%</span>
 						<span class="grow"/>
-						<span class="mr-1">50%</span>
+						<span class="mr-1">40%</span>
 					</div>
 
 					<template #hint>
@@ -191,8 +191,8 @@ const showEffects = useState("showEffectsSC", () => true)
 						v-model="state.font.size"
 						class="mt-2 z-10"
 						:min="8"
-						:max="16"
-						:step="0.5"/>
+						:max="14"
+						:step="0.25"/>
 					<div class="relative flex w-full pt-1">
 							<span class="absolute w-full text-center text-(--ui-primary)">
 								{{ state.font.size }}
@@ -200,7 +200,7 @@ const showEffects = useState("showEffectsSC", () => true)
 
 						<span class="ml-1">8</span>
 						<span class="grow"/>
-						<span class="mr-1">16</span>
+						<span class="mr-1">14</span>
 					</div>
 
 					<template #hint>
@@ -217,8 +217,8 @@ const showEffects = useState("showEffectsSC", () => true)
 						v-model="state.font.titleSizes.h1"
 						class="mt-2 z-10"
 						:min="10"
-						:max="30"
-						:step="0.5"/>
+						:max="24"
+						:step="0.25"/>
 					<div class="relative flex w-full pt-1">
 							<span class="absolute w-full text-center text-(--ui-primary)">
 								{{ state.font.titleSizes.h1 }}
@@ -226,7 +226,7 @@ const showEffects = useState("showEffectsSC", () => true)
 
 						<span class="ml-1">10</span>
 						<span class="grow"/>
-						<span class="mr-1">30</span>
+						<span class="mr-1">24</span>
 					</div>
 
 					<template #hint>
@@ -243,8 +243,8 @@ const showEffects = useState("showEffectsSC", () => true)
 						v-model="state.font.titleSizes.h2"
 						class="mt-2 z-10"
 						:min="10"
-						:max="30"
-						:step="0.5"/>
+						:max="24"
+						:step="0.25"/>
 					<div class="relative flex w-full pt-1">
 							<span class="absolute w-full text-center text-(--ui-primary)">
 								{{ state.font.titleSizes.h2 }}
@@ -252,7 +252,7 @@ const showEffects = useState("showEffectsSC", () => true)
 
 						<span class="ml-1">10</span>
 						<span class="grow"/>
-						<span class="mr-1">30</span>
+						<span class="mr-1">24</span>
 					</div>
 
 					<template #hint>
@@ -269,8 +269,8 @@ const showEffects = useState("showEffectsSC", () => true)
 							v-model="state.font.titleSizes.h3"
 							class="mt-2 z-10"
 							:min="10"
-							:max="30"
-							:step="0.5"/>
+							:max="20"
+							:step="0.25"/>
 					<div class="relative flex w-full pt-1">
 							<span class="absolute w-full text-center text-(--ui-primary)">
 								{{ state.font.titleSizes.h3 }}
@@ -278,7 +278,7 @@ const showEffects = useState("showEffectsSC", () => true)
 
 						<span class="ml-1">10</span>
 						<span class="grow"/>
-						<span class="mr-1">30</span>
+						<span class="mr-1">20</span>
 					</div>
 
 					<template #hint>
@@ -295,8 +295,8 @@ const showEffects = useState("showEffectsSC", () => true)
 							v-model="state.font.lineHeight"
 							class="mt-2 z-10"
 							:min="1.25"
-							:max="2"
-							:step="0.05"/>
+							:max="1.5"
+							:step="0.025"/>
 					<div class="relative flex w-full pt-1">
 							<span class="absolute w-full text-center text-(--ui-primary)">
 								{{ state.font.lineHeight }}
@@ -304,7 +304,7 @@ const showEffects = useState("showEffectsSC", () => true)
 
 						<span class="ml-1">1.25</span>
 						<span class="grow"/>
-						<span class="mr-1">2</span>
+						<span class="mr-1">1.5</span>
 					</div>
 
 					<template #hint>
