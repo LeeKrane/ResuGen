@@ -14,7 +14,7 @@ const data = useRefResumeData()
 				lineHeight: style.font.lineHeight,
 				// fontFamily: style.font.family,
 			}"
-			class="flex not-print:w-3xl not-print:min-h-[calc(var(--container-3xl)*297/210)]">
+			class="flex not-print:w-3xl not-print:min-h-[calc(var(--container-3xl)*297/210)] overflow-y-clip">
 
 		<!--------------------------------------------->
 		<!-------          Left Column          ------->
@@ -24,21 +24,23 @@ const data = useRefResumeData()
 				:style="{
 					width: `${(style.layout.margin/8*32.5 + 250) * (style.layout.sizeRatio / 100) * 3}px`,
 					padding: `${style.layout.margin/8 + 1}rem`,
+					paddingRight: style.layout.style === 'fancy' ? `${style.layout.margin/8}rem` : `${style.layout.margin/8 + 1}rem`,
 					backgroundColor: `${style.layout.showBackground ? style.colors.bgElevated : undefined}`,
 					gap: `${style.layout.sectionSpacing/8}rem`,
 					color: style.colors.text.baseElevated,
 				}"
-				class="flex flex-col min-h-full shrink-0">
+				class="flex flex-col min-h-full shrink-0 z-20">
 
 			<!-- Avatar -->
 
 			<div
 					v-if="style.sections.minor.avatar.enabled"
-					class="flex flex-col flex-wrap items-center gap-1">
+					class="flex flex-col flex-wrap items-center">
 				<UAvatar
 						v-if="previewImage"
 						:src="previewImage"
-						class="m-2 w-40 h-40 rounded-full"/>
+						class="m-2 w-40 h-40 rounded-full"
+						:class="style.layout.style === 'fancy' ? 'shadow-[0_0_10px] shadow-white/20' : ''"/>
 			</div>
 
 			<!-- Personal Information -->
@@ -88,7 +90,7 @@ const data = useRefResumeData()
 								:style="{
 									backgroundColor: style.colors.languageBadges
 								}"
-								class="px-1.5 py-px rounded-md">
+								class="px-1 py-px rounded-sm">
 							{{ language.level }}
 						</span>
 					</li>
@@ -124,22 +126,27 @@ const data = useRefResumeData()
 
 				<div class="flex justify-between flex-nowrap items-center gap-1">
 					<span
+							class="px-1 rounded-sm font-bold"
 							:style="{ color: style.colors.skillLevels.basic }">
 						Basic
 					</span>
 					<UIcon
+							class="rounded-sm"
 							:style="{ color: style.colors.skillLevels.decent }"
 							name="i-lucide-chevrons-right"
 							:size="style.font.size * 2"/>
 					<UIcon
+							class="rounded-sm"
 							:style="{ color: style.colors.skillLevels.good }"
 							name="i-lucide-chevrons-right"
 							:size="style.font.size * 2"/>
 					<UIcon
+							class="rounded-sm"
 							:style="{ color: style.colors.skillLevels.proficient }"
 							name="i-lucide-chevrons-right"
 							:size="style.font.size * 2"/>
 					<span
+							class="px-1 rounded-sm font-bold"
 							:style="{ color: style.colors.skillLevels.expert }">
 						Expert
 					</span>
@@ -149,25 +156,43 @@ const data = useRefResumeData()
 						v-for="category in data.skillCategories.value"
 						:key="category.name"
 						class="flex flex-col gap-1">
-					<div class="flex items-center gap-1">
+					<div class="grid grid-cols-[auto_1fr] items-center gap-1">
 						<UIcon name="i-lucide-folder" :size="style.font.size * 1.5"/>
 						<span class="font-semibold">{{ category.name }}</span>
-					</div>
-
-					<div class="flex flex-wrap gap-1 pl-1">
-						<span
-								v-for="skill in category.skills"
-								:key="skill.name"
-								:style="{
-									backgroundColor: style.colors.skillLevels[skill.level?.toLowerCase() ?? 'basic']
-								}"
-								class="px-1.5 py-px rounded-md">
-							{{ skill.name }}
-						</span>
+						<hr class="w-px h-full justify-self-center" :style="{ backgroundColor: style.colors.text.baseElevated }"/>
+						<div class="flex flex-wrap gap-1 -ml-1">
+							<span
+									v-for="skill in category.skills"
+									:key="skill.name"
+									:style="{
+										backgroundColor: style.colors.skillLevels[skill.level?.toLowerCase() ?? 'basic']
+									}"
+									class="px-1 rounded-sm">
+								{{ skill.name }}
+							</span>
+						</div>
 					</div>
 				</div>
 			</div>
+
+			<div class="invisible h-96"/>
 		</div>
+
+		<!---------------------------------------------->
+		<!-------            Divider             ------->
+		<!---------------------------------------------->
+
+		<div v-if="style.layout.style === 'fancy'" class="relative mr-7">
+			<div class="absolute top-0 flex flex-col">
+				<DividerWavyDotted
+						class="w-10 h-[72rem]"
+						:style="{
+							fill: style.colors.bgElevated,
+						}"
+				/>
+			</div>
+		</div>
+
 
 		<!---------------------------------------------->
 		<!-------          Right Column          ------->
@@ -190,7 +215,7 @@ const data = useRefResumeData()
 							color: style.colors.text.title,
 							fontSize: `${style.font.titleSizes.h1}pt`,
 						}"
-						class="text-2xl font-bold">
+						class="font-bold -mb-2">
 					{{ data.name }}
 				</h1>
 
@@ -198,8 +223,7 @@ const data = useRefResumeData()
 						:style="{
 							color: style.colors.text.subtitle,
 							fontSize: `${style.font.titleSizes.h2}pt`,
-						}"
-						class="text-xl font-semibold">
+						}">
 					{{ data.subtitle }}
 				</h2>
 
@@ -254,7 +278,7 @@ const data = useRefResumeData()
 						:key="education.degree"
 						class="relative flex flex-col gap-1 pl-5.5 nth-[2]:mt-1 not-last:pb-2">
 					<div
-							class="absolute w-3 h-3 top-1 left-1.5 -translate-x-1/2 border rounded-full z-20"
+							class="absolute w-3 h-3 top-[0.2rem] left-1.5 -translate-x-1/2 border rounded-full z-20"
 							:style="{
 									backgroundColor: style.colors.bg,
 									borderColor: style.colors.text.base,
@@ -289,7 +313,7 @@ const data = useRefResumeData()
 							<span class="grow"/>
 							<span
 									v-if="education.active"
-									class="py-px px-1.5 rounded-md"
+									class="py-px px-1 rounded-sm"
 									:style="{
 										backgroundColor: style.colors.active,
 									}">
@@ -314,7 +338,7 @@ const data = useRefResumeData()
 						:key="experience.position"
 						class="relative flex flex-col gap-1 pl-5.5 nth-[2]:mt-1 not-last:pb-2">
 					<div
-							class="absolute w-3 h-3 top-1 left-1.5 -translate-x-1/2 border rounded-full z-20"
+							class="absolute w-3 h-3 top-[0.2rem] left-1.5 -translate-x-1/2 border rounded-full z-20"
 							:style="{
 									backgroundColor: style.colors.bg,
 									borderColor: style.colors.text.base,
@@ -349,7 +373,7 @@ const data = useRefResumeData()
 							<span class="grow"/>
 							<span
 									v-if="experience.internship"
-									class="py-px px-1.5 rounded-md"
+									class="py-px px-1 rounded-sm"
 									:style="{
 										backgroundColor: style.colors.internship,
 									}">
@@ -357,7 +381,7 @@ const data = useRefResumeData()
 							</span>
 							<span
 									v-if="experience.active"
-									class="py-px px-1.5 rounded-md"
+									class="py-px px-1 rounded-sm"
 									:style="{
 										backgroundColor: style.colors.active,
 									}">
@@ -393,26 +417,37 @@ const data = useRefResumeData()
 				<div
 						v-for="(project, pIndex) in data.projects.value"
 						:key="project.name"
-						class="relative flex flex-col gap-1 px-2 py-1 nth-[2]:mt-1 not-last:mb-2 border rounded-md"
+						class="relative flex flex-col gap-1 px-2.5 py-1.5 nth-[2]:mt-1 not-last:mb-2 border rounded-sm"
 						:style="{ borderLeftColor: style.colors.text.base }"
 				>
-
-				<div class="flex flex-wrap justify-between items-center gap-1">
+					<div class="flex items-center gap-1">
 						<h3 class="font-bold">{{ project.name }}</h3>
+
+						<span
+								v-if="project.openSource"
+								class="py-px px-1 rounded-sm shrink w-fit"
+								:style="{
+								backgroundColor: style.colors.openSource,
+							}">
+							Open-Source
+						</span>
+
+						<span class="grow"/>
+
 						<div class="flex items-center gap-1">
 							<ULink
-								v-if="project.repoLink"
-								:to="project.repoLink.url!"
-								class="flex items-center">
+									v-if="project.repoLink"
+									:to="project.repoLink.url!"
+									class="flex items-center">
 								<UIcon
-									:name="project.repoLink.icon!.icon!"
-									:style="{ color: style.colors.text.base }"
-									:size="style.font.size * 1.5"/>
+										:name="project.repoLink.icon!.icon!"
+										:style="{ color: style.colors.text.base }"
+										:size="style.font.size * 1.5"/>
 							</ULink>
 							<ULink
-								v-if="project.url"
-								:to="project.url!"
-								class="flex items-center">
+									v-if="project.url"
+									:to="project.url!"
+									class="flex items-center">
 								<UIcon
 										name="i-lucide-globe"
 										:style="{ color: style.colors.text.base }"
@@ -435,14 +470,14 @@ const data = useRefResumeData()
 									:name="t.icon"/>
 						</div>
 
-						<span
-								v-if="project.openSource"
-								class="py-px px-1.5 rounded-md"
-								:style="{
-									backgroundColor: style.colors.openSource,
-								}">
-								Open-Source
+						<div class="flex flex-col items-end gap-1 shrink-0">
+							<div v-if="project.start" class="flex shrink-0 items-center gap-1">
+								<UIcon name="i-lucide-clock" :size="style.font.size * 1.5"/>
+								<span>
+								{{ project.start?.month?.toString().padStart(2, '0') }}.{{ project.start?.year }} - {{ !project.end ? "Present" : `${project.end?.month?.toString().padStart(2, '0')}.${project.end?.year}` }}
 							</span>
+							</div>
+						</div>
 					</div>
 				</div>
 			</div>
