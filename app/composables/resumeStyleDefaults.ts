@@ -32,12 +32,14 @@ export const useResumeStyleDefaults = (): ResumeStyle => {
 			active: '#A5F3DF',
 			techLogos: '#00CC8B',
 			internship: '#60A5FA',
-			openSource: '#93C5FD'
+			openSource: '#A8D1FF'
 		},
 		effects: {
 			useShades: true,
+			useAvatarShade: false,
 			useGradients: true,
-			useBorders: true,
+			projectGradientColor: '#FAFAFA',
+			useBorders: false,
 			borderWidth: 1,
 			borderColor: "#C2C8D1"
 		},

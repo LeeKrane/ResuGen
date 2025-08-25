@@ -40,7 +40,7 @@ const data = useRefResumeData()
 						v-if="previewImage"
 						:src="previewImage"
 						class="m-2 w-40 h-40 rounded-full"
-						:class="style.layout.style === 'fancy' ? 'shadow-[0_0_10px] shadow-white/20' : ''"/>
+						:class="style.effects.useAvatarShade ? 'shadow-[0_0_10px] shadow-white/20' : ''"/>
 			</div>
 
 			<!-- Personal Information -->
@@ -88,8 +88,10 @@ const data = useRefResumeData()
 						</span>
 						<span
 								:style="{
-									backgroundColor: style.colors.languageBadges
+    							background: style.effects.useGradients ? `radial-gradient(ellipse at top left, ${style.colors.languageBadges}, color-mix(in srgb, ${style.colors.languageBadges} 92.5%, black))` : undefined,
+									backgroundColor: !style.effects.useGradients ? style.colors.languageBadges : undefined,
 								}"
+								:class="style.effects.useShades ? 'drop-shadow-md' : ''"
 								class="px-1 py-px rounded-sm">
 							{{ language.level }}
 						</span>
@@ -165,8 +167,10 @@ const data = useRefResumeData()
 									v-for="skill in category.skills"
 									:key="skill.name"
 									:style="{
-										backgroundColor: style.colors.skillLevels[skill.level?.toLowerCase() ?? 'basic']
+										background: style.effects.useGradients ? `radial-gradient(ellipse at top left, ${style.colors.skillLevels[skill.level?.toLowerCase() ?? 'basic']}, color-mix(in srgb, ${style.colors.skillLevels[skill.level?.toLowerCase() ?? 'basic']} 75%, black))` : undefined,
+										backgroundColor: !style.effects.useGradients ? style.colors.skillLevels[skill.level?.toLowerCase() ?? 'basic'] : undefined,
 									}"
+									:class="style.effects.useShades ? 'drop-shadow-md' : ''"
 									class="px-1 rounded-sm">
 								{{ skill.name }}
 							</span>
@@ -314,8 +318,11 @@ const data = useRefResumeData()
 							<span
 									v-if="education.active"
 									class="py-px px-1 rounded-sm"
+									:class="style.effects.useShades ? 'drop-shadow-md' : ''"
 									:style="{
-										backgroundColor: style.colors.active,
+										background: style.effects.useGradients ? `radial-gradient(ellipse at top left, ${style.colors.active}, color-mix(in srgb, ${style.colors.active} 90%, black))` : undefined,
+										backgroundColor: !style.effects.useGradients ? style.colors.active : undefined,
+										fontSize: `${style.font.size * 0.8}pt`,
 									}">
 								Active
 							</span>
@@ -374,16 +381,22 @@ const data = useRefResumeData()
 							<span
 									v-if="experience.internship"
 									class="py-px px-1 rounded-sm"
+									:class="style.effects.useShades ? 'drop-shadow-md' : ''"
 									:style="{
-										backgroundColor: style.colors.internship,
+										background: style.effects.useGradients ? `radial-gradient(ellipse at top left, ${style.colors.internship}, color-mix(in srgb, ${style.colors.internship} 90%, black))` : undefined,
+										backgroundColor: !style.effects.useGradients ? style.colors.internship : undefined,
+										fontSize: `${style.font.size * 0.8}pt`,
 									}">
 								Internship
 							</span>
 							<span
 									v-if="experience.active"
 									class="py-px px-1 rounded-sm"
+									:class="style.effects.useShades ? 'drop-shadow-md' : ''"
 									:style="{
-										backgroundColor: style.colors.active,
+										background: style.effects.useGradients ? `radial-gradient(ellipse at top left, ${style.colors.active}, color-mix(in srgb, ${style.colors.active} 90%, black))` : undefined,
+										backgroundColor: !style.effects.useGradients ? style.colors.active : undefined,
+										fontSize: `${style.font.size * 0.8}pt`,
 									}">
 								Active
 							</span>
@@ -401,6 +414,7 @@ const data = useRefResumeData()
 								:style="{
 									color: style.colors.techLogos,
 								}"
+								:class="style.effects.useShades ? 'drop-shadow-md' : ''"
 								size="medium"
 								:name="t.icon"/>
 					</div>
@@ -417,18 +431,29 @@ const data = useRefResumeData()
 				<div
 						v-for="(project, pIndex) in data.projects.value"
 						:key="project.name"
-						class="relative flex flex-col gap-1 px-2.5 py-1.5 nth-[2]:mt-1 not-last:mb-2 border rounded-sm"
-						:style="{ borderLeftColor: style.colors.text.base }"
+						class="relative flex flex-col gap-1 px-2.5 py-1.5 nth-[2]:mt-1 not-last:mb-2 rounded-sm"
+						:class="[
+								style.effects.useBorders ? 'border' : '',
+								style.effects.useShades ? 'drop-shadow-md' : '',
+						]"
+						:style="{
+								background: style.effects.useGradients ? `radial-gradient(ellipse at top left, ${style.effects.projectGradientColor}, color-mix(in srgb, ${style.effects.projectGradientColor} 92.5%, black))` : undefined,
+								borderWidth: `${style.effects.useBorders ? style.effects.borderWidth : 0}px`,
+								borderColor: style.effects.useBorders ? style.effects.borderColor : undefined,
+						}"
 				>
-					<div class="flex items-center gap-1">
+					<div class="flex items-center gap-2">
 						<h3 class="font-bold">{{ project.name }}</h3>
 
 						<span
 								v-if="project.openSource"
 								class="py-px px-1 rounded-sm shrink w-fit"
+								:class="style.effects.useShades ? 'drop-shadow-md' : ''"
 								:style="{
-								backgroundColor: style.colors.openSource,
-							}">
+    							background: style.effects.useGradients ? `radial-gradient(ellipse at top left, ${style.colors.openSource}, color-mix(in srgb, ${style.colors.openSource} 85%, black))` : undefined,
+									backgroundColor: !style.effects.useGradients ? style.colors.openSource : undefined,
+									fontSize: `${style.font.size * 0.8}pt`,
+								}">
 							Open-Source
 						</span>
 
@@ -466,6 +491,7 @@ const data = useRefResumeData()
 									:style="{
 										color: style.colors.techLogos,
 									}"
+									:class="style.effects.useShades ? 'drop-shadow-md' : ''"
 									size="medium"
 									:name="t.icon"/>
 						</div>

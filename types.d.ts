@@ -158,7 +158,9 @@ interface ResumeStyle {
 	}
 	effects: {
 		useShades: boolean
+		useAvatarShade?: boolean
 		useGradients: boolean
+		projectGradientColor?: string
 		useBorders: boolean
 		borderWidth: number
 		borderColor?: string

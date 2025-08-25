@@ -564,12 +564,22 @@ const showEffects = useState("showEffectsSC", () => true)
 						<USwitch v-model="state.effects.useShades"/>
 					</UFormField>
 
+					<UFormField label="Use Avatar Shade" class="grow">
+						<USwitch v-model="state.effects.useAvatarShade"/>
+					</UFormField>
+
 					<UFormField label="Use Gradients" class="grow">
 						<USwitch v-model="state.effects.useGradients"/>
 					</UFormField>
 
 					<UFormField label="Use Borders" class="grow">
 						<USwitch v-model="state.effects.useBorders"/>
+					</UFormField>
+
+					<UFormField v-if="state.effects.useGradients" label="Project Gradient Base Color" class="grow">
+						<FormColorPicker
+								v-model="state.effects.projectGradientColor"
+								:default-color="defaults.effects.projectGradientColor"/>
 					</UFormField>
 				</div>
 
