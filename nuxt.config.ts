@@ -36,5 +36,9 @@ export default defineNuxtConfig({
 	particles: {
 		mode: "full",
 		lazy: true
+	},
+
+	icon: {
+		mode: "svg"
 	}
 })

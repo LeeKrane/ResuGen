@@ -1,6 +1,10 @@
 <script setup lang="ts">
 import {CalendarDate, DateFormatter} from "@internationalized/date"
 
+const { label = "Select a date" } = defineProps<{
+	label?: string
+}>()
+
 const model = defineModel<EmploymentDate | undefined>()
 const calendarDate = ref<CalendarDate | undefined>(
 	model.value
@@ -28,7 +32,7 @@ watch(calendarDate, (newVal) => {
 				:label="model
 					? new DateFormatter('de-AT', { dateStyle: 'medium' })
 						.format(new Date(model.year!, model.month! - 1, model.day!))
-					: 'Select a date'">
+					: label">
 			</UButton>
 
 			<FormClearInputButton

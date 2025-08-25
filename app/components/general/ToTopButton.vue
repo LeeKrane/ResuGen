@@ -1,20 +1,7 @@
 <script setup lang="ts">
-import {useWindowScroll} from "@vueuse/core"
-
-const visible = ref(false)
-const {y} = useWindowScroll()
-
-const handleScroll = () => {
-	visible.value = y.value > 500
-}
-
-onMounted(() => {
-	window.addEventListener('scroll', handleScroll)
-})
-
-onUnmounted(() => {
-	window.removeEventListener('scroll', handleScroll)
-})
+import { useWindowScroll } from "@vueuse/core"
+const { y } = useWindowScroll()
+const visible = computed(() => y.value > 500)
 </script>
 
 <template>
