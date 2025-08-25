@@ -69,12 +69,19 @@ interface Project {
 	technologies: Technology[]
 	openSource?: boolean
 	collapsibleOpen?: boolean
+	start?: EmploymentDate
+	end?: EmploymentDate
 }
 
 interface ImgData {
 	filename: string,
 	contentType: string
 	base64: string,
+}
+
+interface SectionState {
+	enabled: boolean
+	order: number
 }
 
 interface ResumeData {
@@ -123,6 +130,7 @@ interface ResumeStyle {
 			h2: number
 			h3: number
 		}
+		lineHeight: number
 	}
 	colors: {
 		bg?: string
@@ -131,7 +139,9 @@ interface ResumeStyle {
 			title: string
 			subtitle: string
 			sectionTitle: string
+			sectionTitleElevated: string
 			base: string
+			baseElevated: string
 		}
 		skillLevels: {
 			basic: string
@@ -140,13 +150,17 @@ interface ResumeStyle {
 			proficient: string
 			expert: string
 		}
+		languageBadges: string
+		active: string
 		techLogos: string
 		internship: string
 		openSource: string
 	}
 	effects: {
 		useShades: boolean
+		useAvatarShade?: boolean
 		useGradients: boolean
+		projectGradientColor?: string
 		useBorders: boolean
 		borderWidth: number
 		borderColor?: string
@@ -155,11 +169,24 @@ interface ResumeStyle {
 		type: "single-column" | "two-column" | "compact"
 		style: "fancy" | "simple"
 		showBackground: boolean
+		sizeRatio: number
 		sectionSpacing: number
 		margin: number
-		additionalSections: {
-			id: string
-			enabled: boolean
-		}[]
+	}
+	sections: {
+		minor: {
+			avatar: SectionState
+			personal: SectionState
+			languages: SectionState
+			hobbies: SectionState
+			skills: SectionState
+		}
+		major: {
+			summary: SectionState
+			education: SectionState
+			experience: SectionState
+			projects: SectionState
+			certifications: SectionState
+		}
 	}
 }

@@ -30,7 +30,7 @@ const tabItems = [
 
 <template>
 	<div>
-		<div class="sticky top-[3.33rem] w-full z-40 flex justify-center">
+		<div class="sticky top-16 w-full z-40 flex justify-center">
 			<UTabs
 				v-model="activeTab"
 				class="mx-auto w-[clamp(24rem,65vw,56rem)] bg-(--ui-bg)/20 backdrop-blur-xs pt-2"
