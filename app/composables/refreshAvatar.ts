@@ -15,7 +15,7 @@ export const useRefreshAvatar = (file: File | null) => {
 				canvas.width = Math.min(1024, img.width)
 				canvas.height = Math.min(1024, img.height)
 				ctx?.drawImage(img, 0, 0, canvas.width, canvas.height)
-				previewImage.value = canvas.toDataURL("image/webp", 0.7)
+				previewImage.value = canvas.toDataURL("image/webp", 0.8)
 
 				canvas.toBlob((blob) => {
 					if (blob) {

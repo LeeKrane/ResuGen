@@ -13,7 +13,8 @@ const downloadZip = () => {
 		font: resumeStyle.value.font,
 		colors: resumeStyle.value.colors,
 		effects: resumeStyle.value.effects,
-		layout: resumeStyle.value.layout
+		layout: resumeStyle.value.layout,
+		sections: resumeStyle.value.sections,
 	}, null, 2))
 	zip.generateAsync({type: "blob"}).then((blob) => {
 		const url = URL.createObjectURL(blob)
