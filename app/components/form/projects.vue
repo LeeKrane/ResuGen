@@ -31,10 +31,16 @@ const state = reactive({
 									<UCheckbox v-model="state.projects[index]!.openSource" label="Open Source"/>
 								</UFormField>
 							</div>
-							<FormTooltip text="URL">
+							<div class="flex items-center gap-1">
+								<label>from</label>
+								<FormDatePicker v-model="state.projects[index]!.start"/>
+								<label>until</label>
+								<FormDatePicker v-model="state.projects[index]!.end"/>
+							</div>
+							<FormTooltip text="URL" class="col-span-2">
 								<UInput
 									v-model="state.projects[index]!.url!"
-									class="grow"
+									class="w-full"
 									variant="soft"
 									placeholder="https://example.com/"/>
 							</FormTooltip>

@@ -69,6 +69,8 @@ interface Project {
 	technologies: Technology[]
 	openSource?: boolean
 	collapsibleOpen?: boolean
+	start?: EmploymentDate
+	end?: EmploymentDate
 }
 
 interface ImgData {
