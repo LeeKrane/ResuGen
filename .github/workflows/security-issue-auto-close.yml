@@ -6,23 +6,34 @@ on:
 
 permissions:
   issues: write
-  pull-requests: write
+  contents: read
 
 jobs:
-  auto-close-security-issues:
-    if: github.event.label.name == 'auto-close'
+  close-labeled-issues:
+    # Prevent double execution with specific condition
+    if: github.event.label.name == 'auto-close' && github.event.action == 'labeled'
     runs-on: ubuntu-latest
     steps:
-      - name: Close labeled security issue
-        uses: tiangolo/issue-manager@0.5.1
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        
+      - name: Close issue with customized comment
+        uses: marocchino/sticky-pull-request-comment@v2
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          config: >
-            {
-              "auto-close": {
-                "delay": 60,
-                "message": "This security issue has been automatically closed. Please report security vulnerabilities via email to security+resugen@krane.dev.",
-                "remove_label_on_comment": true,
-                "remove_label_on_close": true
-              }
-            }
+          header: "ResuGen Security Bot"
+          message: |
+            ## 🔒 Issue Auto-Closed
+            
+            This issue has been automatically closed, because it was labeled with `auto-close`.
+            
+            **Please note:** For actual security vulnerabilities, always report via email to security+resugen@krane.dev.
+            
+            *This action was performed automatically by the Security-Issue-Auto-Close workflow.*
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          
+      - name: Close the issue
+        run: |
+          gh issue close ${{ github.event.issue.number }} --repo ${{ github.repository }}
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
