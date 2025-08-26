@@ -24,7 +24,7 @@ jobs:
           config: >
             {
               "auto-close": {
-                "delay": 10,
+                "delay": 5,
                 "message": "## 🔒 Issue Auto-Closed\nThis issue has been automatically closed, because it was labeled with `auto-close`.\n\n**Please note:** For actual security vulnerabilities, always report via email to security+resugen@krane.dev\n\n*This action was performed automatically by the Security-Issue-Auto-Close workflow.*",
                 "remove_label_on_comment": true,
                 "remove_label_on_close": true
