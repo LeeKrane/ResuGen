@@ -17,16 +17,25 @@ jobs:
     permissions:
       issues: write
     steps:
-      - name: Close labeled security issue
-        uses: tiangolo/issue-manager@0.5.1
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          config: >
-            {
-              "auto-close": {
-                "delay": 5,
-                "message": "## 🔒 Issue Auto-Closed\nThis issue has been automatically closed, because it was labeled with `auto-close`.\n\n**Please note:** For actual security vulnerabilities, always report via email to security+resugen@krane.dev\n\n*This action was performed automatically by the Security-Issue-Auto-Close workflow.*",
-                "remove_label_on_comment": true,
-                "remove_label_on_close": true
-              }
-            }
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Close issue as "not planned"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+        run: |
+          # Remove the auto-close label first
+          gh issue edit $ISSUE_NUMBER --remove-label "auto-close"
+          
+          # Add a comment to the issue
+          gh issue comment $ISSUE_NUMBER --body "## 🔒 Issue Auto-Closed
+          
+          This issue has been automatically closed, because it was labeled with \`auto-close\$.
+          
+          **Please note:** For actual security vulnerabilities, always report via email to security+resugen@krane.dev
+          
+          *This action was performed automatically by the Security-Issue-Auto-Close workflow.*"
+          
+          # Close the issue with "not planned" reason
+          gh issue close $ISSUE_NUMBER --reason "not_planned"
