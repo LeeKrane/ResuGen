@@ -164,15 +164,32 @@ const data = useRefResumeData()
 						<hr class="w-px h-full justify-self-center" :style="{ backgroundColor: style.colors.text.baseElevated }"/>
 						<div class="flex flex-wrap gap-1 -ml-1">
 							<span
-									v-for="skill in category.skills"
-									:key="skill.name"
-									:style="{
-										background: style.effects.useGradients ? `radial-gradient(ellipse at top left, ${style.colors.skillLevels[skill.level?.toLowerCase() ?? 'basic']}, color-mix(in srgb, ${style.colors.skillLevels[skill.level?.toLowerCase() ?? 'basic']} 75%, black))` : undefined,
-										backgroundColor: !style.effects.useGradients ? style.colors.skillLevels[skill.level?.toLowerCase() ?? 'basic'] : undefined,
-									}"
-									:class="style.effects.useShades ? 'drop-shadow-md' : ''"
-									class="px-1 rounded-sm">
-								{{ skill.name }}
+								v-for="skill in category.skills"
+								:key="skill.technology?.value || skill.name"
+								:style="{
+									background: style.effects.useGradients
+									? `radial-gradient(ellipse at top left, ${style.colors.skillLevels[skill.level?.toLowerCase() ?? 'basic']}, color-mix(in srgb, ${style.colors.skillLevels[skill.level?.toLowerCase() ?? 'basic']} 75%, black))`
+									: undefined,
+									backgroundColor: !style.effects.useGradients
+									? style.colors.skillLevels[skill.level?.toLowerCase() ?? 'basic']
+									: undefined,
+								}"
+								:class="style.effects.useShades ? 'drop-shadow-md' : ''"
+								class="px-1 rounded-sm flex items-center gap-1"
+								>
+								<!-- Icon, when not custom and displayType icon or iconandtext -->
+								<UIcon
+									v-if="['icon', 'iconandtext'].includes(skill.displayType?.value) && skill.technology?.icon && skill.technology?.value !== 'custom'"
+									:name="skill.technology.icon"
+									:size="style.font.size * 1.75"
+									class="shrink-0 py-0.5"
+								/>
+								<!-- Text, when displayType not icon or custom or iconandtext -->
+								<span
+									v-if="skill.displayType?.value !== 'icon' || skill.technology?.value === 'custom' || skill.displayType?.value === 'iconandtext'"
+								>
+									{{ skill.technology?.value === 'custom' ? skill.name : skill.technology?.label }}
+								</span>
 							</span>
 						</div>
 					</div>
