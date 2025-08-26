@@ -38,4 +38,4 @@ jobs:
           *This action was performed automatically by the Security-Issue-Auto-Close workflow.*"
           
           # Close the issue with "not planned" reason
-          gh issue close $ISSUE_NUMBER --reason "not_planned"
+          gh issue close $ISSUE_NUMBER --reason "not planned"
