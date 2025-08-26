@@ -25,7 +25,7 @@ const navItems = useNavItems()
 					color="neutral"
 					variant="ghost"
 					icon="i-lucide-code"
-					to="https://gitlab.com/krane.dev/kranes-resume-generator"
+					to="https://github.com/LeeKrane/ResuGen"
 					target="_blank"
 				/>
 			</UTooltip>
