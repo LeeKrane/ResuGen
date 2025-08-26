@@ -130,7 +130,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - [Issue Board (Volta)](https://volta.net/LeeKrane/ResuGen)
 - [Issues](https://github.com/LeeKrane/ResuGen/issues)
 - [GitHub Repository](https://github.com/LeeKrane/ResuGen)
-- [GitLab Repository (Mirror)](https://gitlab.com/krane.dev/resugen)
 
 ## ✨ Acknowledgments
 
