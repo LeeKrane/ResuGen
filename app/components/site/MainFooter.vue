@@ -34,22 +34,22 @@ const navItems = useNavItems()
 					<h3 class="font-semibold text-lg text-center">Resources</h3>
 					<div class="grid grid-cols-2 gap-3">
 						<UButton
-							to="https://gitlab.com/krane.dev/kranes-resume-generator"
-							target="_blank"
-							color="neutral"
-							variant="ghost"
-							class="flex items-center gap-2">
-							<UIcon name="i-simple-icons-gitlab" class="w-5 h-5"/>
-							<span class="text-sm">GitLab</span>
-						</UButton>
-						<UButton
-							to="https://github.com/LeeKrane/kranes-resume-generator"
+							to="https://github.com/LeeKrane/ResuGen"
 							target="_blank"
 							color="neutral"
 							variant="ghost"
 							class="flex items-center gap-2">
 							<UIcon name="i-simple-icons-github" class="w-5 h-5"/>
-							<span class="text-sm">GitHub (Mirror)</span>
+							<span class="text-sm">GitHub</span>
+						</UButton>
+						<UButton
+								to="https://gitlab.com/krane.dev/ResuGen"
+								target="_blank"
+								color="neutral"
+								variant="ghost"
+								class="flex items-center gap-2">
+							<UIcon name="i-simple-icons-gitlab" class="w-5 h-5"/>
+							<span class="text-sm">GitLab (Mirror)</span>
 						</UButton>
 						<UButton
 							to="/docs"
