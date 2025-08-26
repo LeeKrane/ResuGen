@@ -7,8 +7,8 @@ Thank you for your interest in contributing to ResuGen! This document provides g
 1. Fork the repository
 2. Clone your fork:
    ```bash
-   git clone https://gitlab.com/your-username/resugen.git
-   cd resugen
+   git clone https://github.com/your-username/ResuGen.git
+   cd ResuGen
    ```
 3. Install dependencies:
    ```bash
@@ -62,10 +62,14 @@ Thank you for your interest in contributing to ResuGen! This document provides g
 1. Check existing issues to avoid duplicates
 2. Use the appropriate issue template:
    - Bug Report: Use the [BUG] template for bugs
-   - Feature Request: Use the [FEATURE] template for new features
-   - Enhancement: Use the [ENHANCEMENT] template for improvements
-   - Documentation: Use the [DOC] template for documentation issues
+   - Feature Request: Use the [FEAT] template for new features
+   - Enhancement Request: Use the [ENHANCE] template for improvements
+   - Documentation Issue: Use the [DOCS] template for documentation issues
    - Question: Use the [QUESTION] template for questions
+   - UI/UX Feedback: Use the [UX] template for design feedback
+   - Performance Issue: Use the [PERF] template for performance concerns
+   - Maintenance/Refactor: Use the [MAINT] template for technical debt
+   - Security Report: Email security+resugen@krane.dev (do not create public issues)
 
 ### Working on Issues
 1. Comment on the issue you want to work on
@@ -115,8 +119,9 @@ Thank you for your interest in contributing to ResuGen! This document provides g
 
 ## Getting Help
 
-- Check the [documentation](https://gitlab.com/krane.dev/resugen/-/blob/main/README.md)
-- Create a [question issue](https://gitlab.com/krane.dev/resugen/-/issues/new) using the question template
+- Check the [documentation](https://github.com/LeeKrane/ResuGen?tab=readme-ov-file#readme)
+- Create a [question issue](https://github.com/LeeKrane/ResuGen/issues/new/choose) using the question template
+- Visit our [Volta project board](https://volta.net/LeeKrane/ResuGen) for project status
 - Contact support at support+resugen@krane.dev
 
 ## License
