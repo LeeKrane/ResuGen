@@ -37,7 +37,7 @@
 
 1. Clone the repository:
    ```bash
-   git clone https://gitlab.com/krane.dev/resugen.git
+   git clone https://github.com/LeeKrane/ResuGen.git
    cd resugen
    ```
 
@@ -122,26 +122,27 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## 🌐 Links
 
 - [Live Demo](https://resugen.krane.dev)
-- [Documentation](https://gitlab.com/krane.dev/resugen/-/blob/main/README.md)
-- [Issue Tracker](https://gitlab.com/krane.dev/resugen/-/issues)
-- [GitLab Repository](https://gitlab.com/krane.dev/resugen)
-- [GitHub Mirror](https://github.com/krane.dev/resugen)
+- [Documentation](https://github.com/LeeKrane/ResuGen/-/blob/main/README.md)
+- [Issue Board](https://volta.net/LeeKrane/ResuGen)
+- [Issues](https://github.com/LeeKrane/ResuGen/issues)
+- [GitHub Repository](https://github.com/LeeKrane/ResuGen)
+- [GitLab Repository (Mirror)](https://gitlab.com/krane.dev/resugen)
 
 ## ✨ Acknowledgments
 
 - [Nuxt.js Team](https://nuxt.com/) for the amazing framework
 - [Nuxt UI Team](https://ui.nuxt.com/) for the beautiful components
-- All our [contributors](https://gitlab.com/krane.dev/resugen/-/graphs/main)
+- All our [contributors](https://github.com/LeeKrane/ResuGen/graphs/contributors)
 
 ## 📧 Support
 
 Need help? Have questions?
 
-- Create an [issue](https://gitlab.com/krane.dev/resugen/-/issues/new)
+- Create an [issue](https://github.com/LeeKrane/ResuGen/issues/new/choose)
 - Email: support+resugen@krane.dev
 
 ---
 
 <div align="center">
-  Made with ❤️ by <a href="https://krane.dev">Krane Development</a>
+  Made with ❤️ by <a href="https://www.krane.dev">Krane Development</a>
 </div>
