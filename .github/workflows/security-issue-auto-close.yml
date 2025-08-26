@@ -3,6 +3,7 @@ name: Security Issue Auto-Close
 on:
   issues:
     types: [labeled]
+  workflow_dispatch:
 
 permissions:
   issues: write
