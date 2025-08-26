@@ -14,7 +14,11 @@ export const useResumeData: () => { data: ResumeData, avatar: File | null } = ()
 			languages: useState("languages", (): Language[] => [{name: ""}]).value,
 			skillCategories: useState("skillCategories", (): SkillCategory[] => [{
 				name: "",
-				skills: [{name: ""}]
+				skills: [{
+					technology: { label: "Custom", value: "custom", icon: "i-lucide-shapes" },
+					displayType: { label: "Icon", value: "icon", icon: "i-lucide-image" },
+					name: ""
+				}]
 			}]).value,
 			links: useState("links", (): Link[] => [{name: "", url: ""}]).value,
 			institutions: useState("institutions", (): Institution[] => [{uuid: v7(), name: ""}]).value,
