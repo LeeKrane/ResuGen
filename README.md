@@ -106,6 +106,10 @@ export default defineNuxtConfig({
 - **Sections**: Add, remove, or reorder resume sections
 - **Content**: Full control over text formatting and structure
 
+## 📋 Project Management
+
+We use [Volta](https://volta.net/) for project management and issue tracking. Volta is a web application built on top of the GitHub API that provides a real-time and intuitive interface with an automated issue board out of the box. It helps reduce the overwhelming flow of notifications to focus on what matters most. Check out our [Volta board](https://volta.net/LeeKrane/ResuGen).
+
 ## 🤝 Contributing
 
 We welcome contributions! Please see our [Contributing Guidelines](CONTRIBUTING.md) for details on:
@@ -123,7 +127,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 - [Live Demo](https://resugen.krane.dev)
 - [Documentation](https://github.com/LeeKrane/ResuGen/-/blob/main/README.md)
-- [Issue Board](https://volta.net/LeeKrane/ResuGen)
+- [Issue Board (Volta)](https://volta.net/LeeKrane/ResuGen)
 - [Issues](https://github.com/LeeKrane/ResuGen/issues)
 - [GitHub Repository](https://github.com/LeeKrane/ResuGen)
 - [GitLab Repository (Mirror)](https://gitlab.com/krane.dev/resugen)
