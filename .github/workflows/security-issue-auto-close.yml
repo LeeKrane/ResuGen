@@ -1,0 +1,29 @@
+name: Security Issue Auto-Close
+
+on:
+  issues:
+    types: [labeled]
+  workflow_dispatch:
+
+permissions:
+  issues: write
+  pull-requests: write
+
+jobs:
+  auto-close-security-issues:
+    if: github.event.label.name == 'auto-close'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Close labeled security issue
+        uses: tiangolo/issue-manager@0.5.1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          config: >
+            {
+              "auto-close": {
+                "delay": 60,
+                "message": "This security issue has been automatically closed. Please report security vulnerabilities via email to security+resugen@krane.dev.",
+                "remove_label_on_comment": true,
+                "remove_label_on_close": true
+              }
+            }
