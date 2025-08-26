@@ -23,7 +23,7 @@ jobs:
             -f labels[]="status::triage"
 
       - name: Add to project
-        uses: actions/add-to-project@latest
+        uses: actions/add-to-project@1.0.2
         with:
           project-url: https://github.com/users/${{ vars.USERNAME }}/projects/${{ vars.PROJECT_NUMBER }}
           github-token: ${{ steps.app.outputs.token }}
