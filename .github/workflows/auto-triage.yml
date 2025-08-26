@@ -1,0 +1,16 @@
+# .github/workflows/auto-triage.yml
+name: Auto label new issues as triage
+on:
+  issues:
+    types: [opened]
+
+jobs:
+  triage:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Add status::triage label
+        run: |
+          gh api repos/${{ github.repository }}/issues/${{ github.event.issue.number }}/labels \
+            -f labels[]="status::triage"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
