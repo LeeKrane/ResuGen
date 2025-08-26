@@ -43,16 +43,16 @@ const navItems = useNavItems()
 							<span class="text-sm">GitHub</span>
 						</UButton>
 						<UButton
-								to="https://gitlab.com/krane.dev/ResuGen"
+								to=""
 								target="_blank"
 								color="neutral"
 								variant="ghost"
 								class="flex items-center gap-2">
 							<UIcon name="i-simple-icons-gitlab" class="w-5 h-5"/>
-							<span class="text-sm">GitLab (Mirror)</span>
+							<span class="text-sm">?</span>
 						</UButton>
 						<UButton
-							to="/docs"
+							to=""
 							color="neutral"
 							variant="ghost"
 							class="flex items-center gap-2">
