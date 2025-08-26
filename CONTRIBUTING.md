@@ -79,6 +79,8 @@ Thank you for your interest in contributing to ResuGen! This document provides g
    git checkout -b feat/123-resume-export-options
    # or
    git checkout -b fix/456-mobile-layout-issue
+   # or use GitHub's auto-generated branch names
+   git checkout -b 123-resume-export-options
    ```
    Branch prefix should be one of:
    - `feat/` for new features
@@ -88,6 +90,7 @@ Thank you for your interest in contributing to ResuGen! This document provides g
    - `refactor/` for code refactoring
    - `test/` for adding tests
    - `chore/` for maintenance tasks
+   - `<issue-number>-<issue-title>` for GitHub auto-generated branch names
 
 ## Pull Request Process
 
