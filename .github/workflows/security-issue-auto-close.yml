@@ -4,14 +4,18 @@ on:
   issues:
     types: [labeled]
 
-permissions:
-  issues: write
-  pull-requests: write
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.issue.number }}
+  cancel-in-progress: true
 
 jobs:
   auto-close-security-issues:
-    if: github.event.label.name == 'auto-close'
+    if: |
+      github.event.label.name == 'auto-close' &&
+      github.event.action == 'labeled'
     runs-on: ubuntu-latest
+    permissions:
+      issues: write
     steps:
       - name: Close labeled security issue
         uses: tiangolo/issue-manager@0.5.1
@@ -20,7 +24,7 @@ jobs:
           config: >
             {
               "auto-close": {
-                "delay": 60,
+                "delay": 10,
                 "message": "## 🔒 Issue Auto-Closed\nThis issue has been automatically closed, because it was labeled with `auto-close`.\n\n**Please note:** For actual security vulnerabilities, always report via email to security+resugen@krane.dev\n\n*This action was performed automatically by the Security-Issue-Auto-Close workflow.*",
                 "remove_label_on_comment": true,
                 "remove_label_on_close": true
