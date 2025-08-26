@@ -2,7 +2,7 @@
 name: Security Report
 about: Report a security vulnerability. PLEASE DO NOT CREATE A PUBLIC ISSUE.
 title: "[SEC]: "
-labels: security, triage
+labels: auto-close, security, triage
 assignees: LeeKrane
 
 ---
