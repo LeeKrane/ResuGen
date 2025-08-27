@@ -59,11 +59,22 @@ async function onSubmit(payload: FormSubmitEvent<SchemaRegister>) {
 	loading.value = false
 
 	if (error) {
-		toast.add({ title: 'Error creating account', description: error.message, color: 'error', icon: 'i-lucide-alert-circle' })
+		toast.add({ title: 'Error creating account', description: error.message, color: 'error', icon: 'i-lucide-triangle-alert' })
 		return
 	} else {
-		toast.add({ title: 'Successfully created account', color: 'success', icon: 'i-lucide-check' })
-		navigateTo('/me')
+		toast.add({
+			title: 'Successfully created account!',
+			description: 'To use your account, please verify your email.',
+			color: 'warning',
+			icon: 'i-lucide-check',
+			duration: 10000
+		})
+		navigateTo({
+			path: '/login',
+			query: {
+				freshlyRegisteredEmail: payload.data.email
+			}
+		})
 	}
 }
 </script>
