@@ -101,7 +101,7 @@ definePageMeta({
 					</h2>
 
 					<!-- Call to action -->
-					<div class="flex gap-4 justify-center space-y-3 text-3xl font-semibold text-slate-300">
+					<div class="flex gap-4 justify-center text-3xl font-semibold text-slate-300">
 						<p>Build</p>
 						<p>Yours</p>
 						<p>Today</p>
