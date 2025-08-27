@@ -1,9 +1,8 @@
 # ResuGen
 
-<div align="center">
-  <img src="/public/logo.png" alt="ResuGen Logo" width="120">
-  <p>A modern, intuitive resume generator built with Nuxt 3 and Nuxt UI</p>
-</div>
+A modern, intuitive, and open-source resume generator designed to help you create ATS-friendly professional resumes with ease. Built with Nuxt 3 and Nuxt UI.
+
+<img src="/public/marketing-banner.jpg" alt="Marketing Banner Placeholder" width="800">
 
 ## 🌟 Features
 
@@ -129,6 +128,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - [Documentation](https://github.com/LeeKrane/ResuGen/-/blob/main/README.md)
 - [Issue Board (Volta)](https://volta.net/LeeKrane/ResuGen)
 - [Issues](https://github.com/LeeKrane/ResuGen/issues)
+- [Discussions](https://github.com/LeeKrane/ResuGen/discussions)
 - [GitHub Repository](https://github.com/LeeKrane/ResuGen)
 
 ## ✨ Acknowledgments
@@ -142,10 +142,12 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 Need help? Have questions?
 
 - Create an [issue](https://github.com/LeeKrane/ResuGen/issues/new/choose)
+- For general questions, ideas, polls, or "how-to" queries, please use [GitHub Discussions](https://github.com/LeeKrane/ResuGen/discussions)
 - Email: support+resugen@krane.dev
 
 ---
 
 <div align="center">
-  Made with ❤️ by <a href="https://www.krane.dev">Krane Development</a>
+  <img src="/public/logo.png" alt="ResuGen Logo" width="120">
+  <p>Made with ❤️ by <a href="https://www.krane.dev">Krane Development</a></p>
 </div>
