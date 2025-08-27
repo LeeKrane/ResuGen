@@ -36,6 +36,7 @@
   },
   "devDependencies": {
     "@nuxt/eslint": "^1.9.0",
+    "@nuxtjs/supabase": "^1.6.1",
     "@types/uuid": "^10.0.0",
     "eslint": "^9.34.0",
     "nuxt-particles": "^0.3.0",
