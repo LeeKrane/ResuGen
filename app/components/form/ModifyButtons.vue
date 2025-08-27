@@ -1,13 +1,13 @@
 <script setup lang="ts">
 const model = defineModel<any[]>()
-const {index, vertical} = defineProps<{
+const {index, vertical = false} = defineProps<{
 	index: number
 	vertical?: boolean
 }>()
 </script>
 
 <template>
-	<UButtonGroup :orientation="vertical ? 'vertical' : 'horizontal' ">
+	<UFieldGroup :orientation="vertical ? 'vertical' : 'horizontal' ">
 		<slot name="leading"/>
 		<UButton
 			class="cursor-pointer"
@@ -15,7 +15,7 @@ const {index, vertical} = defineProps<{
 			color="neutral"
 			:disabled="index === 0"
 			icon="i-lucide-chevron-up"
-			size="sm"
+			size="md"
 			aria-label="move up"
 			@click="() => { model!.splice(index - 1, 2, model![index]!, model![index - 1]!) }"/>
 		<FormClearInputButton
@@ -29,7 +29,7 @@ const {index, vertical} = defineProps<{
 			color="neutral"
 			:disabled="index === model?.length! - 1"
 			icon="i-lucide-chevron-down"
-			size="sm"
+			size="md"
 			aria-label="move down"
 			@click="() => { model!.splice(index, 2, model![index + 1]!, model![index]!) }"/>
 		<FormClearInputButton
@@ -38,7 +38,7 @@ const {index, vertical} = defineProps<{
 			soft
 			error/>
 		<slot name="trailing"/>
-	</UButtonGroup>
+	</UFieldGroup>
 </template>
 
 <style scoped>

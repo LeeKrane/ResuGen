@@ -64,7 +64,7 @@ const textColor = computed(() => {
 
 <template>
 	<div class="flex gap-1">
-		<UButtonGroup class="grow">
+		<UFieldGroup class="grow">
 			<UPopover>
 				<UButton
 					variant="soft"
@@ -101,7 +101,7 @@ const textColor = computed(() => {
 				trailing-icon="i-fluent-arrow-reset-20-filled"
 				soft
 				error/>
-		</UButtonGroup>
+		</UFieldGroup>
 	</div>
 </template>
 
