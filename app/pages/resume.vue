@@ -30,7 +30,7 @@ onMounted(() => {
 
 <template>
 	<div class="flex flex-col items-center justify-center gap-4">
-		<UButtonGroup class="print:hidden sticky top-20 z-50">
+		<UFieldGroup class="print:hidden sticky top-20 z-50">
 			<USlideover
 				v-model:open="stylingOpen"
 				:side="styleSliderBottom ? 'bottom' : 'right'"
@@ -77,7 +77,7 @@ onMounted(() => {
 				class="mx-auto cursor-pointer bg-(--ui-primary)/20 backdrop-blur-sm"
 				icon="i-lucide-printer"
 				@click="handlePrint"/>
-		</UButtonGroup>
+		</UFieldGroup>
 
 		<div v-if="mobile" class="flex flex-col items-center justify-center gap-4 px-4 py-16 text-center">
 			<UIcon name="i-lucide-smartphone" class="text-4xl text-(--ui-primary)"/>

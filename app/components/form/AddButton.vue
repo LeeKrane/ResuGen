@@ -1,7 +1,8 @@
 <script setup lang="ts">
 const model = defineModel<object[] | string[]>()
-const {label, defaultValueGetter, raw = false} = defineProps<{
-	label: string
+const {icon, label, defaultValueGetter, raw = false} = defineProps<{
+	icon?: string
+	label?: string
 	defaultValueGetter: () => object | string
 	raw?: boolean
 }>()
@@ -10,13 +11,17 @@ const {label, defaultValueGetter, raw = false} = defineProps<{
 <template>
 	<UButton
 		v-if="raw"
+		:icon
 		:label
+		size="md"
 		variant="soft"
 		class="mx-auto cursor-pointer"
 		@click="() => { model!.push(defaultValueGetter()) }"/>
 	<div v-else class="flex">
 		<UButton
+			:icon
 			:label
+			size="md"
 			variant="soft"
 			class="mx-auto cursor-pointer"
 			@click="() => { model!.push(defaultValueGetter()) }"/>

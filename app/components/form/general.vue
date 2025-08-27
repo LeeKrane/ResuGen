@@ -277,7 +277,7 @@ watch(
 						v-else
 						class="w-32 h-32"
 					/>
-					<UButtonGroup class="w-full">
+					<UFieldGroup class="w-full"">
 						<UButton
 							icon="i-lucide-upload"
 							variant="soft"
@@ -294,7 +294,7 @@ watch(
 							error
 							soft
 						/>
-					</UButtonGroup>
+					</UFieldGroup>
 					<input
 						ref="avatarInput"
 						type="file"
@@ -410,7 +410,7 @@ watch(
 							<FormAddButton
 								v-model="state.skillCategories[index]!.skills"
 								class="col-span-2"
-								label="+"
+								icon="i-lucide-plus"
 								raw
 								:default-value-getter="() =>{  return ({ technology: techiconItems.find(i => i.value === 'custom'), displayType: displayiconItems.find(a => a.value === 'text') }) }"/>
 						</template>
