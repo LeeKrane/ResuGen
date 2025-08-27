@@ -41,5 +41,13 @@ export default defineNuxtConfig({
 
 	icon: {
 		mode: "svg"
-	}
+	},
+
+	supabase: {
+		redirectOptions: {
+			login: "/login",
+			callback: "/me",
+			exclude: ["/"]
+		}
+	},
 })
