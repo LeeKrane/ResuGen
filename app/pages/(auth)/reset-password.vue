@@ -1,42 +1,60 @@
 <script setup lang="ts">
 import * as z from 'zod'
+import type { FormSubmitEvent } from "@nuxt/ui"
 
 const supabase = useSupabaseClient()
 const toast = useToast()
 
+const fields = [{
+	name: 'newPassword',
+	type: 'password' as const,
+	label: 'New Password',
+	placeholder: 'Enter your new password',
+}, {
+	name: 'confirmPassword',
+	label: 'Confirm Password',
+	type: 'password' as const,
+	placeholder: 'Confirm your new password',
+}]
+
+const loading = ref(false)
+
 const schema = z.object({
-	newPassword: z.string().min(8, 'Must be at least 8 characters'),
-	confirmPassword: z.string().min(8, 'Must be at least 8 characters')
+	newPassword: z.string()
+			.min(8, 'Must be at least 8 characters')
+			.max(128, 'Must be at most 128 characters')
+			.regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/, 'Must contain at least one uppercase letter, one lowercase letter, one number and one special character'),
+	confirmPassword: z.string()
+}).superRefine((data, ctx) => {
+	if (data.newPassword !== data.confirmPassword) {
+		ctx.addIssue({
+			code: z.ZodIssueCode.custom,
+			message: 'Passwords do not match',
+			path: ['confirmPassword']
+		})
+	}
 })
 
 type Schema = z.output<typeof schema>
 
-const state = reactive<Partial<Schema>>({
-	newPassword: undefined,
-	confirmPassword: undefined,
-})
+async function onSubmit(payload: FormSubmitEvent<Schema>) {
+	const pending = toast.add({ title: 'Updating password...', color: 'info', icon: 'i-lucide-loader', duration: 0 })
+	loading.value = true
 
-const passwordMismatch = computed(() => {
-	return state.newPassword !== state.confirmPassword
-})
+	const { error } = await supabase.auth.updateUser({ password: payload.data.newPassword })
 
-async function updatePassword() {
-	if (passwordMismatch.value) {
-		toast.add({ title: 'Passwords do not match', color: 'error', icon: 'i-lucide-alert-circle' })
-		return
-	}
-
-	const { error } = await supabase.auth.updateUser({ password: state.newPassword })
+	toast.remove(pending.id)
+	loading.value = false
 
 	if (error) {
 		toast.add({
 			title: 'Error updating password',
 			description: error.message,
 			color: 'error',
-			icon: 'i-lucide-alert-circle'
+			icon: 'i-lucide-triangle-alert'
 		})
 	} else {
-		toast.add({ title: 'Password updated', color: 'success', icon: 'i-lucide-check' })
+		toast.add({ title: 'Successfully updated password!', color: 'success', icon: 'i-lucide-check' })
 		navigateTo('/me')
 	}
 }
@@ -48,21 +66,17 @@ async function updatePassword() {
 				class="w-full max-w-md bg-(--ui-bg-accented)"
 				:spotlight="true"
 				spotlight-color="primary">
-			<UForm
+			<UAuthForm
 					:schema="schema"
-					:state="state"
-					class="flex flex-col items-center gap-4 w-full"
-					@submit="updatePassword">
-				<h2 class="text-2xl font-bold">Update your Password</h2>
-				<UFormField label="New Password" class="w-full">
-					<UInput v-model="state.newPassword" type="password" class="w-full"/>
-				</UFormField>
-				<UFormField label="Confirm New Password" class="w-full">
-					<UInput v-model="state.confirmPassword" type="password" class="w-full"/>
-				</UFormField>
-				<div v-if="passwordMismatch" class="text-error">Passwords do not match</div>
-				<UButton type="submit">Update Password</UButton>
-			</UForm>
+					:fields="fields"
+					:loading="loading"
+					title="Update your password"
+					icon="i-lucide-key-round"
+					@submit="onSubmit">
+				<template #description>
+					Enter your new password below.
+				</template>
+			</UAuthForm>
 		</UPageCard>
 	</div>
 </template>
