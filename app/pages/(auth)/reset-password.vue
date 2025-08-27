@@ -23,7 +23,8 @@ const schema = z.object({
 	newPassword: z.string()
 			.min(8, 'Must be at least 8 characters')
 			.max(128, 'Must be at most 128 characters')
-			.regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/, 'Must contain at least one uppercase letter, one lowercase letter, one number and one special character'),
+			.regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).*$/, 'Your password needs at least one uppercase letter, one lowercase letter, and one number.')
+			.regex(/^(?=.*[!@#$%^&*()_+\-=[\]{}|;:'",.<>/?~`]).*$/, 'Your password needs at least one special character: !@#$%^&*()_+-=[]{}|;:\'",.<>?~`'),
 	confirmPassword: z.string()
 }).superRefine((data, ctx) => {
 	if (data.newPassword !== data.confirmPassword) {
