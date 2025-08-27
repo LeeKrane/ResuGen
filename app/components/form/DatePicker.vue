@@ -23,7 +23,7 @@ watch(calendarDate, (newVal) => {
 
 <template>
 	<UPopover>
-		<UButtonGroup class="grow w-full">
+		<UFieldGroup class="grow w-full">
 			<UButton
 				variant="soft"
 				color="neutral"
@@ -40,7 +40,7 @@ watch(calendarDate, (newVal) => {
 				:fn="() => { model = undefined }"
 				soft
 				error/>
-		</UButtonGroup>
+		</UFieldGroup>
 
 		<template #content>
 			<UCalendar

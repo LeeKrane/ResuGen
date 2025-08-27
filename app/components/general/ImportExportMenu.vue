@@ -29,7 +29,7 @@ const downloadZip = () => {
 </script>
 
 <template>
-	<UButtonGroup>
+	<UFieldGroup>
 		<GeneralResumeLoader/>
 		<UButton
 			class="cursor-pointer"
@@ -39,7 +39,7 @@ const downloadZip = () => {
 			loading-auto
 			@click="downloadZip"
 		/>
-	</UButtonGroup>
+	</UFieldGroup>
 </template>
 
 <style scoped>
