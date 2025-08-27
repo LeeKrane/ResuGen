@@ -188,17 +188,16 @@ const techiconItems = ref([
 	{label: "Windows", value: "windows", icon: "i-simple-icons-windows"},
 	{label: "Windicss", value: "windicss", icon: "i-simple-icons-windicss"},
 	{label: "Yarn", value: "yarn", icon: "i-simple-icons-yarn"},
-	{label: "Zoom", value: "zoom", icon: "i-simple-icons-zoom"}
-].sort((a, b) => a.label.localeCompare(b.label)).concat([
-	{ label: "Custom", value: "custom", icon: "i-lucide-shapes" }
-]));
+	{label: "Zoom", value: "zoom", icon: "i-akar-icons-zoom-fill"}
+].sort((a, b) => a.label.localeCompare(b.label)));
+
+techiconItems.value.unshift({ label: "Custom", value: "custom", icon: "i-lucide-shapes" });
 
 const displayiconItems = ref([
-	{label: "Text", value: "text", icon: "i-lucide-letter-text"},
-	{label: "Icon and Text", value: "iconandtext", icon: "i-lucide-book-image"},
-].sort((a, b) => a.label.localeCompare(b.label)).concat([
-	{ label: "Icon", value: "icon", icon: "i-lucide-image" }
-]));
+	{ label: "Text", value: "text", icon: "i-lucide-letter-text" },
+	{ label: "Icon", value: "icon", icon: "i-lucide-image" },
+	{ label: "Icon and Text", value: "iconandtext", icon: "i-lucide-book-image" }
+]);
 
 const onFileChange = async (event: Event) => {
 	const file = (event.target as HTMLInputElement).files?.[0]
@@ -210,6 +209,25 @@ const avatarInput = ref<HTMLInputElement | null>(null)
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
 const isEmailValid = computed(() => emailRegex.test(state.email))
+
+// keep displayType in sync when technology is set to "custom"
+watch(
+    () => state.skillCategories,
+    (watcher) => {
+        if (!watcher) return
+        watcher.forEach((edit) => {
+            edit?.skills?.forEach((skill) => {
+                if (skill && skill.technology && skill.technology.value === "custom") {
+                    const textDisplay = displayiconItems.value.find((i) => i.value === "text")
+                    if (textDisplay) {
+                        skill.displayType = textDisplay
+                    }
+                }
+            })
+        })
+    },
+    { deep: true }
+)
 </script>
 
 <template>
@@ -394,7 +412,7 @@ const isEmailValid = computed(() => emailRegex.test(state.email))
 								class="col-span-2"
 								label="+"
 								raw
-								:default-value-getter="() =>{  return ({ technology: techiconItems.find(i => i.value === 'custom'), displayType: displayiconItems.find(a => a.value === 'icon') }) }"/>
+								:default-value-getter="() =>{  return ({ technology: techiconItems.find(i => i.value === 'custom'), displayType: displayiconItems.find(a => a.value === 'text') }) }"/>
 						</template>
 					</FormModifyButtons>
 				</div>

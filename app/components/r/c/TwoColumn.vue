@@ -167,27 +167,38 @@ const data = useRefResumeData()
 								v-for="skill in category.skills"
 								:key="skill.technology?.value || skill.name"
 								:style="{
-									background: style.effects.useGradients
-									? `radial-gradient(ellipse at top left, ${style.colors.skillLevels[skill.level?.toLowerCase() ?? 'basic']}, color-mix(in srgb, ${style.colors.skillLevels[skill.level?.toLowerCase() ?? 'basic']} 75%, black))`
-									: undefined,
-									backgroundColor: !style.effects.useGradients
-									? style.colors.skillLevels[skill.level?.toLowerCase() ?? 'basic']
-									: undefined,
+									background: style.effects.fillSkillIcon && skill.displayType?.value === 'icon'
+										? 'transparent'
+										: style.effects.useGradients
+											? `radial-gradient(ellipse at top left, ${style.colors.skillLevels[skill.level?.toLowerCase() ?? 'basic']}, color-mix(in srgb, ${style.colors.skillLevels[skill.level?.toLowerCase() ?? 'basic']} 75%, black))`
+											: undefined,
+									backgroundColor: style.effects.fillSkillIcon && skill.displayType?.value === 'icon'
+										? 'transparent'
+										: !style.effects.useGradients
+											? style.colors.skillLevels[skill.level?.toLowerCase() ?? 'basic']
+											: undefined,
 								}"
-								:class="style.effects.useShades ? 'drop-shadow-md' : ''"
-								class="px-1 rounded-sm flex items-center gap-1"
-								>
-								<!-- Icon, when not custom and displayType icon or iconandtext -->
+								:class="[
+									style.effects.useShades ? 'drop-shadow-md' : '',
+									skill.displayType?.value === 'icon' && style.effects.fillSkillIcon ? '' : 'px-0.5',
+									skill.displayType?.value === 'iconandtext' ? 'pr-1' : '',
+									skill.displayType?.value === 'text' ? 'px-1' : '',]"
+								class="rounded-sm flex items-center gap-1">
+								
 								<UIcon
 									v-if="['icon', 'iconandtext'].includes(skill.displayType?.value) && skill.technology?.icon && skill.technology?.value !== 'custom'"
 									:name="skill.technology.icon"
-									:size="style.font.size * 1.75"
+									:size="skill.displayType?.value === 'icon' ? style.font.size * 2 : style.font.size * 1.75"
 									class="shrink-0 py-0.5"
-								/>
-								<!-- Text, when displayType not icon or custom or iconandtext -->
+									:style="{
+										// Fill icon if fillSkillIcon is enabled and displayType is icon
+										color: style.effects.fillSkillIcon && skill.displayType?.value === 'icon'
+											? style.colors.skillLevels[skill.level?.toLowerCase() ?? 'basic']
+											: undefined,
+									}"/>
+
 								<span
-									v-if="skill.displayType?.value !== 'icon' || skill.technology?.value === 'custom' || skill.displayType?.value === 'iconandtext'"
-								>
+									v-if="skill.displayType?.value !== 'icon' || skill.technology?.value === 'custom' || skill.displayType?.value === 'iconandtext'">
 									{{ skill.technology?.value === 'custom' ? skill.name : skill.technology?.label }}
 								</span>
 							</span>
