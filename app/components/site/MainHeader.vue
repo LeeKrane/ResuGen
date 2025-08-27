@@ -6,6 +6,12 @@ useRouter().beforeEach(() => {
 })
 
 const navItems = useNavItems()
+
+const logout = async () => {
+	await useSupabaseClient().auth.signOut()
+	navigateTo('/')
+	useToast().add({ title: 'Successfully logged out', color: 'info', icon: 'i-lucide-info' })
+}
 </script>
 
 <template>
@@ -31,6 +37,7 @@ const navItems = useNavItems()
 			</UTooltip>
 
 			<UTooltip
+				v-if="!useSupabaseUser().value"
 				text="Login"
 				arrow
 				:delay-duration="0">
@@ -40,6 +47,18 @@ const navItems = useNavItems()
 					icon="i-lucide-log-in"
 					to="/login"
 				/>
+			</UTooltip>
+
+			<UTooltip
+				v-else
+				text="Logout"
+				arrow
+				:delay-duration="0">
+				<UButton
+					color="neutral"
+					variant="ghost"
+					icon="i-lucide-log-out"
+					@click="logout"/>
 			</UTooltip>
 
 			<aside class="md:hidden">
