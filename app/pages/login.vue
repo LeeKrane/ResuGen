@@ -84,7 +84,9 @@ async function onForgotPassword(payload: FormSubmitEvent<SchemaResetPassword>) {
 	})
 	loading.value = true
 
-	const { error } = await useSupabaseClient().auth.resetPasswordForEmail(payload.data.email)
+	const { error } = await useSupabaseClient().auth.resetPasswordForEmail(payload.data.email, {
+		redirectTo: 'http://localhost:3000/reset-password'
+	})
 
 	toast.remove(pending.id)
 	loading.value = false
@@ -96,7 +98,6 @@ async function onForgotPassword(payload: FormSubmitEvent<SchemaResetPassword>) {
 			color: 'error',
 			icon: 'i-lucide-alert-circle'
 		})
-		return
 	} else {
 		toast.add({ title: 'Password reset email sent', color: 'success', icon: 'i-lucide-check' })
 	}
@@ -114,8 +115,8 @@ async function onForgotPassword(payload: FormSubmitEvent<SchemaResetPassword>) {
 							class="flex flex-col items-center gap-4 w-full"
 							@submit="onForgotPassword"
 					>
-						<UFormField name="email" label="Email">
-							<UInput v-model="forgotPasswordState.email" type="email"/>
+						<UFormField name="email" label="Email" class="w-full">
+							<UInput v-model="forgotPasswordState.email" type="email" class="w-full"/>
 						</UFormField>
 						<UButton type="submit">
 							Send Reset Email
