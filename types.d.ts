@@ -166,6 +166,7 @@ interface ResumeStyle {
 		useBorders: boolean
 		borderWidth: number
 		borderColor?: string
+		fillSkillIcon: boolean
 	}
 	layout: {
 		type: "single-column" | "two-column" | "compact"

@@ -16,7 +16,7 @@ export const useResumeData: () => { data: ResumeData, avatar: File | null } = ()
 				name: "",
 				skills: [{
 					technology: { label: "Custom", value: "custom", icon: "i-lucide-shapes" },
-					displayType: { label: "Icon", value: "icon", icon: "i-lucide-image" },
+					displayType: { label: "Text", value: "text", icon: "i-lucide-letter-text" },
 					name: ""
 				}]
 			}]).value,

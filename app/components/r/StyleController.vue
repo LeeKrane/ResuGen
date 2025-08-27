@@ -576,6 +576,10 @@ const showEffects = useState("showEffectsSC", () => true)
 						<USwitch v-model="state.effects.useBorders"/>
 					</UFormField>
 
+					<UFormField label="Fill Skill Icons" class="grow">
+						<USwitch v-model="state.effects.fillSkillIcon"/>
+					</UFormField>
+
 					<UFormField v-if="state.effects.useGradients" label="Project Gradient Base Color" class="grow">
 						<FormColorPicker
 								v-model="state.effects.projectGradientColor"
