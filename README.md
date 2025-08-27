@@ -2,7 +2,7 @@
 
 A modern, intuitive, and open-source resume generator designed to help you create ATS-friendly professional resumes with ease. Built with Nuxt 3 and Nuxt UI.
 
-<img src="/public/marketing-banner.jpg" alt="Marketing Banner Placeholder" width="800">
+<img src="/public/ResuGen-OG-Social-Image.jpg" alt="Marketing Banner Placeholder" width="1151">
 
 ## 🌟 Features
 
