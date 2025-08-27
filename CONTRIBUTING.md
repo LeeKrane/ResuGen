@@ -95,18 +95,18 @@ Thank you for your interest in contributing to ResuGen! This document provides g
 
 ## Pull Request Process
 
-1. Ensure your PR addresses an existing issue
-2. Update documentation if needed
-3. Add tests for new features
-4. Ensure all tests pass:
-   ```bash
-   pnpm lint
-   ```
-5. Create a Pull Request with:
-   - Clear title and description
-   - Reference to the related issue
-   - Screenshots for UI changes
-   - List of tested browsers/devices
+1. Ensure your PR addresses an existing issue. If it's a new feature or significant change, please open an issue first for discussion.
+2. Before submitting, ensure the following:
+   - Your code adheres to the project's code style.
+   - All tests pass locally (if applicable)
+   - Documentation is updated as needed
+   - Your branch is rebased on the latest `development` branch to avoid conflicts.
+   - For UI changes, include relevant screenshots or GIFs in your PR description.
+3. Create a Pull Request against the `development` branch (not `latest`, this is done by maintainers):
+   - Provide a clear, descriptive title using conventional commit message style (e.g., `feat: Add resume export options`).
+   - Reference the related issue(s) (e.g., `Closes #123`).
+   - Fill out the Pull Request template thoroughly.
+4. Wait for maintainers to review your PR. Be prepared to address feedback and make changes as necessary.
 
 ## Development Setup Tips
 
@@ -123,10 +123,12 @@ Thank you for your interest in contributing to ResuGen! This document provides g
 
 ## Getting Help
 
-- Check the [documentation](https://github.com/LeeKrane/ResuGen?tab=readme-ov-file#readme)
-- Create a [question issue](https://github.com/LeeKrane/ResuGen/issues/new/choose) using the question template
-- Visit our [Volta project board](https://volta.net/LeeKrane/ResuGen) for project status
-- Contact support at support+resugen@krane.dev
+- Check the [documentation](https://github.com/LeeKrane/ResuGen/-/blob/latest/README.md).
+- For general questions, discussions, ideas, polls, or "how-to" questions, please use [GitHub Discussions](https://github.com/LeeKrane/ResuGen/discussions).
+- For bugs, feature requests, or other issues, please use [GitHub Issues](https://github.com/LeeKrane/ResuGen/issues).
+- For security reports, please email [security+resugen@krane.dev](mailto:security+resugen@krane.dev)
+- Visit our [Volta project board](https://volta.net/LeeKrane/ResuGen) for project status.
+- Contact support at [support+resugen@krane.dev](mailto:support+resugen@krane.dev).
 
 ## License
 
