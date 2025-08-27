@@ -30,6 +30,18 @@ const navItems = useNavItems()
 				/>
 			</UTooltip>
 
+			<UTooltip
+				text="Login"
+				arrow
+				:delay-duration="0">
+				<UButton
+					color="neutral"
+					variant="ghost"
+					icon="i-lucide-log-in"
+					to="/login"
+				/>
+			</UTooltip>
+
 			<aside class="md:hidden">
 				<USlideover
 					v-model:open="sideNavOpen"
