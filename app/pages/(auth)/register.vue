@@ -96,8 +96,7 @@ async function onSubmit(payload: FormSubmitEvent<SchemaRegister>) {
 			>
 				<template #description>
 					Already have an account?
-					<ULink to="/login" class="text-primary font-medium">Login here</ULink>
-					.
+					<ULink to="/login" class="text-primary font-medium">Login here</ULink>.
 				</template>
 			</UAuthForm>
 		</UPageCard>
