@@ -6,7 +6,8 @@ export default defineNuxtConfig({
 		'@nuxt/ui',
 		'@nuxt/eslint',
 		'@nuxt/image',
-		'nuxt-particles'
+		'nuxt-particles',
+		'@nuxtjs/supabase',
 	],
 
 	css: ['~/assets/css/main.css'],
