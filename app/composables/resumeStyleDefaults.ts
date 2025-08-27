@@ -41,7 +41,8 @@ export const useResumeStyleDefaults = (): ResumeStyle => {
 			projectGradientColor: '#FAFAFA',
 			useBorders: false,
 			borderWidth: 1,
-			borderColor: "#C2C8D1"
+			borderColor: "#C2C8D1",
+			fillSkillIcon: false
 		},
 		layout: {
 			type: 'two-column',
