@@ -5,7 +5,7 @@ const {label} = defineProps<{
 </script>
 
 <template>
-	<UCollapsible class="flex flex-col gap-2 max-w-full" default-open :unmount-on-hide="false">
+	<UCollapsible class="flex flex-col max-w-full" default-open :unmount-on-hide="false">
 		<UButton
 			class="group"
 			:label
@@ -19,7 +19,9 @@ const {label} = defineProps<{
 		/>
 
 		<template #content>
-			<slot/>
+			<div class="flex flex-col max-w-full mt-2">
+				<slot />
+			</div>
 		</template>
 	</UCollapsible>
 </template>
