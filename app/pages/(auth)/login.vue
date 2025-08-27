@@ -24,7 +24,10 @@ const loading = ref(false)
 
 const schemaLogin = z.object({
 	email: z.string().email('Invalid email'),
-	password: z.string().min(8, 'Must be at least 8 characters')
+	password: z.string()
+			.min(8, 'Must be at least 8 characters')
+			.max(128, 'Must be at most 128 characters')
+			.regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/, 'Must contain at least one uppercase letter, one lowercase letter, one number and one special character')
 })
 
 type SchemaLogin = z.output<typeof schemaLogin>
@@ -42,10 +45,10 @@ async function onSubmit(payload: FormSubmitEvent<SchemaLogin>) {
 	loading.value = false
 
 	if (error) {
-		toast.add({ title: 'Error logging in', description: error.message, color: 'error', icon: 'i-lucide-alert-circle' })
+		toast.add({ title: 'Error logging in', description: error.message, color: 'error', icon: 'i-lucide-triangle-alert' })
 		return
 	} else {
-		toast.add({ title: 'Successfully logged in', color: 'success', icon: 'i-lucide-check' })
+		toast.add({ title: 'Successfully logged in!', color: 'success', icon: 'i-lucide-check' })
 		navigateTo('/me')
 	}
 }
@@ -85,19 +88,25 @@ async function onForgotPassword(payload: FormSubmitEvent<SchemaResetPassword>) {
 			title: 'Error sending password reset email',
 			description: error.message,
 			color: 'error',
-			icon: 'i-lucide-alert-circle'
+			icon: 'i-lucide-triangle-alert'
 		})
 	} else {
-		toast.add({ title: 'Password reset email sent', color: 'success', icon: 'i-lucide-check' })
+		toast.add({ title: 'Successfully sent password reset email!', color: 'success', icon: 'i-lucide-check' })
 	}
 }
+
+const freshlyRegisteredEmail = useRoute().query.freshlyRegisteredEmail as string | undefined
+const verifyEmailModalOpen = ref(freshlyRegisteredEmail !== undefined)
 </script>
 
 <template>
 	<div class="flex flex-col h-full items-center justify-center gap-4 p-4">
-		<UModal v-model:open="forgotPasswordModalOpen">
+		<UModal v-model:open="forgotPasswordModalOpen" title="Forgot your password?">
 			<template #body>
 				<div class="flex flex-col h-full items-center justify-center gap-4 p-4">
+					<p class="text-center">
+						Enter your email address and we will send you a one time login link, so that you can reset your password.
+					</p>
 					<UForm
 							:schema="schemaResetPassword"
 							:state="forgotPasswordState"
@@ -108,9 +117,22 @@ async function onForgotPassword(payload: FormSubmitEvent<SchemaResetPassword>) {
 							<UInput v-model="forgotPasswordState.email" type="email" class="w-full"/>
 						</UFormField>
 						<UButton type="submit">
-							Send Reset Email
+							Continue
 						</UButton>
 					</UForm>
+				</div>
+			</template>
+		</UModal>
+
+		<UModal v-model:open="verifyEmailModalOpen">
+			<template #content>
+				<div class="flex flex-col h-full items-center justify-center gap-4 p-8">
+					<UIcon name="i-lucide-circle-alert" class="text-4xl text-(--ui-warning)"/>
+					<h3 class="font-medium text-lg">Verify your email</h3>
+					<p class="text-sm text-muted text-center">
+						Before being able to use your account, you need to verify your email address. We sent you an email to <span class="text-primary">{{ freshlyRegisteredEmail || '??' }}</span>. Please click the link in the email to verify your account.
+					</p>
+					<UButton class="mt-2" label="Understood" @click="verifyEmailModalOpen = false"/>
 				</div>
 			</template>
 		</UModal>
@@ -125,8 +147,7 @@ async function onForgotPassword(payload: FormSubmitEvent<SchemaResetPassword>) {
 					:loading="loading"
 					title="Welcome back!"
 					icon="i-lucide-user"
-					@submit="onSubmit"
-			>
+					@submit="onSubmit">
 				<template #description>
 					Don't have an account?
 					<ULink to="/register" class="text-primary font-medium">Register here</ULink>.

@@ -12,7 +12,7 @@ defineProps<{
 		<!-- Error Icon -->
 		<div class="relative">
 			<UIcon
-				:name="error.statusCode === 404 ? 'i-lucide-file-question' : 'i-lucide-alert-circle'"
+				:name="error.statusCode === 404 ? 'i-lucide-file-question' : 'i-lucide-triangle-alert'"
 				:class="[
 					'text-8xl opacity-10',
 					error.statusCode === 404 ? 'text-(--ui-primary)' : 'text-red-500'
