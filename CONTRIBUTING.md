@@ -61,15 +61,16 @@ Thank you for your interest in contributing to ResuGen! This document provides g
 ### Creating Issues
 1. Check existing issues to avoid duplicates
 2. Use the appropriate issue template:
-   - Bug Report: Use the [BUG] template for bugs
-   - Feature Request: Use the [FEAT] template for new features
-   - Enhancement Request: Use the [ENHANCE] template for improvements
-   - Documentation Issue: Use the [DOCS] template for documentation issues
-   - Question: Use the [QUESTION] template for questions
-   - UI/UX Feedback: Use the [UX] template for design feedback
-   - Performance Issue: Use the [PERF] template for performance concerns
-   - Maintenance/Refactor: Use the [MAINT] template for technical debt
+   - Bug Report: Use the [[BUG]](https://github.com/LeeKrane/ResuGen/issues/new?template=bug-report.md) template for bugs
+   - Feature Request: Use the [[FEAT]](https://github.com/LeeKrane/ResuGen/issues/new?template=feature-request.md) template for new features
+   - Enhancement Request: Use the [[ENHANCE]](https://github.com/LeeKrane/ResuGen/issues/new?template=enhancement-request.md) template for improvements
+   - Documentation Issue: Use the [[DOCS]](https://github.com/LeeKrane/ResuGen/issues/new?template=documentation-issue.md) template for documentation issues
+   - Question: Use the [[QUESTION]](https://github.com/LeeKrane/ResuGen/issues/new?template=question.md) template for questions
+   - UI/UX Feedback: Use the [[UX]](https://github.com/LeeKrane/ResuGen/issues/new?template=ui-ux-feedback.md) template for design feedback
+   - Performance Issue: Use the [[PERF]](https://github.com/LeeKrane/ResuGen/issues/new?template=performance-issue.md) template for performance concerns
+   - Maintenance/Refactor: Use the [[MAINT]](https://github.com/LeeKrane/ResuGen/issues/new?template=maintenance-refactor.md) template for technical debt
    - Security Report: Email security+resugen@krane.dev (do not create public issues)
+3. For general questions, "how-to" questions, or sharing your creations, please use our [GitHub Discussions](https://github.com/LeeKrane/ResuGen/discussions) instead of creating an issue.
 
 ### Working on Issues
 1. Comment on the issue you want to work on
