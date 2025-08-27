@@ -126,7 +126,7 @@ definePageMeta({
 
 
 			<!-- Feature highlights -->
-			<div class="flex gap-4 justify-center space-x-16 -mt-4 text-3xl font-semibold text-slate-300">
+			<div class="flex justify-center space-x-16 -mt-4 text-3xl font-semibold text-slate-300">
 				<div class="flex items-center space-x-4">
 					<div
 							class="w-12 h-12 bg-green-900 rounded-full flex items-center justify-center">
