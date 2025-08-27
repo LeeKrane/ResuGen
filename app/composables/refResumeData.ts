@@ -11,7 +11,7 @@ export const useRefResumeData: () => RefResumeData = () => {
 		summary: useState("summary", () => ""),
 		hobbies: useState("hobbies", (): string[] => [""]),
 		languages: useState("languages", (): Language[] => [{name: ""}]),
-		skillCategories: useState("skillCategories", (): SkillCategory[] => [{name: "", skills: [{name: ""}]}]),
+		skillCategories: useState("skillCategories", (): SkillCategory[] => [{name: "", skills: [{ technology: { label: "Custom", value: "custom", icon: "i-lucide-shapes" }, name: "", displayType: { label: "Icon", value: "icon", icon: "i-lucide-image" } }]}]),
 		links: useState("links", (): Link[] => [{name: "", url: ""}]),
 		institutions: useState("institutions", (): Institution[] => [{uuid: v7(), name: ""}]),
 		education: useState("education", (): Education[] => [{degree: "", text: "", collapsibleOpen: true}]),

@@ -4,7 +4,9 @@ interface Language {
 }
 
 interface Skill {
+	technology?: Icon
 	name: string
+	displayType?: Icon
 	level?: "Basic" | "Decent" | "Good" | "Proficient" | "Expert"
 }
 
@@ -164,6 +166,7 @@ interface ResumeStyle {
 		useBorders: boolean
 		borderWidth: number
 		borderColor?: string
+		fillSkillIcon: boolean
 	}
 	layout: {
 		type: "single-column" | "two-column" | "compact"
