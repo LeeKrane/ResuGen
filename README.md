@@ -148,6 +148,6 @@ Need help? Have questions?
 ---
 
 <div align="center">
-  <img src="/public/logo.png" alt="ResuGen Logo" width="120">
+  <img src="/public/logo.png" alt="ResuGen Logo" width="122">
   <p>Made with ❤️ by <a href="https://www.krane.dev">Krane Development</a></p>
 </div>
