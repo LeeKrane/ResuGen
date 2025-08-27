@@ -2,6 +2,10 @@
 import * as z from 'zod'
 import type { FormSubmitEvent } from "@nuxt/ui"
 
+definePageMeta({
+	middleware: ["logged-out"]
+})
+
 const toast = useToast()
 
 const fields = [{
@@ -25,19 +29,7 @@ const schemaLogin = z.object({
 
 type SchemaLogin = z.output<typeof schemaLogin>
 
-function isUserLoggedIn() {
-	if (useSupabaseUser().value) {
-		toast.add({ title: 'Already logged in', color: 'info', icon: 'i-lucide-info' })
-		navigateTo('/me')
-		return true
-	}
-	return false
-}
-
 async function onSubmit(payload: FormSubmitEvent<SchemaLogin>) {
-	if (isUserLoggedIn())
-		return
-
 	const pending = toast.add({ title: 'Logging in...', color: 'info', icon: 'i-lucide-loader', duration: 0 })
 	loading.value = true
 
@@ -72,9 +64,6 @@ const forgotPasswordState = reactive<Partial<SchemaResetPassword>>({
 
 async function onForgotPassword(payload: FormSubmitEvent<SchemaResetPassword>) {
 	forgotPasswordModalOpen.value = false
-
-	if (isUserLoggedIn())
-		return
 
 	const pending = toast.add({
 		title: 'Sending password reset email...',
@@ -135,13 +124,12 @@ async function onForgotPassword(payload: FormSubmitEvent<SchemaResetPassword>) {
 					:fields="fields"
 					:loading="loading"
 					title="Welcome back!"
-					icon="i-lucide-lock"
+					icon="i-lucide-user"
 					@submit="onSubmit"
 			>
 				<template #description>
 					Don't have an account?
-					<ULink to="#" class="text-primary font-medium">Sign up</ULink>
-					.
+					<ULink to="/register" class="text-primary font-medium">Register here</ULink>.
 				</template>
 				<template #password-hint>
 					<UButton label="Forgot Password?" variant="link" tabindex="-1" @click="forgotPasswordModalOpen = true"/>
