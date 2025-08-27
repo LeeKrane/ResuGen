@@ -47,7 +47,12 @@ export default defineNuxtConfig({
 		redirectOptions: {
 			login: "/login",
 			callback: "/me",
-			exclude: ["/"]
+			exclude: ["/", "/reset-password"]
+		},
+		clientOptions: {
+			auth: {
+				detectSessionInUrl: true,
+			}
 		}
 	},
 })
