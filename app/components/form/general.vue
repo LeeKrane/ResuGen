@@ -277,7 +277,7 @@ watch(
 						v-else
 						class="w-32 h-32"
 					/>
-					<UFieldGroup class="w-full"">
+					<UFieldGroup class="w-full">
 						<UButton
 							icon="i-lucide-upload"
 							variant="soft"
