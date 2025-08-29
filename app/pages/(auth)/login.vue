@@ -23,7 +23,7 @@ const fields = [{
 }]
 
 async function onOAuthLogin(provider: 'Google' | 'GitHub') {
-	const pending = toast.add({
+	toast.add({
 		title: `Redirecting to ${provider}...`,
 		color: 'info', 
 		icon: 'i-lucide-loader', 
@@ -33,11 +33,9 @@ async function onOAuthLogin(provider: 'Google' | 'GitHub') {
 	const { error } = await supabase.auth.signInWithOAuth({
 		provider: provider.toLowerCase() as 'google' | 'github',
 		options: {
-			redirectTo: `${requestURL.origin}/me`
+			redirectTo: `${requestURL.origin}/me?oAuthStatus=${btoa('oauth_success:' + provider)}`,
 		}
 	})
-	
-	toast.remove(pending.id)
 	
 	if (error) {
 		toast.add({ 
@@ -45,12 +43,6 @@ async function onOAuthLogin(provider: 'Google' | 'GitHub') {
 			description: error.message, 
 			color: 'error', 
 			icon: 'i-lucide-triangle-alert' 
-		})
-	} else {
-		toast.add({ 
-			title: `Successfully logged in with ${provider}!`,
-			color: 'success', 
-			icon: 'i-lucide-check' 
 		})
 	}
 }
