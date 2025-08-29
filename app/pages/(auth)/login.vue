@@ -7,6 +7,7 @@ definePageMeta({
 })
 
 const supabase = useSupabaseClient()
+const requestURL = useRequestURL()
 const toast = useToast()
 
 const fields = [{
@@ -21,28 +22,49 @@ const fields = [{
 	placeholder: 'Enter your password',
 }]
 
+async function onOAuthLogin(provider: 'Google' | 'GitHub') {
+	const providerName = provider.charAt(0).toUpperCase() + provider.slice(1)
+	
+	const pending = toast.add({ 
+		title: `Redirecting to ${providerName}...`, 
+		color: 'info', 
+		icon: 'i-lucide-loader', 
+		duration: 0 
+	})
+	
+	const { error } = await supabase.auth.signInWithOAuth({
+		provider: provider.toLowerCase() as 'google' | 'github',
+		options: {
+			redirectTo: `${requestURL.origin}/me`
+		}
+	})
+	
+	toast.remove(pending.id)
+	
+	if (error) {
+		toast.add({ 
+			title: `Error with ${providerName} login`, 
+			description: error.message, 
+			color: 'error', 
+			icon: 'i-lucide-triangle-alert' 
+		})
+	} else {
+		toast.add({ 
+			title: `Successfully logged in with ${providerName}!`, 
+			color: 'success', 
+			icon: 'i-lucide-check' 
+		})
+	}
+}
+
 const providers = [{
 	label: 'Google',
 	icon: 'i-simple-icons-google',
-	onClick: () => {
-		supabase.auth.signInWithOAuth({
-			provider: 'google',
-			options: {
-				redirectTo:  `${useRequestURL().origin}/me`
-			}
-		})
-	}
+	onClick: () => onOAuthLogin('Google')
 }, {
 	label: 'GitHub',
 	icon: 'i-simple-icons-github',
-	onClick: () => {
-		supabase.auth.signInWithOAuth({
-			provider: 'github',
-			options: {
-				redirectTo: `${useRequestURL().origin}/me`
-			}
-		})
-	}
+	onClick: () => onOAuthLogin('GitHub')
 }]
 
 const loading = ref(false)
@@ -99,7 +121,7 @@ async function onForgotPassword(payload: FormSubmitEvent<SchemaResetPassword>) {
 	loading.value = true
 
 	const { error } = await supabase.auth.resetPasswordForEmail(payload.data.email, {
-		redirectTo: `${useRequestURL().origin}/reset-password`
+		redirectTo: `${requestURL.origin}/reset-password`
 	})
 
 	toast.remove(pending.id)
