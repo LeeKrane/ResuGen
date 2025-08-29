@@ -67,15 +67,11 @@ async function onSubmit(payload: FormSubmitEvent<SchemaRegister>) {
 			title: 'Successfully created account!',
 			description: 'To use your account, please verify your email.',
 			color: 'warning',
-			icon: 'i-lucide-check',
+			icon: 'i-lucide-mail',
 			duration: 10000
 		})
-		navigateTo({
-			path: '/login',
-			query: {
-				freshlyRegisteredEmail: payload.data.email
-			}
-		})
+		useState<string | undefined>("freshRegister").value = payload.data.email
+		navigateTo({ path: '/login' })
 	}
 }
 </script>
@@ -90,11 +86,13 @@ async function onSubmit(payload: FormSubmitEvent<SchemaRegister>) {
 					:schema="schemaRegister"
 					:fields="fields"
 					:loading="loading"
-					title="Register"
+					title="Create an account!"
 					icon="i-lucide-user-plus"
 					@submit="onSubmit"
 			>
 				<template #description>
+					Enter your credentials to create an account.
+					<br>
 					Already have an account?
 					<ULink to="/login" class="text-primary font-medium">Login here</ULink>.
 				</template>
