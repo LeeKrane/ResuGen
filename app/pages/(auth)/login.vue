@@ -6,6 +6,7 @@ definePageMeta({
 	middleware: ["logged-out"]
 })
 
+const supabase = useSupabaseClient()
 const toast = useToast()
 
 const fields = [{
@@ -18,6 +19,30 @@ const fields = [{
 	label: 'Password',
 	type: 'password' as const,
 	placeholder: 'Enter your password',
+}]
+
+const providers = [{
+	label: 'Google',
+	icon: 'i-simple-icons-google',
+	onClick: () => {
+		supabase.auth.signInWithOAuth({
+			provider: 'google',
+			options: {
+				redirectTo: 'http://localhost:3000/me'
+			}
+		})
+	}
+}, {
+	label: 'GitHub',
+	icon: 'i-simple-icons-github',
+	onClick: () => {
+		supabase.auth.signInWithOAuth({
+			provider: 'github',
+			options: {
+				redirectTo: 'http://localhost:3000/me'
+			}
+		})
+	}
 }]
 
 const loading = ref(false)
@@ -33,7 +58,7 @@ async function onSubmit(payload: FormSubmitEvent<SchemaLogin>) {
 	const pending = toast.add({ title: 'Logging in...', color: 'info', icon: 'i-lucide-loader', duration: 0 })
 	loading.value = true
 
-	const { error } = await useSupabaseClient().auth.signInWithPassword({
+	const { error } = await supabase.auth.signInWithPassword({
 		email: payload.data.email,
 		password: payload.data.password,
 	})
@@ -73,7 +98,7 @@ async function onForgotPassword(payload: FormSubmitEvent<SchemaResetPassword>) {
 	})
 	loading.value = true
 
-	const { error } = await useSupabaseClient().auth.resetPasswordForEmail(payload.data.email, {
+	const { error } = await supabase.auth.resetPasswordForEmail(payload.data.email, {
 		redirectTo: 'http://localhost:3000/reset-password'
 	})
 
@@ -141,6 +166,7 @@ const verifyEmailModalOpen = ref(freshlyRegisteredEmail !== undefined)
 			<UAuthForm
 					:schema="schemaLogin"
 					:fields="fields"
+					:providers="providers"
 					:loading="loading"
 					title="Welcome back!"
 					icon="i-lucide-user"
