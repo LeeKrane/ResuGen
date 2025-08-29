@@ -92,8 +92,8 @@ async function onForgotPassword(payload: FormSubmitEvent<SchemaResetPassword>) {
 	}
 }
 
-const freshlyRegisteredEmail = useRoute().query.freshlyRegisteredEmail as string | undefined
-const verifyEmailModalOpen = ref(freshlyRegisteredEmail !== undefined)
+const freshRegister = useState<string | undefined>("freshRegister")
+const verifyEmailModalOpen = ref(freshRegister.value !== undefined)
 </script>
 
 <template>
@@ -127,9 +127,9 @@ const verifyEmailModalOpen = ref(freshlyRegisteredEmail !== undefined)
 					<UIcon name="i-lucide-circle-alert" class="text-4xl text-(--ui-warning)"/>
 					<h3 class="font-medium text-lg">Verify your email</h3>
 					<p class="text-sm text-muted text-center">
-						Before being able to use your account, you need to verify your email address. We sent you an email to <span class="text-primary">{{ freshlyRegisteredEmail || '??' }}</span>. Please click the link in the email to verify your account.
+						Before being able to use your account, you need to verify your email address. We sent you an email to <span class="text-primary">{{ freshRegister || '??' }}</span>. Please click the link in the email to verify your account.
 					</p>
-					<UButton class="mt-2" label="Understood" @click="verifyEmailModalOpen = false"/>
+					<UButton class="mt-2" label="Understood" @click="freshRegister = undefined; verifyEmailModalOpen = false"/>
 				</div>
 			</template>
 		</UModal>

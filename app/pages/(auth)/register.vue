@@ -70,12 +70,8 @@ async function onSubmit(payload: FormSubmitEvent<SchemaRegister>) {
 			icon: 'i-lucide-check',
 			duration: 10000
 		})
-		navigateTo({
-			path: '/login',
-			query: {
-				freshlyRegisteredEmail: payload.data.email
-			}
-		})
+		useState<string | undefined>("freshRegister").value = payload.data.email
+		navigateTo({ path: '/login' })
 	}
 }
 </script>
