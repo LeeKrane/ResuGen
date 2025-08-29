@@ -23,10 +23,8 @@ const fields = [{
 }]
 
 async function onOAuthLogin(provider: 'Google' | 'GitHub') {
-	const providerName = provider.charAt(0).toUpperCase() + provider.slice(1)
-	
-	const pending = toast.add({ 
-		title: `Redirecting to ${providerName}...`, 
+	const pending = toast.add({
+		title: `Redirecting to ${provider}...`,
 		color: 'info', 
 		icon: 'i-lucide-loader', 
 		duration: 0 
@@ -43,14 +41,14 @@ async function onOAuthLogin(provider: 'Google' | 'GitHub') {
 	
 	if (error) {
 		toast.add({ 
-			title: `Error with ${providerName} login`, 
+			title: `Error with ${provider} login`,
 			description: error.message, 
 			color: 'error', 
 			icon: 'i-lucide-triangle-alert' 
 		})
 	} else {
 		toast.add({ 
-			title: `Successfully logged in with ${providerName}!`, 
+			title: `Successfully logged in with ${provider}!`,
 			color: 'success', 
 			icon: 'i-lucide-check' 
 		})
