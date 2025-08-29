@@ -1,7 +1,5 @@
 <script setup lang="ts">
 const route = useRoute()
-const toast = useToast()
-
 const signupSuccessModalOpen = ref(false)
 
 // Check for successful signup confirmation
