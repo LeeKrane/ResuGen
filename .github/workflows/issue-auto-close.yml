@@ -31,11 +31,11 @@ jobs:
           # Add a comment to the issue
           gh issue comment $ISSUE_NUMBER --body "## 🔒 Issue Auto-Closed
           
-          This issue has been automatically closed, because it was labeled with \`auto-close\$.
+          This issue has been automatically closed, because it was labeled with \`auto-close\`.
           
-          **Please note:** For actual security vulnerabilities, always report via email to security+resugen@krane.dev
+          **Please note:** For security vulnerabilities, always report via email to security+resugen@krane.dev
           
-          *This action was performed automatically by the Security-Issue-Auto-Close workflow.*"
+          *This action was performed automatically by the Issue-Auto-Close workflow.*"
           
           # Close the issue with "not planned" reason
           gh issue close $ISSUE_NUMBER --reason "not planned"
