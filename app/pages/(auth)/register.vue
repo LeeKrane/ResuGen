@@ -86,11 +86,13 @@ async function onSubmit(payload: FormSubmitEvent<SchemaRegister>) {
 					:schema="schemaRegister"
 					:fields="fields"
 					:loading="loading"
-					title="Register"
+					title="Create an account!"
 					icon="i-lucide-user-plus"
 					@submit="onSubmit"
 			>
 				<template #description>
+					Enter your credentials to create an account.
+					<br>
 					Already have an account?
 					<ULink to="/login" class="text-primary font-medium">Login here</ULink>.
 				</template>
