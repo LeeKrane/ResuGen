@@ -67,7 +67,7 @@ async function onSubmit(payload: FormSubmitEvent<SchemaRegister>) {
 			title: 'Successfully created account!',
 			description: 'To use your account, please verify your email.',
 			color: 'warning',
-			icon: 'i-lucide-check',
+			icon: 'i-lucide-mail',
 			duration: 10000
 		})
 		useState<string | undefined>("freshRegister").value = payload.data.email
