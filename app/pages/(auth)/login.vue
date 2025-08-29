@@ -146,6 +146,8 @@ const verifyEmailModalOpen = ref(freshlyRegisteredEmail !== undefined)
 					icon="i-lucide-user"
 					@submit="onSubmit">
 				<template #description>
+					Enter your credentials to access your account.
+					<br>
 					Don't have an account?
 					<ULink to="/register" class="text-primary font-medium">Register here</ULink>.
 				</template>
