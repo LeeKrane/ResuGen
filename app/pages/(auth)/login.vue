@@ -28,7 +28,7 @@ const providers = [{
 		supabase.auth.signInWithOAuth({
 			provider: 'google',
 			options: {
-				redirectTo: 'http://localhost:3000/me'
+				redirectTo:  `${useRequestURL().origin}/me`
 			}
 		})
 	}
@@ -39,7 +39,7 @@ const providers = [{
 		supabase.auth.signInWithOAuth({
 			provider: 'github',
 			options: {
-				redirectTo: 'http://localhost:3000/me'
+				redirectTo: `${useRequestURL().origin}/me`
 			}
 		})
 	}
@@ -99,7 +99,7 @@ async function onForgotPassword(payload: FormSubmitEvent<SchemaResetPassword>) {
 	loading.value = true
 
 	const { error } = await supabase.auth.resetPasswordForEmail(payload.data.email, {
-		redirectTo: 'http://localhost:3000/reset-password'
+		redirectTo: `${useRequestURL().origin}/reset-password`
 	})
 
 	toast.remove(pending.id)
