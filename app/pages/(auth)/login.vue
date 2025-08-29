@@ -6,6 +6,8 @@ definePageMeta({
 	middleware: ["logged-out"]
 })
 
+const supabase = useSupabaseClient()
+const requestURL = useRequestURL()
 const toast = useToast()
 
 const fields = [{
@@ -18,6 +20,41 @@ const fields = [{
 	label: 'Password',
 	type: 'password' as const,
 	placeholder: 'Enter your password',
+}]
+
+async function onOAuthLogin(provider: 'Google' | 'GitHub') {
+	toast.add({
+		title: `Redirecting to ${provider}...`,
+		color: 'info', 
+		icon: 'i-lucide-loader', 
+		duration: 0 
+	})
+	
+	const { error } = await supabase.auth.signInWithOAuth({
+		provider: provider.toLowerCase() as 'google' | 'github',
+		options: {
+			redirectTo: `${requestURL.origin}/me?oAuthStatus=${btoa('oauth_success:' + provider)}`,
+		}
+	})
+	
+	if (error) {
+		toast.add({ 
+			title: `Error with ${provider} login`,
+			description: error.message, 
+			color: 'error', 
+			icon: 'i-lucide-triangle-alert' 
+		})
+	}
+}
+
+const providers = [{
+	label: 'Google',
+	icon: 'i-simple-icons-google',
+	onClick: () => onOAuthLogin('Google')
+}, {
+	label: 'GitHub',
+	icon: 'i-simple-icons-github',
+	onClick: () => onOAuthLogin('GitHub')
 }]
 
 const loading = ref(false)
@@ -33,7 +70,7 @@ async function onSubmit(payload: FormSubmitEvent<SchemaLogin>) {
 	const pending = toast.add({ title: 'Logging in...', color: 'info', icon: 'i-lucide-loader', duration: 0 })
 	loading.value = true
 
-	const { error } = await useSupabaseClient().auth.signInWithPassword({
+	const { error } = await supabase.auth.signInWithPassword({
 		email: payload.data.email,
 		password: payload.data.password,
 	})
@@ -73,8 +110,8 @@ async function onForgotPassword(payload: FormSubmitEvent<SchemaResetPassword>) {
 	})
 	loading.value = true
 
-	const { error } = await useSupabaseClient().auth.resetPasswordForEmail(payload.data.email, {
-		redirectTo: 'http://localhost:3000/reset-password'
+	const { error } = await supabase.auth.resetPasswordForEmail(payload.data.email, {
+		redirectTo: `${requestURL.origin}/reset-password`
 	})
 
 	toast.remove(pending.id)
@@ -92,8 +129,13 @@ async function onForgotPassword(payload: FormSubmitEvent<SchemaResetPassword>) {
 	}
 }
 
-const freshlyRegisteredEmail = useRoute().query.freshlyRegisteredEmail as string | undefined
-const verifyEmailModalOpen = ref(freshlyRegisteredEmail !== undefined)
+const freshRegister = useState<string | undefined>("freshRegister")
+const verifyEmailModalOpen = ref(freshRegister.value !== undefined)
+
+function onUnderstoodVerify() {
+	verifyEmailModalOpen.value = false
+	setTimeout(() => freshRegister.value = undefined, 300)
+}
 </script>
 
 <template>
@@ -127,9 +169,9 @@ const verifyEmailModalOpen = ref(freshlyRegisteredEmail !== undefined)
 					<UIcon name="i-lucide-circle-alert" class="text-4xl text-(--ui-warning)"/>
 					<h3 class="font-medium text-lg">Verify your email</h3>
 					<p class="text-sm text-muted text-center">
-						Before being able to use your account, you need to verify your email address. We sent you an email to <span class="text-primary">{{ freshlyRegisteredEmail || '??' }}</span>. Please click the link in the email to verify your account.
+						Before being able to use your account, you need to verify your email address. We sent you an email to <span class="text-primary">{{ freshRegister || '??' }}</span>. Please click the link in the email to verify your account.
 					</p>
-					<UButton class="mt-2" label="Understood" @click="verifyEmailModalOpen = false"/>
+					<UButton class="mt-2" label="Understood" @click="onUnderstoodVerify"/>
 				</div>
 			</template>
 		</UModal>
@@ -141,11 +183,14 @@ const verifyEmailModalOpen = ref(freshlyRegisteredEmail !== undefined)
 			<UAuthForm
 					:schema="schemaLogin"
 					:fields="fields"
+					:providers="providers"
 					:loading="loading"
 					title="Welcome back!"
 					icon="i-lucide-user"
 					@submit="onSubmit">
 				<template #description>
+					Enter your credentials to access your account.
+					<br>
 					Don't have an account?
 					<ULink to="/register" class="text-primary font-medium">Register here</ULink>.
 				</template>
