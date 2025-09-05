@@ -1,4 +1,4 @@
-<script setup lang="ts">
+<script setup lang="ts"> 
 const sideNavOpen = ref(false)
 
 useRouter().beforeEach(() => {
@@ -12,6 +12,112 @@ const logout = async () => {
 	navigateTo('/')
 	useToast().add({ title: 'Successfully logged out', color: 'info', icon: 'i-lucide-info' })
 }
+
+const user = useSupabaseUser()
+const role = user.value?.role || undefined // Does not exist currently.
+
+// START OF "NOT THE BEST SOLUTION"
+import { useUserState } from '~/composables/useUserState'
+const { userState } = await useUserState();
+
+// Username
+const Username = computed(() => {
+  return userState.value.fullName || userState.value.username || userState.value.email || 'Fallback User';
+});
+const newUsername = ref(userState.value.fullName || userState.value.username || userState.value.email || 'Fallback User')
+
+
+// Avatar
+const Avatar = computed(() => {
+	const url = userState.value.avatarUrl || userState.value.picture || '';
+
+	if (url) {
+		return `${url}?t=${Date.now()}`;
+	}
+  return null;
+});
+const newAvatar = ref(userState.value.avatarUrl || userState.value.picture || '')
+
+
+// Watcher for new Information inside of userState
+watch(() => userState.value, (newState) => {
+  newUsername.value = newState.username || '';
+  newAvatar.value = newState.avatarUrl || '';
+}, { immediate: true });
+// END OF "NOT THE BEST SOLUTION"
+
+// Dropdown (Menu)
+import type { DropdownMenuItem } from '@nuxt/ui'
+const items = computed<DropdownMenuItem[][]>(() => {
+  return [
+    [
+      {
+        label: Username,
+        avatar: {
+          src: Avatar.value || undefined,
+          icon: Avatar.value || 'i-lucide-user-round'
+        },
+        type: 'label'
+      }
+    ],
+    [
+      {
+        label: 'Profile',
+        icon: 'i-lucide-user',
+        to: '/profile'
+      },
+      {
+        label: 'Settings',
+        icon: 'i-lucide-settings',
+        to: '/settings/general'
+      }
+    ],
+
+    // Admin
+    ...(role === 'admin'
+      ? [[
+	  	  {
+			label: 'Admin',
+			icon: 'i-lucide-shield-check',
+			type: 'label',
+			color: 'primary'
+		  },
+          {
+            label: 'Dashboard',
+            icon: 'i-lucide-layout-dashboard',
+            to: '/admin'
+          },
+		  {
+			label: 'Manage Users',
+			icon: 'i-lucide-users',
+			to: '/admin/users'
+		  }
+        ]]
+      : []),
+	  
+    [
+      {
+        label: 'GitHub',
+        icon: 'i-simple-icons-github',
+        to: 'https://github.com/LeeKrane/ResuGen',
+        target: '_blank'
+      },
+      {
+        label: 'Support',
+        icon: 'i-lucide-mail',
+        to: 'mailto:support+resugen@krane.dev'
+      }
+    ],
+    [
+      {
+        label: 'Logout',
+        color: 'error',
+        icon: 'i-lucide-log-out',
+        onSelect: logout
+      }
+    ]
+  ]
+})
 </script>
 
 <template>
@@ -36,30 +142,27 @@ const logout = async () => {
 				/>
 			</UTooltip>
 
-			<UTooltip
-				v-if="!useSupabaseUser().value"
-				text="Login"
-				arrow
-				:delay-duration="0">
-				<UButton
-					color="neutral"
-					variant="ghost"
-					icon="i-lucide-log-in"
-					to="/login"
-				/>
-			</UTooltip>
+			<UDropdownMenu
+				v-if="useSupabaseUser().value"
+				:items="items"
+				:ui="{ content: 'min-w-fit' }">
 
-			<UTooltip
+				<UTooltip
+					text="Menu"
+					arrow
+					:delay-duration="0">
+					
+					<UAvatar :src="Avatar || undefined" icon="i-lucide-user-round" class="border border-(--ui-border)" />
+				</UTooltip>
+			</UDropdownMenu>
+
+			<UButton
 				v-else
-				text="Logout"
-				arrow
-				:delay-duration="0">
-				<UButton
-					color="neutral"
-					variant="ghost"
-					icon="i-lucide-log-out"
-					@click="logout"/>
-			</UTooltip>
+				color="neutral"
+				variant="ghost"
+				label="Sign In"
+				trailing-icon="i-lucide-log-in"
+				to="/login"/>
 
 			<aside class="md:hidden">
 				<USlideover
