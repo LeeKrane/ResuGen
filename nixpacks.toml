@@ -1,5 +1,8 @@
+[variables]
+NODE_VERSION = "22.12.0"
+
 [phases.setup]
 nixPkgs = [
-  "nodejs_22",
+  "nodejs",
   "npm-9_x"
 ]
