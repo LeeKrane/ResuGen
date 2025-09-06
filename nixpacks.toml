@@ -5,7 +5,7 @@ nixPkgs = [
 ]
 
 [phases.install]
-cmds = ["pnpm install"]
+cmds = ["pnpm install --frozen-lockfile"]
 
 [phases.build]
 dependsOn = ['install']
