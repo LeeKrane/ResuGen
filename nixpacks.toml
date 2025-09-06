@@ -1,5 +1,16 @@
 [phases.setup]
 nixPkgs = [
-  "nodejs_23",
-  "npm-9_x"
+    "nodejs_23",
+    "pnpm",
 ]
+
+[phases.install]
+cmds = ["pnpm install --frozen-lockfile"]
+
+[phases.build]
+dependsOn = ['install']
+cmds = ['pnpm run build']
+cacheDirectories = ['node_modules/.cache']
+
+[start]
+cmd = 'pnpm run start'
