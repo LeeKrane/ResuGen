@@ -207,8 +207,10 @@ const onFileChange = async (event: Event) => {
 const avatarInput = ref<HTMLInputElement | null>(null)
 
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-
 const isEmailValid = computed(() => emailRegex.test(state.email))
+
+const phoneRegex = /^(?:\+?\d{1,3}[-.\s]?)?(?:\(?\d{1,4}\)?[-.\s]?)?\d{3,4}([-.\s]?\d{3,4}){1,3}$/
+const isPhoneValid = computed(() => phoneRegex.test(state.phone))
 
 // keep displayType in sync when technology is set to "custom"
 watch(
@@ -310,13 +312,16 @@ watch(
 				<FormDatePicker v-model="state.birthdate"/>
 			</UFormField>
 
-			<UFormField label="Phone" class="grow">
+			<UFormField label="Phone" class="grow" :error="state.phone !== '' && !isPhoneValid">
 				<UInput
 					v-model="state.phone"
 					class="w-full"
 					variant="soft"
 					placeholder="+43 123 456 789"
 					icon="i-lucide-phone"/>
+					<template #hint>
+						<span v-if="state.phone !== '' && !isPhoneValid" class="text-(--ui-error)">Please enter a valid phone number.</span>
+					</template>
 			</UFormField>
 
 			<UFormField label="Address" class="grow">
