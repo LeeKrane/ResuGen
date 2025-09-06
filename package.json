@@ -33,14 +33,14 @@
     "sharp": "^0.34.3",
     "uuid": "^11.1.0",
     "valibot": "^1.1.0",
-    "vue-to-print": "^1.4.0"
+    "vue-to-print": "^1.4.0",
+    "nuxt-particles": "https://github.com/LeeKrane/nuxt-particles.git#main"
   },
   "devDependencies": {
     "@nuxt/eslint": "^1.9.0",
     "@nuxtjs/supabase": "^1.6.1",
     "@types/uuid": "^10.0.0",
     "eslint": "^9.34.0",
-    "nuxt-particles": "https://github.com/LeeKrane/nuxt-particles.git#main",
     "typescript": "^5.9.2"
   }
 }
