@@ -10,6 +10,9 @@ const supabase = useSupabaseClient()
 const requestURL = useRequestURL()
 const toast = useToast()
 
+import { useUserState } from '~/composables/useUserState'
+const { setUserState } = await useUserState();
+
 const fields = [{
 	name: 'email',
 	type: 'text' as const,
@@ -44,6 +47,10 @@ async function onOAuthLogin(provider: 'Google' | 'GitHub') {
 			color: 'error', 
 			icon: 'i-lucide-triangle-alert' 
 		})
+	} else {
+		toast.add({ title: 'Successfully logged in!', color: 'success', icon: 'i-lucide-check' })
+		navigateTo('/me')
+		setUserState(useSupabaseUser().value)
 	}
 }
 
@@ -84,6 +91,7 @@ async function onSubmit(payload: FormSubmitEvent<SchemaLogin>) {
 	} else {
 		toast.add({ title: 'Successfully logged in!', color: 'success', icon: 'i-lucide-check' })
 		navigateTo('/me')
+		setUserState(useSupabaseUser().value)
 	}
 }
 

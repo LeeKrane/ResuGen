@@ -5,119 +5,114 @@ useRouter().beforeEach(() => {
 	sideNavOpen.value = false
 })
 
-const navItems = useNavItems()
-
-const logout = async () => {
-	await useSupabaseClient().auth.signOut()
-	navigateTo('/')
-	useToast().add({ title: 'Successfully logged out', color: 'info', icon: 'i-lucide-info' })
-}
-
 const user = useSupabaseUser()
-const role = user.value?.role || undefined // Does not exist currently.
-
-// START OF "NOT THE BEST SOLUTION"
-import { useUserState } from '~/composables/useUserState'
-const { userState } = await useUserState();
+const userState = useUserState().userState
 
 // Username
-const Username = computed(() => {
-  return userState.value.fullName || userState.value.username || userState.value.email || 'Fallback User';
-});
-const newUsername = ref(userState.value.fullName || userState.value.username || userState.value.email || 'Fallback User')
+const username = computed(() =>
+  userState.value.fullName ||
+  userState.value.username ||
+  userState.value.email ||
+  'Fallback User'
+)
 
+// Avatar Source
+const avatarSource = computed(() =>
+  userState.value.avatarUrl || userState.value.picture || null
+)
 
-// Avatar
-const Avatar = computed(() => {
-	const url = userState.value.avatarUrl || userState.value.picture || '';
+// Avatar (cached in state)
+const avatarBlob = ref('')
+let lastObjectUrl: string | null = null
+async function loadAvatar(url: string | null) {
+  if (lastObjectUrl) {
+    URL.revokeObjectURL(lastObjectUrl)
+    lastObjectUrl = null
+  }
 
-	if (url) {
-		return `${url}?t=${Date.now()}`;
-	}
-  return null;
-});
-const newAvatar = ref(userState.value.avatarUrl || userState.value.picture || '')
+  if (!url) {
+    avatarBlob.value = ''
+    return
+  }
 
+  try {
+    const res = await fetch(url, { cache: 'no-cache' })
+    const blob = await res.blob()
+    lastObjectUrl = URL.createObjectURL(blob)
+    avatarBlob.value = lastObjectUrl
+  } catch {
+    avatarBlob.value = ''
+  }
+}
 
-// Watcher for new Information inside of userState
-watch(() => userState.value, (newState) => {
-  newUsername.value = newState.username || '';
-  newAvatar.value = newState.avatarUrl || '';
-}, { immediate: true });
-// END OF "NOT THE BEST SOLUTION"
+watch(
+  avatarSource,
+  (newUrl) => {
+    loadAvatar(newUrl)
+  },
+  { immediate: true }
+)
+
+onMounted(() => {
+  if (user.value) loadAvatar(avatarSource.value)
+})
+
+onBeforeUnmount(() => {
+  if (lastObjectUrl) {
+    URL.revokeObjectURL(lastObjectUrl)
+  }
+})
 
 // Dropdown (Menu)
 import type { DropdownMenuItem } from '@nuxt/ui'
+const logout = useLogout()
 const items = computed<DropdownMenuItem[][]>(() => {
-  return [
+  const base: DropdownMenuItem[][] = [
     [
       {
-        label: Username,
+        label: username.value,
         avatar: {
-          src: Avatar.value || undefined,
-          icon: Avatar.value || 'i-lucide-user-round'
+          src: avatarBlob.value || undefined,
+          icon: avatarBlob.value || 'i-lucide-user-round',
         },
-        type: 'label'
-      }
+        type: 'label',
+      },
     ],
     [
-      {
-        label: 'Profile',
-        icon: 'i-lucide-user',
-        to: '/profile'
-      },
-      {
-        label: 'Settings',
-        icon: 'i-lucide-settings',
-        to: '/settings/general'
-      }
+      { label: 'Profile', icon: 'i-lucide-user', to: '/profile' },
+      { label: 'Settings', icon: 'i-lucide-settings', to: '/settings/general' },
     ],
-
-    // Admin
-    ...(role === 'admin'
-      ? [[
-	  	  {
-			label: 'Admin',
-			icon: 'i-lucide-shield-check',
-			type: 'label',
-			color: 'primary'
-		  },
-          {
-            label: 'Dashboard',
-            icon: 'i-lucide-layout-dashboard',
-            to: '/admin'
-          },
-		  {
-			label: 'Manage Users',
-			icon: 'i-lucide-users',
-			to: '/admin/users'
-		  }
-        ]]
-      : []),
-	  
     [
       {
         label: 'GitHub',
         icon: 'i-simple-icons-github',
         to: 'https://github.com/LeeKrane/ResuGen',
-        target: '_blank'
+        target: '_blank',
       },
-      {
-        label: 'Support',
-        icon: 'i-lucide-mail',
-        to: 'mailto:support+resugen@krane.dev'
-      }
+      { label: 'Support', icon: 'i-lucide-mail', to: 'mailto:support+resugen@krane.dev' },
     ],
     [
       {
         label: 'Logout',
         color: 'error',
         icon: 'i-lucide-log-out',
-        onSelect: logout
-      }
-    ]
+        onSelect: logout,
+      },
+    ],
   ]
+
+  if (userState.value.role === 'admin' || true) {
+    base.splice(2, 0, [
+      { label: 'Admin', icon: 'i-lucide-shield-check', type: 'label', color: 'primary', },
+      { label: 'Dashboard', icon: 'i-lucide-layout-dashboard', to: '/admin' },
+      { label: 'Manage Users', icon: 'i-lucide-users', to: '/admin/users' }
+    ])
+  }
+
+  return base
 })
+
+const navItems = useNavItems()
 </script>
 
 <template>
@@ -152,7 +147,7 @@ const items = computed<DropdownMenuItem[][]>(() => {
 					arrow
 					:delay-duration="0">
 					
-					<UAvatar :src="Avatar || undefined" icon="i-lucide-user-round" class="border border-(--ui-border)" />
+					<UAvatar :src="avatarBlob" icon="i-lucide-user-round" class="border border-(--ui-border)" />
 				</UTooltip>
 			</UDropdownMenu>
 
