@@ -1,5 +1,5 @@
 export const useIsWebAdmin = async () => {
 	if (!useSupabaseUser())
 		return null
-	return useSupabaseClient().rpc("get_my_claim", {"claims_webadmin"})
+	return useSupabaseUser().value?.app_metadata.claims_webadmin === true
 }
