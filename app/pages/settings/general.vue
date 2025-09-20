@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { useUserState } from '~/composables/useUserState'
 import type { User } from '@supabase/supabase-js'
+import ChangeEmail from '~/components/settings/changeEmail.vue'
+import SettingsCard from '~/components/settings/SettingsCard.vue'
 
 const supabase = useSupabaseClient()
 const user = useSupabaseUser()
@@ -213,12 +215,8 @@ async function onChangeName() {
                   </div>
                 </template>
               </UInput>
-              <UButton
-                variant="soft"
-                size="sm"
-                label="Change Email"
-                icon="i-lucide-pen"
-              />
+              
+              <ChangeEmail/>
             </UFieldGroup>
           </UFormField>
         </div>
