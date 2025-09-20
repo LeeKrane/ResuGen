@@ -2,9 +2,9 @@
 import {useElementSize, useMediaQuery, useWindowSize} from "@vueuse/core"
 import {useVueToPrint} from "vue-to-print"
 
-definePageMeta({
+/*definePageMeta({
 	layout: "resume-view"
-})
+})*/
 
 const resumeContainer = ref<HTMLDivElement | null>(null)
 const { handlePrint } = useVueToPrint({
@@ -54,7 +54,7 @@ onMounted(() => {
 </script>
 
 <template>
-	<div v-if="isResumeComplete()" class="flex flex-col items-center justify-center gap-4">
+	<div v-if="isResumeComplete()" class="flex flex-col items-center justify-center gap-4 -mt-16 -mb-32">
 		<UFieldGroup class="print:hidden sticky top-20 z-50">
 			<USlideover
 				v-model:open="stylingOpen"
@@ -120,7 +120,7 @@ onMounted(() => {
 			<RCTwoColumn ref="resumeContainer"/>
 		</div>
 	</div>
-	<div v-else class="flex items-center justify-center min-h-screen">
+	<div v-else class="flex items-center justify-center min-h-screen -mt-32 -mb-32">
 		<UPageCard
 			class="flex w-full max-w-3xl bg-(--ui-bg-accented)"
 			:spotlight="true"
