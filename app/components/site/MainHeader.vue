@@ -66,7 +66,9 @@ onBeforeUnmount(() => {
 // Dropdown (Menu)
 import type { DropdownMenuItem } from '@nuxt/ui'
 const logout = useLogout()
-const items = computed<DropdownMenuItem[][]>(() => {
+const items = ref<DropdownMenuItem[][]>([])
+
+async function dropdownItems() {
   const base: DropdownMenuItem[][] = [
     [
       {
@@ -101,7 +103,7 @@ const items = computed<DropdownMenuItem[][]>(() => {
     ],
   ]
 
-  if (userState.value.role === 'admin' || true) {
+  if (await useIsWebAdmin()) {
     base.splice(2, 0, [
       { label: 'Admin', icon: 'i-lucide-shield-check', type: 'label', color: 'primary', },
       { label: 'Dashboard', icon: 'i-lucide-layout-dashboard', to: '/admin' },
@@ -109,7 +111,16 @@ const items = computed<DropdownMenuItem[][]>(() => {
     ])
   }
 
-  return base
+  items.value = base
+}
+
+// Update items when relevant state changes
+watch([username, avatarBlob], () => {
+  dropdownItems()
+}, { immediate: true })
+
+onMounted(() => {
+  dropdownItems()
 })
 
 const navItems = useNavItems()

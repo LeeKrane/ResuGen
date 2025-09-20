@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import type { NavigationMenuItem } from '@nuxt/ui'
-const items = computed<NavigationMenuItem[][]>(() => {
-	const logout = useLogout()
-  const { userState } = useUserState()
-	
+const items = ref<NavigationMenuItem[][]>([])
+const logout = useLogout()
+
+async function settingsItems() {
 	const base: NavigationMenuItem[][] = [
 		[
 			{
@@ -29,12 +29,12 @@ const items = computed<NavigationMenuItem[][]>(() => {
 			}, {
 				label: 'Logout',
 				icon: 'i-lucide-log-out',
-				onClick: () => logout,
+				onClick: () => logout(),
 			}
 		],
 	]
 
-	if (userState.value.role === 'admin' || true) {
+	if (await useIsWebAdmin()) {
 		base.splice(1, 0, [
 			{
 				label: 'Debug',
@@ -44,8 +44,12 @@ const items = computed<NavigationMenuItem[][]>(() => {
 			}
 		])
 	}
-	
-	return base
+
+	items.value = base
+}
+
+onMounted(() => {
+	settingsItems()
 })
 </script>
 
