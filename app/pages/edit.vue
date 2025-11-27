@@ -3,29 +3,44 @@ definePageMeta({
 	layout: "data-edit"
 })
 
+const { isIT } = useJobField()
 const activeTab = ref("0")
-const tabItems = [
-	{
-		label: "General",
-		icon: "i-lucide-user",
-		slot: "general",
-	},
-	{
-		label: "Education",
-		icon: "i-lucide-graduation-cap",
-		slot: "education",
-	},
-	{
-		label: "Experience",
-		icon: "i-lucide-briefcase",
-		slot: "experience",
-	},
-	{
-		label: "Projects",
-		icon: "i-lucide-code",
-		slot: "projects",
-	},
-]
+
+const tabItems = computed(() => {
+	const baseTabs = [
+		{
+			label: "General",
+			icon: "i-lucide-user",
+			slot: "general",
+		},
+		{
+			label: "Cover Letter",
+			icon: "i-lucide-file-text",
+			slot: "cover-letter",
+		},
+		{
+			label: "Education",
+			icon: "i-lucide-graduation-cap",
+			slot: "education",
+		},
+		{
+			label: "Experience",
+			icon: "i-lucide-briefcase",
+			slot: "experience",
+		},
+	]
+
+	// Add Projects tab only for IT field
+	if (isIT.value) {
+		baseTabs.push({
+			label: "Projects",
+			icon: "i-lucide-code",
+			slot: "projects",
+		})
+	}
+
+	return baseTabs
+})
 </script>
 
 <template>
@@ -49,14 +64,21 @@ const tabItems = [
 			</div>
 
 			<div :class="activeTab === '1' ? 'block' : 'hidden'">
-				<FormEducation/>
+				<!-- Cover Letter form placeholder -->
+				<div class="m-4 p-8 text-center text-(--ui-text-muted)">
+					Cover Letter form coming soon...
+				</div>
 			</div>
 
 			<div :class="activeTab === '2' ? 'block' : 'hidden'">
-				<FormExperience/>
+				<FormEducation/>
 			</div>
 
 			<div :class="activeTab === '3' ? 'block' : 'hidden'">
+				<FormExperience/>
+			</div>
+
+			<div v-if="isIT" :class="activeTab === '4' ? 'block' : 'hidden'">
 				<FormProjects/>
 			</div>
 		</div>
