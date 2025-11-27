@@ -30,6 +30,10 @@ const tabItems = [
 
 <template>
 	<div>
+		<div class="flex flex-col mx-auto w-[clamp(24rem,65vw,56rem)]">
+			<FormJobFieldSelector/>
+		</div>
+
 		<div class="sticky top-16 w-full z-40 flex justify-center">
 			<UTabs
 				v-model="activeTab"
