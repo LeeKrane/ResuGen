@@ -29,5 +29,8 @@ export const useRefResumeData: () => RefResumeData = () => {
 			technologies: []
 		}]),
 		avatar: useState("avatar", (): File | null => null),
+		jobField: useState("jobField", (): "IT" | "Other" => "IT"),
+		qualifications: useState("qualifications", (): Qualification[] => []),
+		coverLetter: useState("coverLetter", (): CoverLetter => ({content: ""})),
 	}
 }

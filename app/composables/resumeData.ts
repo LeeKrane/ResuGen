@@ -32,6 +32,11 @@ export const useResumeData: () => { data: ResumeData, avatar: File | null } = ()
 				repoLink: {name: "", url: ""},
 				technologies: []
 			}]).value,
+			jobField: useState("jobField", (): "IT" | "Other" => "IT").value,
+			qualifications: useState("qualifications", (): Qualification[] => []).value,
+			coverLetter: useState("coverLetter", (): CoverLetter => ({
+				content: ""
+			})).value,
 		},
 		avatar: useState("avatar", (): File | null => null).value,
 	}
