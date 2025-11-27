@@ -1,4 +1,6 @@
 <script setup lang="ts">
+const { isIT } = useJobField()
+
 const state = reactive({
 	name: useRefResumeData().name,
 	subtitle: useRefResumeData().subtitle,
@@ -42,6 +44,15 @@ const avatarInput = ref<HTMLInputElement | null>(null)
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
 const isEmailValid = computed(() => emailRegex.test(state.email))
+
+// Dynamic labels based on job field
+const skillCategoryPlaceholder = computed(() => 
+	isIT.value ? 'Programming Languages' : 'Professional Skills'
+)
+
+const skillPlaceholder = computed(() => 
+	isIT.value ? 'TypeScript' : 'Communication'
+)
 </script>
 
 <template>
@@ -215,7 +226,7 @@ const isEmailValid = computed(() => emailRegex.test(state.email))
 						v-model="state.skillCategories[index].name"
 						icon="i-lucide-folder"
 						variant="soft"
-						placeholder="Programming Languages"
+						:placeholder="skillCategoryPlaceholder"
 						class="flex-1"/>
 					<FormModifyButtons
 						v-model="state.skillCategories"
@@ -249,7 +260,7 @@ const isEmailValid = computed(() => emailRegex.test(state.email))
 								v-if="state.skillCategories[index].skills[skillIndex]"
 								v-model="state.skillCategories[index].skills[skillIndex].name"
 								variant="soft"
-								placeholder="TypeScript"
+								:placeholder="skillPlaceholder"
 								class="flex-1"/>
 							<USelect
 								v-if="state.skillCategories[index].skills[skillIndex]"
