@@ -19,6 +19,9 @@
     "lint": "eslint .",
     "lint:fix": "eslint --fix .",
     "typecheck": "nuxt typecheck",
+    "test": "vitest --run",
+    "test:watch": "vitest",
+    "test:ui": "vitest --ui",
     "prod:build": "pnpm run clean && pnpm run build",
     "deploy": "pnpm run clean && pnpm run build && pnpm run start"
   },
@@ -30,6 +33,7 @@
     "@nuxt/ui": "4.0.0-alpha.0",
     "jszip": "^3.10.1",
     "nuxt": "^4.0.3",
+    "openai": "^4.77.0",
     "sharp": "^0.34.3",
     "uuid": "^11.1.0",
     "valibot": "^1.1.0",
@@ -38,9 +42,16 @@
   },
   "devDependencies": {
     "@nuxt/eslint": "^1.9.0",
+    "@nuxt/test-utils": "^3.20.1",
     "@nuxtjs/supabase": "^1.6.1",
     "@types/uuid": "^10.0.0",
+    "@vitest/ui": "^4.0.14",
+    "@vue/test-utils": "^2.4.6",
     "eslint": "^9.34.0",
-    "typescript": "^5.9.2"
+    "fast-check": "^4.3.0",
+    "happy-dom": "^20.0.10",
+    "nuxt-particles": "^0.3.0",
+    "typescript": "^5.9.2",
+    "vitest": "^4.0.14"
   }
 }
