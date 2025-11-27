@@ -5,35 +5,30 @@ const options = [
 	{
 		value: 'IT',
 		label: 'IT / Developer',
-		icon: 'i-lucide-code',
-		description: 'For software development and IT positions'
+		icon: 'i-lucide-code'
 	},
 	{
 		value: 'Other',
 		label: 'Other Fields',
-		icon: 'i-lucide-briefcase',
-		description: 'For all other professional fields'
+		icon: 'i-lucide-briefcase'
 	}
 ]
+
+const selectedOption = computed(() => {
+	return options.find(opt => opt.value === jobField.value)
+})
 </script>
 
 <template>
 	<UForm class="flex flex-col gap-4 m-4">
-		<UFormField label="Job Field">
-			<URadioGroup
+		<UFormField label="Job Field" class="max-w-md">
+			<USelect
 				v-model="jobField"
 				:items="options"
-				class="flex gap-4">
-				<template #label="{ item }">
-					<div class="flex items-center gap-2">
-						<UIcon :name="item.icon" class="w-5 h-5" />
-						<div class="flex flex-col">
-							<span class="font-medium">{{ item.label }}</span>
-							<span class="text-xs text-(--ui-text-muted)">{{ item.description }}</span>
-						</div>
-					</div>
-				</template>
-			</URadioGroup>
+				variant="soft"
+				placeholder="Select job field"
+				:icon="selectedOption?.icon"
+			/>
 		</UFormField>
 	</UForm>
 </template>
