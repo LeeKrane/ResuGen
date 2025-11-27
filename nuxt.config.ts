@@ -9,6 +9,13 @@ export default defineNuxtConfig({
 		'nuxt-particles'
 	],
 
+	runtimeConfig: {
+		// Private keys that are only available server-side
+		openaiApiKey: process.env.NUXT_OPENAI_API_KEY || '',
+		// Public keys that are exposed to the client
+		public: {}
+	},
+
 	css: ['~/assets/css/main.css'],
 
 	future: {
