@@ -75,6 +75,19 @@ interface Project {
 	end?: EmploymentDate
 }
 
+interface Qualification {
+	name: string
+	date?: EmploymentDate
+	description?: string
+}
+
+interface CoverLetter {
+	content: string
+	recipientName?: string
+	companyName?: string
+	position?: string
+}
+
 interface ImgData {
 	filename: string,
 	contentType: string
@@ -102,6 +115,9 @@ interface ResumeData {
 	education: Education[],
 	experience: Experience[],
 	projects: Project[],
+	jobField: "IT" | "Other",
+	qualifications?: Qualification[],
+	coverLetter?: CoverLetter,
 }
 
 interface RefResumeData {
@@ -121,6 +137,9 @@ interface RefResumeData {
 	experience: Ref<Experience[]>
 	projects: Ref<Project[]>
 	avatar: Ref<File | null>
+	jobField: Ref<"IT" | "Other">
+	qualifications: Ref<Qualification[]>
+	coverLetter: Ref<CoverLetter>
 }
 
 interface ResumeStyle {
