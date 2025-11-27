@@ -1,4 +1,6 @@
 <script setup lang="ts">
+const { isOther } = useJobField()
+
 const state = reactive({
 	institutions: useRefResumeData().institutions,
 	experience: useRefResumeData().experience,
@@ -115,6 +117,11 @@ const computedCollapsableNames = computed(() => state.experience
 				label="Add Experience"
 				:default-value-getter="() =>{  return ({ position: '', text: '', collapsibleOpen: true, technologies: [] }) }"/>
 		</UFormField>
+
+		<template v-if="isOther">
+			<USeparator icon="i-lucide-award"/>
+			<FormQualifications/>
+		</template>
 	</UForm>
 </template>
 
