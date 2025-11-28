@@ -64,10 +64,7 @@ const tabItems = computed(() => {
 			</div>
 
 			<div :class="activeTab === '1' ? 'block' : 'hidden'">
-				<!-- Cover Letter form placeholder -->
-				<div class="m-4 p-8 text-center text-(--ui-text-muted)">
-					Cover Letter form coming soon...
-				</div>
+				<FormCoverLetter/>
 			</div>
 
 			<div :class="activeTab === '2' ? 'block' : 'hidden'">
