@@ -7,10 +7,19 @@ definePageMeta({
 })
 
 const resumeContainer = ref<HTMLDivElement | null>(null)
+const coverLetterContainer = ref<HTMLDivElement | null>(null)
+
 const { handlePrint } = useVueToPrint({
 	content: resumeContainer,
 	documentTitle: "Resume"
 })
+
+const { handlePrint: handlePrintCoverLetter } = useVueToPrint({
+	content: coverLetterContainer,
+	documentTitle: "Cover_Letter"
+})
+
+const { hasCoverLetter } = useCoverLetter()
 
 const slideOverBody = ref<HTMLDivElement | null>(null)
 const slideOverBodyWidth = useElementSize(slideOverBody).width
@@ -71,12 +80,21 @@ onMounted(() => {
 			</USlideover>
 
 			<UButton
-				label="Print"
+				label="Print Resume"
 				color="primary"
 				variant="soft"
 				class="mx-auto cursor-pointer bg-(--ui-primary)/20 backdrop-blur-sm"
 				icon="i-lucide-printer"
 				@click="handlePrint"/>
+			
+			<UButton
+				v-if="hasCoverLetter"
+				label="Print Cover Letter"
+				color="primary"
+				variant="soft"
+				class="mx-auto cursor-pointer bg-(--ui-primary)/20 backdrop-blur-sm"
+				icon="i-lucide-file-text"
+				@click="handlePrintCoverLetter"/>
 		</UFieldGroup>
 
 		<div v-if="mobile" class="flex flex-col items-center justify-center gap-4 px-4 py-16 text-center">
@@ -93,6 +111,17 @@ onMounted(() => {
 			}"
 			class="max-h-[calc(100vh-13rem)] print:w-[210mm] print:h-[297mm] not-print:w-3xl not-print:h-[calc(var(--container-3xl)*297/210)] shadow-xl mx-auto origin-top-left print:shadow-none not-print:m-4 transition-transform overflow-scroll">
 			<RCTwoColumn ref="resumeContainer"/>
+		</div>
+
+		<!-- Cover Letter Preview -->
+		<div
+			v-if="hasCoverLetter && !mobile"
+			:style="!isPrinting && {
+				maxWidth: `${maxWidth}px`,
+				transform: `translateX(${-(!styleSliderBottom && slideOverBodyWidth > 0 ? slideOverBodyWidth + 48 : 0)/2}px)`,
+			}"
+			class="max-h-[calc(100vh-13rem)] print:w-[210mm] print:h-[297mm] not-print:w-3xl not-print:h-[calc(var(--container-3xl)*297/210)] shadow-xl mx-auto origin-top-left print:shadow-none not-print:m-4 transition-transform overflow-scroll">
+			<RCoverLetter ref="coverLetterContainer"/>
 		</div>
 	</div>
 </template>
