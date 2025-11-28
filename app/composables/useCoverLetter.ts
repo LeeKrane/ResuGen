@@ -1,5 +1,5 @@
 export const useCoverLetter = () => {
-	const coverLetter = useState("coverLetter", () => ({
+	const coverLetter = useState<CoverLetter>("coverLetter", () => ({
 		content: "",
 		recipientName: "",
 		companyName: "",
@@ -7,7 +7,7 @@ export const useCoverLetter = () => {
 	}))
 
 	const hasCoverLetter = computed(() => 
-		coverLetter.value.content.trim().length > 0
+		coverLetter.value?.content?.trim().length > 0
 	)
 
 	return { 
