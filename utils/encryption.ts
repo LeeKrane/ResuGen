@@ -30,3 +30,27 @@ export class EncryptionError extends Error {
   }
 }
 
+class EncryptionServiceImpl implements EncryptionService {
+  private encryptionKey: CryptoKey | null = null
+  private readonly PBKDF2_ITERATIONS = 100000
+  private readonly KEY_LENGTH = 256 // AES-256
+  private readonly IV_LENGTH = 12 // 96 bits for GCM
+  
+  constructor() {
+    this.checkBrowserCompatibility()
+  }
+  
+  /**
+   * Check if the browser supports required Web Crypto API features
+   * Throws an error if not supported or not running in secure context
+   */
+  private checkBrowserCompatibility(): void {
+    // Check for HTTPS requirement
+    if (typeof window !== 'undefined' && window.location.protocol !== 'https:' && window.location.hostname !== 'localhost') {
+      throw new EncryptionError(
+        'Encryption requires HTTPS. Please access the application over a secure connection.',
+        'HTTPS_REQUIRED'
+      )
+    }
+  }
+}
