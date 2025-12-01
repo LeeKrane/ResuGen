@@ -106,8 +106,8 @@ async function dropdownItems() {
   if (await useIsWebAdmin()) {
     base.splice(2, 0, [
       { label: 'Admin', icon: 'i-lucide-shield-check', type: 'label', color: 'primary', },
-      { label: 'Dashboard', icon: 'i-lucide-layout-dashboard', to: '/admin' },
-      { label: 'Manage Users', icon: 'i-lucide-users', to: '/admin/users' }
+      { label: 'Dashboard', icon: 'i-lucide-layout-dashboard', to: 'https://account.krane.dev/admin/dashboard', target: '_blank' }, // Soon: Add admin dashboard page
+      { label: 'Manage Users', icon: 'i-lucide-users', to: 'https://account.krane.dev/admin/users', target: '_blank' } // Soon: Add user management page
     ])
   }
 
