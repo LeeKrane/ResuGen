@@ -57,17 +57,20 @@ async function onSubmit(payload: FormSubmitEvent<Schema>) {
   }
 }
 
-const openModal = ref(false)
+const props = defineProps({
+  modelValue: { type: Boolean, required: true }
+})
+const emit = defineEmits(['update:modelValue'])
+
+const openModal = ref(props.modelValue)
+watch(openModal, (val) => emit('update:modelValue', val))
+watch(() => props.modelValue, (val) => (openModal.value = val))
+
 </script>
 
 <template>
   <UModal :closeable="true"
     v-model:open="openModal">
-    <UButton
-      variant="soft"
-      size="sm"
-      label="Change Email"
-      icon="i-lucide-pen"/>
     <template #content>
       <div class="flex flex-col h-full items-center justify-center gap-4 p-4">
         <UPageCard

@@ -3,7 +3,6 @@ import type { User } from '@supabase/supabase-js'
 
 interface AuthState {
   uid: string | null
-  role: string | null
 
   confirmed: boolean
   confirmedAt: string | null
@@ -40,7 +39,6 @@ export const useUserState = () => {
 
   const userState = useState<AuthState>('userState', () => ({
     uid: null,
-    role: null,
 
     confirmed: false,
     confirmedAt: null,
@@ -73,7 +71,6 @@ export const useUserState = () => {
   const setUserState = (user: User | null) => {
     userState.value = {
       uid: user?.id || null,
-      role: (user?.role as string) || null,
 
       confirmed: !!user?.confirmed_at,
       confirmedAt: user?.confirmed_at || null,
