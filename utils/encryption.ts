@@ -54,3 +54,9 @@ class EncryptionServiceImpl implements EncryptionService {
     }
   }
 }
+
+// Export singleton instance
+export const encryptionService: EncryptionService = new EncryptionServiceImpl()
+
+// Export for testing
+export { EncryptionServiceImpl }
