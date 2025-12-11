@@ -68,7 +68,7 @@ const signInMethods = [
   },
 ]
 
-//type BadgeColor = "error" | "primary" | "secondary" | "success" | "info" | "warning" | "neutral" | undefined
+type BadgeColor = "error" | "primary" | "secondary" | "success" | "info" | "warning" | "neutral" | undefined
 
 const twoFactorMethods = [
   {
@@ -86,10 +86,10 @@ const twoFactorMethods = [
     title: "Recovery codes",
     description: "Recovery codes can be used to access your account without your two-factor authentication codes.",
     action: `${twoFactorMethodsConfigured ? `${recoveryCodesAvailable ? "View" : "Generate"}` : 'Enable 2FA first'}`,
-  // Update to reflect actual count // Color spectrum: 6-4 codes: primary or success, 4-2 codes: warning, 2-0 codes: danger
+  // Update to reflect actual count // Color spectrum: 6-5 codes: primary or success, 4-3 codes: warning, 2-0 codes: danger
     badge: recoveryCodesAvailable
-      ? { text: `${recoveryCodesCount} codes left`, color: recoveryCodesCount >= 4 ? "primary" : recoveryCodesCount >= 2 ? "warning" : "error" }
-      : { text: "Not generated", color: "error" },
+      ? { text: `${recoveryCodesCount} codes left`, color: (recoveryCodesCount >= 5 ? "primary" : recoveryCodesCount >= 3 ? "warning" : "error") as BadgeColor }
+      : { text: "Not generated", color: "error" as BadgeColor },
     onClick: () => {
       // Navigate to view recovery codes page
       alert('Open Modal for Recovery codes with Security (Request Password/2FA) functionality to be implemented.')
@@ -100,7 +100,7 @@ const twoFactorMethods = [
 
 <template>
   <SettingsCard>
-    <div class="flex flex-col grow gap-16 p-4">
+    <div class="flex flex-col grow gap-16">
 
       <!-- Sign in methods -->
       <div class="flex flex-col gap-4">
@@ -114,10 +114,10 @@ const twoFactorMethods = [
             class="flex items-center justify-between p-4"
           >
             <div class="flex flex-row gap-4">
-              <UIcon :name="item.icon" class="size-5 self-center" />
+              <UIcon :name="item.icon" class="size-5 shrink-0 self-center" />
               <div>
-                <p class="font-medium">{{ item.title }}</p>
-                <p class="text-sm text-gray-500">{{ item.description }}</p>
+                <p class="text-sm md:text-base font-medium">{{ item.title }}</p>
+                <p class="text-xs md:text-sm text-gray-500">{{ item.description }}</p>
               </div>
             </div>
             <UButton size="sm" variant="subtle" @click="item.onClick">{{ item.action }}</UButton>
@@ -134,23 +134,22 @@ const twoFactorMethods = [
           <div
             v-for="(item, i) in twoFactorMethods"
             :key="i"
-            class="flex items-center justify-between p-4"
+            class="flex items-center justify-between p-4 gap-4"
           >
             <div class="flex flex-row gap-4">
-              <UIcon :name="item.icon" class="size-5 self-center" />
+              <UIcon :name="item.icon" class="size-5 shrink-0 self-center" />
               <div>
-                <div v-if="item.badge" class="flex flex-row gap-2">
-                  <p class="font-medium">{{ item.title }}</p>
+                <div v-if="item.badge" class="flex flex-col pb-2 gap-2">
+                  <p class="text-sm md:text-base font-medium">{{ item.title }}</p>
                   <UBadge
                     size="sm"
                     variant="soft"
-                    :color="item.badge.color"
-                  >
+                    :color="item.badge.color">
                     {{ item.badge.text }}
                   </UBadge>
                 </div>
-                <p v-else class="font-medium">{{ item.title }}</p>
-                <p class="text-sm text-gray-500">{{ item.description }}</p>
+                <p v-else class="text-sm md:text-base font-medium">{{ item.title }}</p>
+                <p class="text-xs md:text-sm text-gray-500">{{ item.description }}</p>
               </div>
             </div>
             <UButton size="sm" variant="subtle" @click="item.onClick">{{ item.action }}</UButton>
