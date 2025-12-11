@@ -2,7 +2,6 @@
 import { ref, onMounted, computed } from 'vue'
 import { useRoute } from 'vue-router'
 import type { NavigationMenuItem } from '@nuxt/ui'
-import { dashboardPanel } from '#build/ui'
 
 const items = ref<NavigationMenuItem[][]>([])
 const logout = useLogout()
