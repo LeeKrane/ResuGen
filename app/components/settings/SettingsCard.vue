@@ -2,6 +2,7 @@
 import { ref, onMounted, computed } from 'vue'
 import { useRoute } from 'vue-router'
 import type { NavigationMenuItem } from '@nuxt/ui'
+import { dashboardPanel } from '#build/ui'
 
 const items = ref<NavigationMenuItem[][]>([])
 const logout = useLogout()
@@ -86,7 +87,7 @@ onMounted(() => {
       :spotlight="true"
       spotlight-color="primary">
 
-        <UDashboardPanel id="settings">
+        <UDashboardPanel id="settings" :ui="{ root: 'min-h-auto', body: 'flex-none' }">
           <template #header>
             <div class="h-(--ui-header-height) shrink-0 flex items-center justify-between border-b px-4 sm:px-6 gap-1.5 border-(--ui-text-muted)/25">
               <span class="flex items-center gap-1.5 font-semibold text-highlighted truncate">
