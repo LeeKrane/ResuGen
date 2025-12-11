@@ -201,7 +201,6 @@ const active = ref(3)
           :title="feature.title"
           :description="feature.description"
           :icon="feature.icon"
-          :to="feature.to"
           spotlight/>
       </UPageGrid>
     </UPageSection>
@@ -214,10 +213,12 @@ const active = ref(3)
         <br />
         Follow these easy steps to get started.
       </template>
-      <UStepper v-model="active" :items="items" class="w-full" disabled/>
+      <UStepper v-model="active" :items="items" class="w-full hidden md:flex" disabled/>
+      <UStepper v-model="active" :items="items" class="w-full flex md:hidden" orientation="vertical" disabled/>
     </UPageSection>
 
     <!-- Ready to Get Started Section -->
+    <USeparator />
     <UPageCTA
       title="Ready to Create Your Professional Resume?"
       description="Join thousands of job seekers who have successfully landed their dream jobs with ResuGen."
@@ -235,7 +236,9 @@ const active = ref(3)
           icon: 'i-simple-icons-github',
           to: 'https://github.com/LeeKrane/ResuGen',
         }
-      ]">
+      ]"
+      variant="naked"
+      class="overflow-hidden">
       <LazyGeneralStarsBg />
     </UPageCTA>
   </div>
