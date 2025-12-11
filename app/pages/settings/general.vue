@@ -47,6 +47,18 @@ onBeforeUnmount(() => {
   if (lastObjectUrl) URL.revokeObjectURL(lastObjectUrl)
 })
 
+const orientation = ref<'vertical' | 'horizontal' | undefined>('vertical')
+
+onMounted(() => {
+  const update = () => {
+    orientation.value = window.matchMedia('(min-width: 48rem)').matches
+      ? 'horizontal'
+      : 'vertical'
+  }
+
+  update()
+  window.addEventListener('resize', update)
+})
 
 // Avatar upload
 const uploading = ref(false)
@@ -159,13 +171,13 @@ async function onChangeName() {
 
 <template>
   <SettingsCard>
-    <div class="flex flex-col gap-4 m-4">
-      <div class="flex gap-4">
+    <div class="flex flex-col gap-4">
+      <div class="flex gap-4 flex-col md:flex-row">
 
 
         <div class="flex flex-col grow gap-4">
           <UFormField label="Name">
-            <UFieldGroup class="w-full">
+            <UFieldGroup class="w-full" :orientation="orientation">
               <UInput
                 v-model="userUsername"
                 class="w-full"
@@ -186,7 +198,7 @@ async function onChangeName() {
 
 
           <UFormField label="Email">
-            <UFieldGroup class="w-full">
+            <UFieldGroup class="w-full" :orientation="orientation">
               <UInput
                 disabled
                 v-model="userEmail"
@@ -227,9 +239,9 @@ async function onChangeName() {
 
         
         <UFormField label="Avatar">
-          <div class="flex flex-col items-start gap-4">
-            <UAvatar v-if="avatarBlob" :src="avatarBlob" class="w-32 h-32 rounded-lg"/>
-            <GeneralPlaceholder v-else class="w-32 h-32" />
+          <div class="flex flex-col items-center gap-4">
+            <UAvatar v-if="avatarBlob" :src="avatarBlob" class="w-fit h-fit max-h-80 max-w-80 rounded-lg aspect-square"/>
+            <GeneralPlaceholder v-else class="w-80 h-80 max-h-80 max-w-80" />
 
             <UFieldGroup class="w-full">
               <UButton

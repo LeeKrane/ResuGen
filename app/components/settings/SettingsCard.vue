@@ -1,7 +1,24 @@
 <script setup lang="ts">
+import { ref, onMounted, computed } from 'vue'
+import { useRoute } from 'vue-router'
 import type { NavigationMenuItem } from '@nuxt/ui'
+
 const items = ref<NavigationMenuItem[][]>([])
 const logout = useLogout()
+const route = useRoute()
+
+// Dynamically compute the title based on the current route
+const pageTitle = computed(() => {
+  const flatItems = items.value.flat() as NavigationMenuItem[] // Flatten the items array
+  const activeItem = flatItems.find(item => item.to === route.path) // Match the current route
+  return activeItem?.label || 'Settings' // Default to "Settings" if no match
+})
+
+const pageIcon = computed(() => {
+  const flatItems = items.value.flat() as NavigationMenuItem[]
+  const activeItem = flatItems.find(item => item.to === route.path)
+  return activeItem?.icon || ''
+})
 
 async function settingsItems() {
 	const base: NavigationMenuItem[][] = [
@@ -9,16 +26,17 @@ async function settingsItems() {
 			{
 				label: 'General',
 				icon: 'i-lucide-user',
-				to: '/settings/general',
-				exact: true
-			}, {
+				to: '/settings/general'
+			},
+			{
 				label: 'Security',
 				icon: 'i-lucide-shield',
 				to: '/settings/security'
-			}, {
+			},
+			{
 				label: 'Notifications',
 				icon: 'i-lucide-bell',
-				to: '/settings/notifications'
+				to: '/settings/notifications',
 			},
 		],
 		[
@@ -26,9 +44,11 @@ async function settingsItems() {
 				label: 'Support',
 				icon: 'i-lucide-mail',
 				to: 'mailto:support+resugen@krane.dev',
-			}, {
+			},
+			{
 				label: 'Logout',
 				icon: 'i-lucide-log-out',
+				color: 'error',
 				onClick: () => logout(),
 			}
 		],
@@ -37,11 +57,17 @@ async function settingsItems() {
 	if (await useIsWebAdmin()) {
 		base.splice(1, 0, [
 			{
+				label: 'Admin',
+				icon: 'i-lucide-shield-check',
+				type: 'label',
+				color: 'primary',
+			},	
+			{
 				label: 'Debug',
 				icon: 'i-lucide-bug-off',
 				to: '/settings/debug',
-				badge: 'Admin'
-			}
+				badge: 'Admin',
+			},
 		])
 	}
 
@@ -69,7 +95,20 @@ onMounted(() => {
             </div>
 
             <UDashboardToolbar class="border-(--ui-text-muted)/25">
-              <UNavigationMenu :items="items" highlight class="-mx-1 flex-1" />
+              <UNavigationMenu :items="items" highlight class="-mx-1 flex-1 hidden md:flex" />
+			  <UDropdownMenu
+			  	:items="items"
+				class="flex md:hidden w-full"
+				:ui="{ content: 'w-(--reka-dropdown-menu-trigger-width)' }">
+				  <UButton
+					variant="outline"
+					size="lg"
+					:icon="pageIcon"
+					trailing-icon="i-lucide-arrow-down"
+					:label="pageTitle"
+					class="justify-center"
+				  />
+			  </UDropdownMenu>
             </UDashboardToolbar>
           </template>
 
