@@ -139,7 +139,7 @@ const twoFactorMethods = [
             <div class="flex flex-row gap-4">
               <UIcon :name="item.icon" class="size-5 shrink-0 self-center" />
               <div>
-                <div v-if="item.badge" class="flex flex-col pb-2 gap-2">
+                <div v-if="item.badge" class="flex flex-col md:flex-row pb-2 md:pb-0 gap-2">
                   <p class="text-sm md:text-base font-medium">{{ item.title }}</p>
                   <UBadge
                     size="sm"
