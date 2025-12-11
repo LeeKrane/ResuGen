@@ -8,6 +8,17 @@ useRouter().beforeEach(() => {
 const user = useSupabaseUser()
 const userState = useUserState().userState
 
+// Cache async admin check result so template doesn't evaluate a Promise
+const isWebAdmin = ref<boolean | null>(null)
+
+async function updateIsWebAdmin() {
+  try {
+    isWebAdmin.value = await useIsWebAdmin()
+  } catch {
+    isWebAdmin.value = null
+  }
+}
+
 // Username
 const username = computed(() =>
   userState.value.fullName ||
@@ -117,6 +128,7 @@ async function dropdownItems() {
 // Update items when relevant state changes
 watch([username, avatarBlob], () => {
   dropdownItems()
+  updateIsWebAdmin()
 }, { immediate: true })
 
 onMounted(() => {
@@ -158,7 +170,7 @@ const navItems = useNavItems()
 					arrow
 					:delay-duration="0">
 					
-					<UAvatar :src="avatarBlob" icon="i-lucide-user-round" class="border border-(--ui-border)" />
+          <UAvatar :src="avatarBlob" icon="i-lucide-user-round" class="border border-(--ui-border)" :class="isWebAdmin ? 'ring-2 ring-primary' : 'ring-0'" />
 				</UTooltip>
 			</UDropdownMenu>
 
