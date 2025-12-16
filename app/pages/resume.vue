@@ -110,7 +110,9 @@ onMounted(() => {
 				transform: `translateX(${-(!styleSliderBottom && slideOverBodyWidth > 0 ? slideOverBodyWidth + 48 : 0)/2}px)`,
 			}"
 			class="max-h-[calc(100vh-13rem)] print:w-[210mm] print:h-[297mm] not-print:w-3xl not-print:h-[calc(var(--container-3xl)*297/210)] shadow-xl mx-auto origin-top-left print:shadow-none not-print:m-4 transition-transform overflow-scroll">
-			<RCTwoColumn ref="resumeContainer"/>
+			<div ref="resumeContainer">
+				<RCTwoColumn />
+			</div>
 		</div>
 
 		<!-- Cover Letter Preview -->
@@ -121,7 +123,9 @@ onMounted(() => {
 				transform: `translateX(${-(!styleSliderBottom && slideOverBodyWidth > 0 ? slideOverBodyWidth + 48 : 0)/2}px)`,
 			}"
 			class="max-h-[calc(100vh-13rem)] print:w-[210mm] print:h-[297mm] not-print:w-3xl not-print:h-[calc(var(--container-3xl)*297/210)] shadow-xl mx-auto origin-top-left print:shadow-none not-print:m-4 transition-transform overflow-scroll">
-			<RCoverLetter ref="coverLetterContainer"/>
+			<div ref="coverLetterContainer">
+				<RCoverLetter />
+			</div>
 		</div>
 	</div>
 </template>
