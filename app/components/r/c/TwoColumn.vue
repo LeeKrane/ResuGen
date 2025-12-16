@@ -46,7 +46,7 @@ const data = useRefResumeData()
 			<!-- Personal Information -->
 
 			<div
-					v-if="style.sections.minor.personal.enabled"
+					v-if="style.sections.minor.personal.enabled && (data.email.value?.trim() || data.phone.value?.trim() || data.address.value?.trim())"
 					class="flex flex-col flex-wrap gap-1">
 				<HSeparator label="Personal" icon="i-lucide-user" elevated/>
 
@@ -76,7 +76,7 @@ const data = useRefResumeData()
 			<!-- Languages -->
 
 			<div
-					v-if="style.sections.minor.languages.enabled"
+					v-if="style.sections.minor.languages.enabled && data.languages.value.some(lang => lang.name?.trim())"
 					class="flex flex-col flex-wrap gap-1">
 				<HSeparator label="Languages" icon="i-lucide-languages" elevated/>
 
@@ -102,7 +102,7 @@ const data = useRefResumeData()
 			<!-- Hobbies -->
 
 			<div
-					v-if="style.sections.minor.hobbies.enabled"
+					v-if="style.sections.minor.hobbies.enabled && data.hobbies.value.some(hobby => hobby?.trim())"
 					class="flex flex-col flex-wrap gap-1">
 				<HSeparator label="Hobbies" icon="i-lucide-volleyball" elevated/>
 
@@ -122,7 +122,7 @@ const data = useRefResumeData()
 			<!-- Skills -->
 
 			<div
-					v-if="style.sections.minor.skills.enabled"
+					v-if="style.sections.minor.skills.enabled && data.skillCategories.value.some(cat => cat.name?.trim() || cat.skills?.some(skill => skill.name?.trim()))"
 					class="flex flex-col flex-wrap gap-1">
 				<HSeparator label="Skills" icon="i-lucide-layers" elevated/>
 
@@ -259,7 +259,7 @@ const data = useRefResumeData()
 					{{ data.subtitle }}
 				</h2>
 
-				<ul class="flex flex-wrap items-center gap-1">
+				<ul v-if="data.links.value.some(link => link.name?.trim() || link.url?.trim())" class="flex flex-wrap items-center gap-1">
 					<template
 							v-for="link in data.links.value"
 							:key="link.url">
@@ -292,7 +292,7 @@ const data = useRefResumeData()
 			<!-- Professional Summary -->
 
 			<div
-					v-if="style.sections.major.summary.enabled"
+					v-if="style.sections.major.summary.enabled && data.summary.value?.trim()"
 					class="flex flex-col gap-1">
 				<HSeparator label="Professional Summary" icon="i-lucide-file-text" />
 				<p>{{ data.summary }}</p>
@@ -301,7 +301,7 @@ const data = useRefResumeData()
 			<!-- Education -->
 
 			<div
-					v-if="style.sections.major.education.enabled"
+					v-if="style.sections.major.education.enabled && data.education.value.some(edu => edu.degree?.trim() || edu.text?.trim())"
 					class="flex flex-col">
 				<HSeparator label="Education" icon="i-lucide-graduation-cap" />
 
@@ -364,7 +364,7 @@ const data = useRefResumeData()
 			<!-- Experiences -->
 
 			<div
-					v-if="style.sections.major.experience.enabled"
+					v-if="style.sections.major.experience.enabled && data.experience.value.some(exp => exp.position?.trim() || exp.text?.trim())"
 					class="flex flex-col">
 				<HSeparator label="Work Experience" icon="i-lucide-briefcase" />
 
@@ -452,7 +452,7 @@ const data = useRefResumeData()
 			<!-- Projects -->
 
 			<div
-					v-if="style.sections.major.projects.enabled"
+					v-if="style.sections.major.projects.enabled && data.projects.value.some(proj => proj.name?.trim())"
 					class="flex flex-col">
 				<HSeparator label="Projects" icon="i-lucide-code-xml" />
 
@@ -534,6 +534,34 @@ const data = useRefResumeData()
 						</div>
 					</div>
 				</div>
+			</div>
+
+			<!-- Qualifications/Certifications -->
+			<div
+					v-if="style.sections.major.certifications.enabled && data.qualifications.value.length > 0"
+					class="flex flex-col">
+				<HSeparator label="Qualifications" icon="i-lucide-award" />
+
+				<ul class="flex flex-col gap-1">
+					<li
+							v-for="qualification in data.qualifications.value"
+							:key="qualification.name"
+							class="flex flex-col gap-1">
+						<div class="flex flex-wrap justify-between items-center gap-1">
+							<span class="flex items-center font-bold">
+								<UIcon name="i-lucide-dot" :size="style.font.size * 1.75" class="-ml-1.5"/>
+								{{ qualification.name }}
+							</span>
+							<div v-if="qualification.date" class="flex items-center gap-1">
+								<UIcon name="i-lucide-calendar" :size="style.font.size * 1.5"/>
+								<span>{{ qualification.date.month?.toString().padStart(2, '0') }}.{{ qualification.date.year }}</span>
+							</div>
+						</div>
+						<p v-if="qualification.description" class="ml-3 text-sm" :style="{ color: style.colors.text.subtitle }">
+							{{ qualification.description }}
+						</p>
+					</li>
+				</ul>
 			</div>
 		</div>
 	</div>
