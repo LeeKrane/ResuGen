@@ -88,7 +88,6 @@ onMounted(() => {
 				@click="handlePrint"/>
 			
 			<UButton
-				v-if="hasCoverLetter"
 				label="Print Cover Letter"
 				color="primary"
 				variant="soft"
