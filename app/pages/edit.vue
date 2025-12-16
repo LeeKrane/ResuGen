@@ -1,10 +1,113 @@
 <script setup lang="ts">
+import { useVueToPrint } from "vue-to-print"
+
 definePageMeta({
 	layout: "data-edit"
 })
 
 const { isIT } = useJobField()
 const activeTab = ref("0")
+
+// Print functionality - no refs needed since we navigate to resume page
+
+// Print functionality - render components inline for printing
+const resumeContainer = ref<HTMLDivElement | null>(null)
+const coverLetterContainer = ref<HTMLDivElement | null>(null)
+const showPrintModal = ref(false)
+const printType = ref<'resume' | 'cover-letter'>('resume')
+
+const { handlePrint: vueToPrintResume } = useVueToPrint({
+	content: () => resumeContainer.value!,
+	documentTitle: "Resume",
+	onBeforePrint: () => {
+		console.log('Starting resume print...')
+	},
+	onAfterPrint: () => {
+		console.log('Resume print completed')
+		showPrintModal.value = false
+	}
+})
+
+const { handlePrint: vueToPrintCoverLetter } = useVueToPrint({
+	content: () => coverLetterContainer.value!,
+	documentTitle: "Cover_Letter",
+	onBeforePrint: () => {
+		console.log('Starting cover letter print...')
+	},
+	onAfterPrint: () => {
+		console.log('Cover letter print completed')
+		showPrintModal.value = false
+	}
+})
+
+const handlePrint = () => {
+	console.log('Print Resume clicked!')
+	if (hasResumeContent.value) {
+		printType.value = 'resume'
+		showPrintModal.value = true
+		nextTick(() => {
+			setTimeout(() => {
+				if (resumeContainer.value) {
+					console.log('Resume container found, attempting print...')
+					vueToPrintResume()
+				} else {
+					console.error('Resume container not found!')
+				}
+			}, 1000) // Wait for component to render
+		})
+	} else {
+		console.log('No resume content to print')
+	}
+}
+
+const handlePrintCoverLetter = () => {
+	console.log('Print Cover Letter clicked!')
+	if (hasCoverLetterContent.value) {
+		printType.value = 'cover-letter'
+		showPrintModal.value = true
+		nextTick(() => {
+			setTimeout(() => {
+				if (coverLetterContainer.value) {
+					console.log('Cover letter container found, attempting print...')
+					vueToPrintCoverLetter()
+				} else {
+					console.error('Cover letter container not found!')
+				}
+			}, 1000) // Wait for component to render
+		})
+	} else {
+		console.log('No cover letter content to print')
+	}
+}
+
+const { hasCoverLetter } = useCoverLetter()
+const resumeData = useRefResumeData()
+
+// Computed properties to check if content is available for printing
+const hasResumeContent = computed(() => {
+	const data = resumeData
+	// Check if resume has meaningful content beyond empty defaults
+	return !!(
+		data.name.value?.trim() ||
+		data.email.value?.trim() ||
+		data.phone.value?.trim() ||
+		data.summary.value?.trim() ||
+		data.experience.value?.some(exp => exp.position?.trim() || exp.text?.trim()) ||
+		data.education.value?.some(edu => edu.degree?.trim() || edu.text?.trim()) ||
+		data.projects.value?.some(proj => proj.name?.trim() || proj.description?.trim()) ||
+		data.skillCategories.value?.some(cat => 
+			cat.name?.trim() || cat.skills?.some(skill => skill.name?.trim())
+		)
+	)
+})
+
+const hasCoverLetterContent = computed(() => hasCoverLetter.value)
+
+// Debug content availability (can be removed later)
+watchEffect(() => {
+	console.log('hasResumeContent:', hasResumeContent.value)
+	console.log('hasCoverLetterContent:', hasCoverLetterContent.value)
+})
 
 const tabItems = computed(() => {
 	const baseTabs = [
@@ -58,6 +161,39 @@ const tabItems = computed(() => {
 				:items="tabItems"/>
 		</div>
 
+		<!-- Print Buttons -->
+		<div class="sticky top-32 w-full z-30 flex justify-center mb-4">
+			<UFieldGroup class="mx-auto bg-(--ui-bg)/20 backdrop-blur-xs">
+				<UButton
+					label="Print Resume"
+					:color="hasResumeContent ? 'primary' : 'neutral'"
+					variant="soft"
+					:disabled="!hasResumeContent"
+					:class="[
+						'backdrop-blur-sm',
+						hasResumeContent 
+							? 'cursor-pointer bg-(--ui-primary)/20' 
+							: 'cursor-not-allowed bg-(--ui-neutral)/10 text-(--ui-neutral)/50'
+					]"
+					icon="i-lucide-printer"
+					@click="handlePrint"/>
+				
+				<UButton
+					label="Print Cover Letter"
+					:color="hasCoverLetterContent ? 'primary' : 'neutral'"
+					variant="soft"
+					:disabled="!hasCoverLetterContent"
+					:class="[
+						'backdrop-blur-sm',
+						hasCoverLetterContent 
+							? 'cursor-pointer bg-(--ui-primary)/20' 
+							: 'cursor-not-allowed bg-(--ui-neutral)/10 text-(--ui-neutral)/50'
+					]"
+					icon="i-lucide-file-text"
+					@click="handlePrintCoverLetter"/>
+			</UFieldGroup>
+		</div>
+
 		<div class="flex flex-col mx-auto w-[clamp(24rem,65vw,56rem)]">
 			<div :class="activeTab === '0' ? 'block' : 'hidden'">
 				<FormGeneral/>
@@ -77,6 +213,16 @@ const tabItems = computed(() => {
 
 			<div v-if="isIT" :class="activeTab === '4' ? 'block' : 'hidden'">
 				<FormProjects/>
+			</div>
+		</div>
+
+		<!-- Hidden print containers - only visible during printing -->
+		<div v-if="showPrintModal" class="hidden print:block">
+			<div v-if="printType === 'resume'" ref="resumeContainer">
+				<RCTwoColumn />
+			</div>
+			<div v-if="printType === 'cover-letter'" ref="coverLetterContainer">
+				<RCoverLetter />
 			</div>
 		</div>
 	</div>
