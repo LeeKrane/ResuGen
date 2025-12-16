@@ -29,3 +29,9 @@ pnpm-workspace.yaml
 
 # Kiro IDE files
 .kiro
+
+# Test files
+test/
+
+.vscode/
+GITLAB_ISSUES.md
