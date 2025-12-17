@@ -20,6 +20,7 @@ const previewImage = useState<string | null>("previewImage", () => null)
 
 const linkiconItems = ref([
 	{label: "Website", value: "website", icon: "i-lucide-globe"},
+	{label: "Other", value: "other", icon: "i-lucide-link"},
 	{label: "GitHub", value: "github", icon: "i-simple-icons-github"},
 	{label: "GitLab", value: "gitlab", icon: "i-simple-icons-gitlab"},
 	{label: "LinkedIn", value: "linkedin", icon: "i-simple-icons-linkedin"},

@@ -269,11 +269,14 @@ const data = useRefResumeData()
 									class="flex flex-wrap items-center gap-1"
 									:to="link.url">
 								<UIcon
-										v-if="link.icon && link.icon.icon"
-										:name="link.icon.icon"
+										:name="(link.icon && link.icon.icon) ? link.icon.icon : 'i-lucide-globe'"
 										:size="style.font.size * 1.5"
 										class="shrink-0"/>
-								<span class="shrink">{{ link.icon!.value === "website" ? link.name : link.icon!.label }}</span>
+								<span class="shrink">{{ 
+									link.icon && link.icon.value === "website" 
+										? link.name 
+										: (link.icon ? link.icon.label : link.name)
+								}}</span>
 							</ULink>
 						</li>
 
@@ -493,7 +496,7 @@ const data = useRefResumeData()
 									:to="project.repoLink.url!"
 									class="flex items-center">
 								<UIcon
-										:name="project.repoLink.icon!.icon!"
+										:name="(project.repoLink.icon && project.repoLink.icon.icon) ? project.repoLink.icon.icon : 'i-lucide-globe'"
 										:style="{ color: style.colors.text.base }"
 										:size="style.font.size * 1.5"/>
 							</ULink>
