@@ -85,20 +85,39 @@ const resumeData = useRefResumeData()
 
 // Computed properties to check if content is available for printing
 const hasResumeContent = computed(() => {
-	const data = resumeData
-	// Check if resume has meaningful content beyond empty defaults
-	return !!(
-		data.name.value?.trim() ||
-		data.email.value?.trim() ||
-		data.phone.value?.trim() ||
-		data.summary.value?.trim() ||
-		data.experience.value?.some(exp => exp.position?.trim() || exp.text?.trim()) ||
-		data.education.value?.some(edu => edu.degree?.trim() || edu.text?.trim()) ||
-		data.projects.value?.some(proj => proj.name?.trim() || proj.description?.trim()) ||
-		data.skillCategories.value?.some(cat => 
-			cat.name?.trim() || cat.skills?.some(skill => skill.name?.trim())
-		)
-	)
+	try {
+		const data = resumeData
+		if (!data) return false
+		
+		// Check basic fields first (most common case)
+		if (data.name.value?.trim() || data.email.value?.trim() || data.phone.value?.trim() || data.summary.value?.trim()) {
+			return true
+		}
+		
+		// Check arrays only if basic fields are empty
+		if (Array.isArray(data.experience.value) && data.experience.value.some(exp => exp?.position?.trim() || exp?.text?.trim())) {
+			return true
+		}
+		
+		if (Array.isArray(data.education.value) && data.education.value.some(edu => edu?.degree?.trim() || edu?.text?.trim())) {
+			return true
+		}
+		
+		if (Array.isArray(data.projects.value) && data.projects.value.some(proj => proj?.name?.trim() || proj?.description?.trim())) {
+			return true
+		}
+		
+		if (Array.isArray(data.skillCategories.value) && data.skillCategories.value.some(cat => 
+			cat?.name?.trim() || (Array.isArray(cat?.skills) && cat.skills.some(skill => skill?.name?.trim()))
+		)) {
+			return true
+		}
+		
+		return false
+	} catch (error) {
+		console.error('Error in hasResumeContent computed:', error)
+		return false
+	}
 })
 
 const hasCoverLetterContent = computed(() => hasCoverLetter.value)
