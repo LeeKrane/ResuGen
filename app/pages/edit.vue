@@ -1,7 +1,7 @@
 <script setup lang="ts">
-definePageMeta({
+/*definePageMeta({
 	layout: "data-edit"
-})
+})*/
 
 const activeTab = ref("0")
 const tabItems = [
