@@ -29,13 +29,14 @@
     "@nuxt/image": "1.10.0",
     "@nuxt/ui": "4.0.0-alpha.0",
     "jszip": "^3.10.1",
+    "latest": "^0.2.0",
     "nuxt": "^4.0.3",
+    "nuxt-particles": "^0.3.0",
     "nuxt-security": "^2.5.0",
     "sharp": "^0.34.3",
     "uuid": "^11.1.0",
     "valibot": "^1.1.0",
-    "vue-to-print": "^1.4.0",
-    "nuxt-particles": "https://github.com/LeeKrane/nuxt-particles.git#main"
+    "vue-to-print": "^1.4.0"
   },
   "devDependencies": {
     "@nuxt/eslint": "^1.9.0",
