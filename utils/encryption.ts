@@ -52,6 +52,30 @@ class EncryptionServiceImpl implements EncryptionService {
         'HTTPS_REQUIRED'
       )
     }
+    
+    if (typeof crypto === 'undefined' || !crypto.subtle) {
+      throw new EncryptionError(
+        'Web Crypto API is not supported in this browser. Please use a modern browser.',
+        'CRYPTO_NOT_SUPPORTED'
+      )
+    }
+    
+    const requiredSubtleMethods = ['importKey', 'deriveKey', 'encrypt', 'decrypt']
+    for (const method of requiredSubtleMethods) {
+      if (typeof crypto.subtle[method as keyof SubtleCrypto] !== 'function') {
+        throw new EncryptionError(
+          `Required crypto method ${method} is not available.`,
+          'CRYPTO_METHOD_MISSING'
+        )
+      }
+    }
+    
+    if (typeof crypto.getRandomValues !== 'function') {
+      throw new EncryptionError(
+        'Required crypto method getRandomValues is not available.',
+        'CRYPTO_METHOD_MISSING'
+      )
+    }
   }
 }
 
