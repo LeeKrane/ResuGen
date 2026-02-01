@@ -77,6 +77,53 @@ class EncryptionServiceImpl implements EncryptionService {
       )
     }
   }
+  
+  /**
+   * Initialize encryption key from user password and salt
+   * Uses PBKDF2 with 100,000 iterations for key derivation
+   */
+  async initializeFromPassword(password: string, salt: string): Promise<void> {
+    try {
+      // Convert password to key material
+      const passwordBuffer = new TextEncoder().encode(password)
+      const saltBuffer = new TextEncoder().encode(salt)
+      
+      // Import password as key material
+      const keyMaterial = await crypto.subtle.importKey(
+        'raw',
+        passwordBuffer,
+        'PBKDF2',
+        false,
+        ['deriveKey']
+      )
+      
+      // Derive encryption key using PBKDF2
+      this.encryptionKey = await crypto.subtle.deriveKey(
+        {
+          name: 'PBKDF2',
+          salt: saltBuffer,
+          iterations: this.PBKDF2_ITERATIONS,
+          hash: 'SHA-256'
+        },
+        keyMaterial,
+        {
+          name: 'AES-GCM',
+          length: this.KEY_LENGTH
+        },
+        false, // Key is not extractable
+        ['encrypt', 'decrypt']
+      )
+      
+      passwordBuffer.fill(0)
+      
+    } catch (error) {
+      this.encryptionKey = null
+      throw new EncryptionError(
+        `Failed to initialize encryption key: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        'KEY_DERIVATION_FAILED'
+      )
+    }
+  }
 }
 
 // Export singleton instance
