@@ -169,6 +169,40 @@ class EncryptionServiceImpl implements EncryptionService {
       )
     }
   }
+  
+  /**
+   * Decrypt a base64-encoded encrypted string
+   * Extracts IV and decrypts using AES-GCM
+   */
+  async decrypt(encryptedData: string): Promise<string> {
+    if (!this.isInitialized()) {
+      throw new EncryptionError('Encryption service not initialized', 'NOT_INITIALIZED')
+    }
+    
+    try {
+      const combined = this.base64ToArrayBuffer(encryptedData)
+      
+      const iv = combined.slice(0, this.IV_LENGTH)
+      const encrypted = combined.slice(this.IV_LENGTH)
+      
+      const decryptedBuffer = await crypto.subtle.decrypt(
+        {
+          name: 'AES-GCM',
+          iv: iv
+        },
+        this.encryptionKey!,
+        encrypted
+      )
+      
+      return new TextDecoder().decode(decryptedBuffer)
+      
+    } catch (error) {
+      throw new EncryptionError(
+        `Decryption failed: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        'DECRYPTION_FAILED'
+      )
+    }
+  }
 }
 
 // Export singleton instance
