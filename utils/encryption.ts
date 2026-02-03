@@ -203,6 +203,41 @@ class EncryptionServiceImpl implements EncryptionService {
       )
     }
   }
+  
+  async encryptObject<T>(obj: T): Promise<Record<string, string>> {
+    const result: Record<string, string> = {}
+    
+    for (const [key, value] of Object.entries(obj as Record<string, any>)) {
+      if (typeof value === 'string') {
+        result[`${key}_encrypted`] = await this.encrypt(value)
+      } else if (value !== null && value !== undefined) {
+        // Convert non-string values to JSON strings before encryption
+        result[`${key}_encrypted`] = await this.encrypt(JSON.stringify(value))
+      }
+    }
+    
+    return result
+  }
+  
+  async decryptObject<T>(encryptedObj: Record<string, string>): Promise<T> {
+    const result: Record<string, any> = {}
+    
+    for (const [key, encryptedValue] of Object.entries(encryptedObj)) {
+      if (key.endsWith('_encrypted')) {
+        const originalKey = key.replace('_encrypted', '')
+        const decryptedValue = await this.decrypt(encryptedValue)
+        
+        // Try to parse as JSON, fallback to string
+        try {
+          result[originalKey] = JSON.parse(decryptedValue)
+        } catch {
+          result[originalKey] = decryptedValue
+        }
+      }
+    }
+    
+    return result as T
+  }
 }
 
 // Export singleton instance
