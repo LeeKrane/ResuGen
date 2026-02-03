@@ -238,6 +238,54 @@ class EncryptionServiceImpl implements EncryptionService {
     
     return result as T
   }
+  
+  async encryptResumeData(data: any): Promise<Record<string, string>> {
+    const encryptedData: Record<string, string> = {}
+    
+    const fieldsToEncrypt = [
+      'name', 'subtitle', 'email', 'phone', 'address', 'summary',
+      'birth_year', 'birth_month', 'birth_day',
+      'avatar_data', 'avatar_filename', 'avatar_content_type',
+      'hobbies'
+    ]
+    
+    for (const field of fieldsToEncrypt) {
+      if (data[field] !== undefined && data[field] !== null) {
+        const valueToEncrypt = typeof data[field] === 'string' 
+          ? data[field] 
+          : JSON.stringify(data[field])
+        encryptedData[`${field}_encrypted`] = await this.encrypt(valueToEncrypt)
+      }
+    }
+    
+    return encryptedData
+  }
+  
+  async decryptResumeData(encrypted: Record<string, string>): Promise<any> {
+    const decryptedData: Record<string, any> = {}
+    
+    for (const [key, value] of Object.entries(encrypted)) {
+      if (key.endsWith('_encrypted')) {
+        const originalKey = key.replace('_encrypted', '')
+        const decryptedValue = await this.decrypt(value)
+        
+        // Handle specific field types
+        if (['birth_year', 'birth_month', 'birth_day'].includes(originalKey)) {
+          decryptedData[originalKey] = parseInt(decryptedValue, 10)
+        } else if (originalKey === 'hobbies') {
+          try {
+            decryptedData[originalKey] = JSON.parse(decryptedValue)
+          } catch {
+            decryptedData[originalKey] = []
+          }
+        } else {
+          decryptedData[originalKey] = decryptedValue
+        }
+      }
+    }
+    
+    return decryptedData
+  }
 }
 
 // Export singleton instance
