@@ -98,4 +98,73 @@ describe('EncryptionService', () => {
       global.crypto = originalCrypto
     })
   })
+
+  describe('Key Management', () => {
+    it('should initialize correctly from password and salt', async () => {
+      const mockKey = { type: 'secret' } as CryptoKey
+      
+      vi.mocked(crypto.subtle.importKey).mockResolvedValue({} as CryptoKey)
+      vi.mocked(crypto.subtle.deriveKey).mockResolvedValue(mockKey)
+      
+      await service.initializeFromPassword('testpassword', 'testsalt')
+      
+      expect(service.isInitialized()).toBe(true)
+      expect(crypto.subtle.importKey).toHaveBeenCalledWith(
+        'raw',
+        expect.any(Uint8Array),
+        'PBKDF2',
+        false,
+        ['deriveKey']
+      )
+      expect(crypto.subtle.deriveKey).toHaveBeenCalledWith(
+        {
+          name: 'PBKDF2',
+          salt: expect.any(Uint8Array),
+          iterations: 100000,
+          hash: 'SHA-256'
+        },
+        expect.any(Object),
+        {
+          name: 'AES-GCM',
+          length: 256
+        },
+        false,
+        ['encrypt', 'decrypt']
+      )
+    })
+
+    it('should handle key derivation failures', async () => {
+      vi.mocked(crypto.subtle.importKey).mockRejectedValue(new Error('Key import failed'))
+      
+      await expect(service.initializeFromPassword('testpassword', 'testsalt'))
+        .rejects.toThrow(EncryptionError)
+      
+      expect(service.isInitialized()).toBe(false)
+    })
+
+    it('should clear keys properly', async () => {
+      vi.mocked(crypto.subtle.importKey).mockResolvedValue({} as CryptoKey)
+      vi.mocked(crypto.subtle.deriveKey).mockResolvedValue({} as CryptoKey)
+      
+      await service.initializeFromPassword('testpassword', 'testsalt')
+      expect(service.isInitialized()).toBe(true)
+      
+      service.clearKeys()
+      expect(service.isInitialized()).toBe(false)
+    })
+
+    it('should use correct PBKDF2 parameters', async () => {
+      vi.mocked(crypto.subtle.importKey).mockResolvedValue({} as CryptoKey)
+      vi.mocked(crypto.subtle.deriveKey).mockResolvedValue({} as CryptoKey)
+      
+      await service.initializeFromPassword('testpassword', 'testsalt')
+      
+      const deriveKeyCall = vi.mocked(crypto.subtle.deriveKey).mock.calls[0]
+      const pbkdf2Params = deriveKeyCall[0] as any
+      
+      expect(pbkdf2Params.iterations).toBe(100000)
+      expect(pbkdf2Params.hash).toBe('SHA-256')
+      expect(pbkdf2Params.name).toBe('PBKDF2')
+    })
+  })
 })
