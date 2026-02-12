@@ -167,4 +167,105 @@ describe('EncryptionService', () => {
       expect(pbkdf2Params.name).toBe('PBKDF2')
     })
   })
+
+  describe('Encryption/Decryption Operations', () => {
+    beforeEach(async () => {
+      // Mock successful key initialization
+      vi.mocked(crypto.subtle.importKey).mockResolvedValue({} as CryptoKey)
+      vi.mocked(crypto.subtle.deriveKey).mockResolvedValue({} as CryptoKey)
+      await service.initializeFromPassword('testpassword', 'testsalt')
+    })
+
+    it('should encrypt data successfully', async () => {
+      const testData = 'Hello, World!'
+      const mockEncryptedBuffer = new ArrayBuffer(16)
+      
+      vi.mocked(crypto.subtle.encrypt).mockResolvedValue(mockEncryptedBuffer)
+      
+      const result = await service.encrypt(testData)
+      
+      expect(typeof result).toBe('string')
+      expect(result.length).toBeGreaterThan(0)
+      expect(crypto.subtle.encrypt).toHaveBeenCalledWith(
+        {
+          name: 'AES-GCM',
+          iv: expect.any(Uint8Array)
+        },
+        expect.any(Object),
+        expect.any(Uint8Array)
+      )
+    })
+
+    it('should decrypt data successfully', async () => {
+      const testData = 'Hello, World!'
+      const mockDecryptedBuffer = new TextEncoder().encode(testData).buffer
+      
+      vi.mocked(crypto.subtle.decrypt).mockResolvedValue(mockDecryptedBuffer)
+      
+      // Create a mock encrypted string (base64 encoded IV + encrypted data)
+      const mockIV = new Uint8Array(12)
+      const mockEncrypted = new Uint8Array(16)
+      const combined = new Uint8Array(28)
+      combined.set(mockIV)
+      combined.set(mockEncrypted, 12)
+      const encryptedString = btoa(String.fromCharCode(...combined))
+      
+      const result = await service.decrypt(encryptedString)
+      
+      expect(result).toBe(testData)
+      expect(crypto.subtle.decrypt).toHaveBeenCalledWith(
+        {
+          name: 'AES-GCM',
+          iv: expect.any(Uint8Array)
+        },
+        expect.any(Object),
+        expect.any(Uint8Array)
+      )
+    })
+
+    it('should handle encryption failures', async () => {
+      vi.mocked(crypto.subtle.encrypt).mockRejectedValue(new Error('Encryption failed'))
+      
+      await expect(service.encrypt('test data'))
+        .rejects.toThrow(EncryptionError)
+    })
+
+    it('should handle decryption failures', async () => {
+      vi.mocked(crypto.subtle.decrypt).mockRejectedValue(new Error('Decryption failed'))
+      
+      const mockEncryptedString = btoa('invalid encrypted data')
+      
+      await expect(service.decrypt(mockEncryptedString))
+        .rejects.toThrow(EncryptionError)
+    })
+
+    it('should throw error when encrypting without initialization', async () => {
+      service.clearKeys()
+      
+      await expect(service.encrypt('test data'))
+        .rejects.toThrow(EncryptionError)
+      await expect(service.encrypt('test data'))
+        .rejects.toThrow('Encryption service not initialized')
+    })
+
+    it('should throw error when decrypting without initialization', async () => {
+      service.clearKeys()
+      
+      await expect(service.decrypt('encrypted data'))
+        .rejects.toThrow(EncryptionError)
+      await expect(service.decrypt('encrypted data'))
+        .rejects.toThrow('Encryption service not initialized')
+    })
+
+    it('should use random IV for each encryption', async () => {
+      const mockEncryptedBuffer = new ArrayBuffer(16)
+      vi.mocked(crypto.subtle.encrypt).mockResolvedValue(mockEncryptedBuffer)
+      
+      await service.encrypt('test data 1')
+      await service.encrypt('test data 2')
+      
+      // Verify that crypto.getRandomValues was called for each encryption
+      expect(crypto.getRandomValues).toHaveBeenCalledTimes(2)
+    })
+  })
 })
