@@ -527,4 +527,65 @@ describe('EncryptionService', () => {
       expect(duration).toBeLessThan(200)
     })
   })
+
+  describe('Error Handling', () => {
+    it('should create EncryptionError with correct properties', () => {
+      const error = new EncryptionError('Test error message', 'TEST_CODE')
+      
+      expect(error.name).toBe('EncryptionError')
+      expect(error.message).toBe('Test error message')
+      expect(error.code).toBe('TEST_CODE')
+      expect(error instanceof Error).toBe(true)
+    })
+
+    it('should handle base64 encoding/decoding errors', async () => {
+      vi.mocked(crypto.subtle.importKey).mockResolvedValue({} as CryptoKey)
+      vi.mocked(crypto.subtle.deriveKey).mockResolvedValue({} as CryptoKey)
+      await service.initializeFromPassword('testpassword', 'testsalt')
+      
+      const originalAtob = global.atob
+      global.atob = vi.fn().mockImplementation((str: string) => {
+        if (str.includes('!@#')) {
+          throw new Error('Invalid base64')
+        }
+        return originalAtob(str)
+      })
+      
+      await expect(service.decrypt('invalid base64!@#'))
+        .rejects.toThrow(EncryptionError)
+      
+      global.atob = originalAtob
+    })
+
+    it('should handle corrupted encrypted data', async () => {
+      vi.mocked(crypto.subtle.importKey).mockResolvedValue({} as CryptoKey)
+      vi.mocked(crypto.subtle.deriveKey).mockResolvedValue({} as CryptoKey)
+      await service.initializeFromPassword('testpassword', 'testsalt')
+      
+      vi.mocked(crypto.subtle.decrypt).mockRejectedValue(new Error('Invalid data'))
+      
+      const corruptedData = btoa('corrupted encrypted data')
+      
+      await expect(service.decrypt(corruptedData))
+        .rejects.toThrow(EncryptionError)
+    })
+  })
+
+  describe('Singleton Instance', () => {
+    it('should export a singleton instance', () => {
+      expect(encryptionService).toBeDefined()
+      expect(encryptionService).toBeInstanceOf(EncryptionServiceImpl)
+    })
+
+    it('should maintain state across imports', async () => {
+      vi.mocked(crypto.subtle.importKey).mockResolvedValue({} as CryptoKey)
+      vi.mocked(crypto.subtle.deriveKey).mockResolvedValue({} as CryptoKey)
+      
+      await encryptionService.initializeFromPassword('testpassword', 'testsalt')
+      expect(encryptionService.isInitialized()).toBe(true)
+      
+      encryptionService.clearKeys()
+      expect(encryptionService.isInitialized()).toBe(false)
+    })
+  })
 })
