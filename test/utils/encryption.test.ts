@@ -445,4 +445,86 @@ describe('EncryptionService', () => {
       expect(result.hobbies).toEqual([])
     })
   })
+
+  describe('Performance Benchmarks', () => {
+    beforeEach(async () => {
+      vi.mocked(crypto.subtle.importKey).mockResolvedValue({} as CryptoKey)
+      vi.mocked(crypto.subtle.deriveKey).mockResolvedValue({} as CryptoKey)
+      await service.initializeFromPassword('testpassword', 'testsalt')
+      
+      vi.mocked(crypto.subtle.encrypt).mockImplementation(async () => {
+        await new Promise(resolve => setTimeout(resolve, 1))
+        return new ArrayBuffer(32)
+      })
+      
+      vi.mocked(crypto.subtle.decrypt).mockImplementation(async () => {
+        await new Promise(resolve => setTimeout(resolve, 1))
+        return new TextEncoder().encode('decrypted data').buffer
+      })
+    })
+
+    it('should encrypt small data within performance threshold', async () => {
+      const testData = 'Small test string'
+      const startTime = performance.now()
+      
+      await service.encrypt(testData)
+      
+      const endTime = performance.now()
+      const duration = endTime - startTime
+      
+      // Should complete within 100ms for small data
+      expect(duration).toBeLessThan(100)
+    })
+
+    it('should encrypt large resume data within performance threshold', async () => {
+      const largeResumeData = {
+        name: 'John Doe',
+        summary: 'A'.repeat(1000), // Large summary
+        hobbies: Array(100).fill('hobby'),
+        experience: Array(50).fill({
+          title: 'Software Developer',
+          company: 'Tech Company',
+          description: 'B'.repeat(500)
+        })
+      }
+      
+      const startTime = performance.now()
+      
+      await service.encryptResumeData(largeResumeData)
+      
+      const endTime = performance.now()
+      const duration = endTime - startTime
+      
+      // Should complete within 500ms for large data
+      expect(duration).toBeLessThan(500)
+    })
+
+    it('should handle key derivation within reasonable time', async () => {
+      const newService = new EncryptionServiceImpl()
+      
+      const startTime = performance.now()
+      
+      await newService.initializeFromPassword('testpassword', 'testsalt')
+      
+      const endTime = performance.now()
+      const duration = endTime - startTime
+      
+      expect(duration).toBeLessThan(1000)
+    })
+
+    it('should handle multiple concurrent operations', async () => {
+      const operations = Array(10).fill(0).map((_, i) => 
+        service.encrypt(`Test data ${i}`)
+      )
+      
+      const startTime = performance.now()
+      
+      await Promise.all(operations)
+      
+      const endTime = performance.now()
+      const duration = endTime - startTime
+      
+      expect(duration).toBeLessThan(200)
+    })
+  })
 })
