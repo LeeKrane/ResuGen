@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { useVueToPrint } from "vue-to-print"
 
-definePageMeta({
+/*definePageMeta({
 	layout: "data-edit"
-})
+})*/
 
 const { isIT } = useJobField()
 const activeTab = ref("0")
