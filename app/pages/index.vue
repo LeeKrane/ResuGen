@@ -1,5 +1,26 @@
 <script setup lang="ts">
-const features = [
+
+// Showcase items for "Created by Developers, for Developers" section
+const showcase = ref([
+  {
+    title: 'User-Friendly Interface',
+    description: 'Intuitive design that makes resume creation simple and efficient.',
+    icon: 'i-lucide-square-mouse-pointer',
+  },
+  {
+    title: 'Customizable Templates',
+    description: 'A variety of modern templates that can be tailored to your style.',
+    icon: 'i-lucide-layout',
+  },
+  {
+    title: 'Cloud Storage',
+    description: 'Save and access your resumes from anywhere with our secure cloud storage.',
+    icon: 'i-lucide-cloud',
+  }
+])
+
+// Features for Feature Section
+const features = ref([
   {
     icon: 'i-lucide-wand-2',
     title: 'Easy to Use',
@@ -30,99 +51,195 @@ const features = [
     title: 'Real-time Preview',
     description: 'See changes instantly as you build your perfect resume'
   }
+])
+
+
+// Stepper items for "How It Works" section
+import type { StepperItem } from '@nuxt/ui'
+
+const items: StepperItem[] = [
+  {
+    title: 'Fill your Information',
+    description: 'Enter your personal, educational, and professional details using our intuitive form-based editor',
+    icon: 'i-lucide-edit'
+  }, {
+    title: 'Customize your Style of the Resume',
+    description: 'Choose from a variety of modern templates and personalize colors, fonts, and layout to match your style',
+    icon: 'i-lucide-truck'
+  }, {
+    title: 'Export your Resume and Apply',
+    description: 'Download your resume in PDF or HTML format with a single click, ready to impress potential employers',
+    icon: 'i-lucide-download'
+  }
 ]
+
+const active = ref(3)
 </script>
 
 <template>
-  <div class="flex flex-col items-center justify-center min-h-[85vh] gap-4 px-4">
-    <!-- Hero Section -->
-    <div class="text-center max-w-3xl mx-auto">
-      <h1 class="flex items-center justify-center font-bold text-6xl mb-6">
-        <span class="text-(--ui-text)">Resu</span>
-        <span class="text-(--ui-primary)">Gen</span>
-      </h1>
+  <div class="-mt-16 -mb-32">
 
-      <p class="text-xl text-gray-600 mt-2 mb-8">
-        Create professional resumes effortlessly with our modern, customizable resume generator.
-        Stand out from the crowd with ATS-friendly templates.
-      </p>
+    <!-- Title/Hero Section -->
+    <UPageHero
+      title="Welcome to ResuGen"
+      description="Create stunning resumes effortlessly with our intuitive resume builder.">
 
-      <div class="flex flex-col items-center gap-6">
-        <UButton
-          label="Create Resume"
-          to="/edit"
-          icon="i-lucide-square-pen"
-          size="xl"
-        />
+      <template #top>
+        <LazyGeneralHeroBackgroundStars />
+      </template>
 
-        <div class="flex items-center gap-3 text-sm">
+      <template #links>
+        <div class="flex flex-col items-center gap-6">
           <UButton
-            label="View Demo"
-            color="neutral"
-            variant="ghost"
-            icon="i-lucide-presentation"
-            to="/demo"
+            label="Create Resume"
+            to="/edit"
+            icon="i-lucide-square-pen"
+            size="xl"
           />
 
-          <div class="h-4 w-px bg-gray-200"/>
+          <div class="flex items-center gap-3 text-sm">
+            <UButton
+              label="View Demo"
+              color="neutral"
+              variant="ghost"
+              icon="i-lucide-presentation"
+              to="/demo"
+            />
 
-          <UButton
-            label="Source Code"
-            color="neutral"
-            variant="ghost"
-            icon="i-lucide-code"
-            to="https://github.com/LeeKrane/ResuGen"
-            target="_blank"
+            <div class="h-4 w-px bg-gray-200"/>
+
+            <UButton
+              label="Source Code"
+              color="neutral"
+              variant="ghost"
+              icon="i-lucide-code"
+              to="https://github.com/LeeKrane/ResuGen"
+              target="_blank"
+            />
+          </div>
+        </div>
+      </template>
+    </UPageHero>
+    
+    <!-- Picture Marquee -->
+    <UPageSection>
+      <div class="relative w-full h-[400px] bg-muted overflow-hidden rounded-lg ">
+        <UMarquee
+          reverse
+          orientation="vertical"
+          :overlay="false"
+          :ui="{
+            root: '[--duration:40s] absolute w-[460px] -left-[100px] -top-[300px] h-[940px] transform-3d rotate-x-55 rotate-y-0 rotate-z-30'
+          }"
+        >
+          <img
+            v-for="i in 4"
+            :key="i"
+            :src="`https://ui.nuxt.com/blocks/image${i}.png`"
+            width="460"
+            height="258"
+            :alt="`Nuxt UI Screenshot ${i}`"
+            class="aspect-video border border-default rounded-lg bg-white"
           />
-        </div>
+        </UMarquee>
+        <UMarquee
+          orientation="vertical"
+          :overlay="false"
+          :ui="{
+            root: '[--duration:40s] absolute w-[460px] -top-[400px] left-[480px] h-[1160px] transform-3d rotate-x-55 rotate-y-0 rotate-z-30'
+          }">
+          <img
+            v-for="i in [5, 6, 7, 8]"
+            :key="i"
+            :src="`https://ui.nuxt.com/blocks/image${i}.png`"
+            width="460"
+            height="258"
+            :alt="`Nuxt UI Screenshot ${i}`"
+            class="aspect-video border border-default rounded-lg bg-white"/>
+        </UMarquee>
+        <UMarquee
+          reverse
+          orientation="vertical"
+          :overlay="false"
+          :ui="{
+            root: 'hidden md:flex [--duration:40s] absolute w-[460px] -top-[300px] left-[1020px] h-[1060px] transform-3d rotate-x-55 rotate-y-0 rotate-z-30'
+          }">
+          <img
+            v-for="i in [9, 10, 11, 12]"
+            :key="i"
+            :src="`https://ui.nuxt.com/blocks/image${i}.png`"
+            width="460"
+            height="258"
+            :alt="`Nuxt UI Screenshot ${i}`"
+            class="aspect-video border border-default rounded-lg bg-white"/>
+        </UMarquee>
       </div>
-    </div>
+    </UPageSection>
 
-    <!-- Features Grid -->
-    <div class="mt-20 w-full max-w-6xl">
-      <h2 class="text-2xl font-semibold text-center mb-12">Why Choose ResuGen?</h2>
-      <div class="grid md:grid-cols-3 gap-8 px-4">
-        <div v-for="feature in features" :key="feature.title" 
-             class="flex flex-col items-center gap-3 p-6 rounded-xl border border-(--ui-border) hover:shadow-lg transition-shadow bg-(--ui-bg)/20 backdrop-blur-xs">
-          <UIcon :name="feature.icon" class="text-3xl text-(--ui-primary)"/>
-          <h3 class="font-medium text-lg">{{ feature.title }}</h3>
-          <p class="text-sm text-gray-500 text-center">{{ feature.description }}</p>
-        </div>
-      </div>
-    </div>
+    <!-- Showcase Section -->
+    <UPageSection
+      title="Created by Developers, for Developers"
+      description="ResuGen is built with modern web technologies to ensure a seamless and efficient resume-building experience."
+      icon="i-lucide-rocket"
+      orientation="horizontal"
+      :features="showcase">
+      <img
+        src="https://picsum.photos/800/600"
+        alt="Illustration"
+        class=" max-h-fit rounded-lg"/>
+    </UPageSection>
 
-    <!-- How It Works -->
-    <div class="mt-20 w-full max-w-4xl">
-      <h2 class="text-2xl font-semibold text-center mb-12">How It Works</h2>
-      <div class="grid md:grid-cols-3 gap-8 px-4">
-        <div class="flex flex-col items-center text-center">
-          <div class="w-12 h-12 rounded-full bg-(--ui-primary) text-white flex items-center justify-center mb-4">1</div>
-          <h3 class="font-medium mb-2">Fill Your Details</h3>
-          <p class="text-sm text-gray-500">Enter your information using our intuitive form-based editor</p>
-        </div>
-        <div class="flex flex-col items-center text-center">
-          <div class="w-12 h-12 rounded-full bg-(--ui-primary) text-white flex items-center justify-center mb-4">2</div>
-          <h3 class="font-medium mb-2">Customize Design</h3>
-          <p class="text-sm text-gray-500">Choose colors and layout that match your style</p>
-        </div>
-        <div class="flex flex-col items-center text-center">
-          <div class="w-12 h-12 rounded-full bg-(--ui-primary) text-white flex items-center justify-center mb-4">3</div>
-          <h3 class="font-medium mb-2">Export & Apply</h3>
-          <p class="text-sm text-gray-500">Download your professional resume and start applying</p>
-        </div>
-      </div>
-    </div>
+    <!-- Feature Section -->
+    <UPageSection
+      title="Why Choose ResuGen?"
+      description="Discover the benefits that make ResuGen the ideal choice for creating your professional resume."
+    >
+      <UPageGrid>
+        <UPageCard
+          v-for="feature in features"
+          :key="feature.title"
+          :title="feature.title"
+          :description="feature.description"
+          :icon="feature.icon"
+          spotlight/>
+      </UPageGrid>
+    </UPageSection>
 
-    <!-- CTA Section -->
-    <div class="mt-20 mb-12 text-center">
-      <h2 class="text-2xl font-semibold mb-4">Ready to Create Your Professional Resume?</h2>
-      <p class="text-gray-500 mb-8">Join thousands of job seekers who have successfully landed their dream jobs</p>
-      <UButton
-        label="Get Started Now"
-        to="/edit"
-        icon="i-lucide-arrow-right"
-        size="xl"
-      />
-    </div>
+    <!-- How It Works Section -->
+    <UPageSection
+      title="How It Works">
+      <template #description>
+        Creating your resume with ResuGen is simple and straightforward.
+        <br />
+        Follow these easy steps to get started.
+      </template>
+      <UStepper v-model="active" :items="items" class="w-full hidden md:flex" disabled/>
+      <UStepper v-model="active" :items="items" class="w-full flex md:hidden" orientation="vertical" disabled/>
+    </UPageSection>
+
+    <!-- Ready to Get Started Section -->
+    <USeparator />
+    <UPageCTA
+      title="Ready to Create Your Professional Resume?"
+      description="Join thousands of job seekers who have successfully landed their dream jobs with ResuGen."
+      :links="[
+        {
+          label: 'Get started',
+          color: 'primary',
+          icon: 'i-lucide-square-pen',
+          trailingIcon: 'i-lucide-arrow-right',
+          to: '/edit'
+        },
+        {
+          label: 'Learn more about ResuGen',
+          variant: 'subtle',
+          icon: 'i-simple-icons-github',
+          to: 'https://github.com/LeeKrane/ResuGen',
+        }
+      ]"
+      variant="naked"
+      class="overflow-hidden">
+      <LazyGeneralStarsBg />
+    </UPageCTA>
   </div>
 </template>

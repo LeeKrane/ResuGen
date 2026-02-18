@@ -2,9 +2,9 @@
 import {useElementSize, useMediaQuery, useWindowSize} from "@vueuse/core"
 import {useVueToPrint} from "vue-to-print"
 
-definePageMeta({
+/*definePageMeta({
 	layout: "resume-view"
-})
+})*/
 
 const resumeContainer = ref<HTMLDivElement | null>(null)
 const coverLetterContainer = ref<HTMLDivElement | null>(null)
@@ -79,6 +79,31 @@ const goBackToEdit = () => {
 	navigateTo('/edit')
 }
 
+// check resumeData for null or undefined
+function isResumeComplete(): boolean {
+  const resumeData = useRefResumeData()
+  if (
+    !resumeData.avatar.value ||
+    resumeData.name.value?.trim() === "" ||
+    resumeData.subtitle.value?.trim() === "" ||
+    resumeData.email.value?.trim() === "" ||
+    resumeData.phone.value?.trim() === "" ||
+    resumeData.address.value?.trim() === "" ||
+    resumeData.summary.value?.trim() === "" ||
+    !resumeData.hobbies.value.some(h => h.trim().length > 0) ||
+    !resumeData.languages.value.some(l => l.name?.trim().length > 0) ||
+    !resumeData.skillCategories.value.some(c => c.name?.trim().length > 0) ||
+    !resumeData.links.value.some(l => l.name?.trim().length > 0 || l.url?.trim().length > 0) ||
+    !resumeData.institutions.value.some(i => i.name?.trim().length > 0) ||
+    !resumeData.education.value.some(e => e.degree?.trim().length > 0 || e.text?.trim().length > 0) ||
+    !resumeData.experience.value.some(e => e.position?.trim().length > 0 || e.text?.trim().length > 0) ||
+    !resumeData.projects.value.some(p => p.name?.trim().length > 0 || p.description?.trim().length > 0)
+  ) {
+    return false
+  }
+  return true
+}
+
 onMounted(() => {
 	maxWidth = computed (() => useWindowSize().width.value - (mobile.value ? 32 : slideOverBodyWidth.value + 32 + 48))
 	
@@ -109,7 +134,7 @@ onMounted(() => {
 </script>
 
 <template>
-	<div class="flex flex-col items-center justify-center gap-4">
+	<div v-if="isResumeComplete()" class="flex flex-col items-center justify-center gap-4 -mt-16 -mb-32">
 		<UFieldGroup class="print:hidden sticky top-20 z-50">
 			<!-- Back to Edit button when coming from edit page -->
 			<UTooltip
@@ -246,6 +271,26 @@ onMounted(() => {
 				<RCoverLetter />
 			</div>
 		</div>
+	</div>
+	<div v-else class="flex items-center justify-center min-h-screen -mt-32 -mb-32">
+		<UPageCard
+			class="flex w-full max-w-3xl bg-(--ui-bg-accented)"
+			:spotlight="true"
+			spotlight-color="primary">
+			<div class="flex flex-col items-center justify-center gap-4 px-8 py-16 text-center">
+				<UIcon name="i-lucide-file-text" class="text-4xl text-(--ui-primary)"/>
+				<h3 class="font-medium text-lg text-highlighted">No Resume Data</h3>
+				<p class="text-md text-toned">Please add some information to your resume to preview it here.</p>
+				<p class="text-sm text-dimmed">You can add information in the "Edit Resume" section.</p>
+				<UButton
+					label="Go to Edit Data"
+					color="primary"
+					variant="soft"
+					class="mx-auto cursor-pointer bg-(--ui-primary)/20 backdrop-blur-sm"
+					icon="i-lucide-square-pen"
+					to="/edit"/>
+			</div>
+		</UPageCard>
 	</div>
 </template>
 
