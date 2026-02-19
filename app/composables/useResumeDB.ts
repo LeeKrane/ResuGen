@@ -298,6 +298,87 @@ export const useResumeDB = () => {
     }
   }
 
+  // ─── Delete ───
+
+  /**
+   * Delete a resume by ID.
+   *
+   * The ON DELETE CASCADE constraint on all resume → child table FKs ensures that
+   * all child rows (education, experience, projects, skills, etc.) are removed
+   * atomically by the database. No manual child cleanup is needed here.
+   *
+   * The associated resume_style row is NOT deleted — it uses ON DELETE SET NULL,
+   * so styles survive resume deletion and can be reused.
+   */
+  async function deleteResume(id: string): Promise<void> {
+    const userId = user.value?.id
+    if (!userId) throw new Error('Not authenticated')
+
+    loading.value = true
+    error.value = null
+
+    try {
+      const db = supabase as any
+      const { error: delErr } = await db
+        .from('resumes')
+        .delete()
+        .eq('id', id)
+        .eq('user_id', userId) // RLS guard: only delete own resumes
+
+      if (delErr) throw new Error(delErr.message)
+
+      // Remove from local list immediately (optimistic update)
+      resumes.value = resumes.value.filter(r => r.id !== id)
+    } catch (e: any) {
+      error.value = e?.message ?? 'Failed to delete resume'
+      throw e
+    } finally {
+      loading.value = false
+    }
+  }
+
+  // ─── Duplicate ───
+
+  /**
+   * Duplicate a resume by ID.
+   *
+   * Loads the source resume's full data, creates a new resume row with
+   * `duplicated_from` set to the source ID (for lineage tracking), then
+   * copies all child rows into the new resume.
+   *
+   * Returns the new resume's ID.
+   */
+  async function duplicateResume(id: string, newTitle?: string): Promise<string> {
+    const userId = user.value?.id
+    if (!userId) throw new Error('Not authenticated')
+
+    if (!isReady.value) await deriveKey()
+    const cryptoKey = useState<CryptoKey | null>('encryptionKey').value
+    if (!cryptoKey) throw new Error('Encryption key not available')
+
+    // Load the source resume's full data
+    const sourceData = await loadResume(id)
+    if (!sourceData) throw new Error('Source resume not found')
+
+    // Find the source summary to get title and kind
+    const sourceSummary = resumes.value.find(r => r.id === id)
+    const sourceTitle = sourceSummary?.title ?? sourceData.name ?? 'Untitled Resume'
+    const sourceKind = sourceSummary?.kind === 'other' ? 'Other' : 'IT'
+
+    const title = newTitle ?? `${sourceTitle} (copy)`
+
+    // Create the new resume row with duplicated_from set
+    const newId = await createResume(title, sourceKind as 'IT' | 'Other', undefined, id)
+
+    // Save the copied child data into the new resume
+    await _saveResumeRows(newId, sourceData, cryptoKey)
+
+    // Refresh list to include the new resume
+    await listResumes()
+
+    return newId
+  }
+
   return {
     resumes,
     loading,
@@ -307,6 +388,8 @@ export const useResumeDB = () => {
     createResume,
     createBlankResume,
     saveResume,
+    deleteResume,
+    duplicateResume,
     clear,
   }
 }
