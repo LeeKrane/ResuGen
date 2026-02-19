@@ -6,6 +6,36 @@ const state = useRefResumeData()
 const errorMessage = ref<string | null>(null)
 const disabled = ref(false)
 
+// DB save after import — only shown when user is logged in
+const user = useSupabaseUser()
+const importedSuccessfully = ref(false)
+const savingToDB = ref(false)
+const savedToDB = ref(false)
+const dbSaveError = ref<string | null>(null)
+
+/**
+ * After a successful ZIP import, if the user is logged in they can optionally
+ * persist the imported data as a new resume in the database.
+ */
+async function saveImportedToDB() {
+  savingToDB.value = true
+  dbSaveError.value = null
+  try {
+    const { createResume, saveResume } = useResumeDB()
+    const resumeData = useResumeData()
+    // Use the imported name as the resume title, fallback to 'Imported Resume'
+    const title = state.name.value?.trim() || 'Imported Resume'
+    const kind = state.jobField.value === 'IT' ? 'IT' : 'Other'
+    const newId = await createResume(title, kind as 'IT' | 'Other')
+    await saveResume(newId, resumeData.data)
+    savedToDB.value = true
+  } catch (e: any) {
+    dbSaveError.value = e?.message ?? 'Failed to save to database'
+  } finally {
+    savingToDB.value = false
+  }
+}
+
 async function onFileChange(event) {
 	const file = event.target.files[0];
 	if (!file)
@@ -13,6 +43,9 @@ async function onFileChange(event) {
 
 	disabled.value = true
 	errorMessage.value = null
+	importedSuccessfully.value = false
+	savedToDB.value = false
+	dbSaveError.value = null
 
 	try {
 		const zip = new JSZip()
@@ -162,6 +195,7 @@ async function onFileChange(event) {
 		}
 		
 		console.log('Data import completed successfully')
+		importedSuccessfully.value = true
 
 		if (avatarBlob) {
 			useRefreshAvatar(new File([avatarBlob], "avatar.webp", {type: "image/webp"}))
@@ -186,7 +220,10 @@ async function onFileChange(event) {
 	}
 
 	disabled.value = false
-	open.value = false
+	// Keep modal open if import succeeded so user can optionally save to DB
+	if (!importedSuccessfully.value) {
+		open.value = false
+	}
 }
 </script>
 
@@ -208,6 +245,29 @@ async function onFileChange(event) {
 				<UFormField label="Resume data" name="resumeData" :error="errorMessage">
 					<UInput type="file" accept=".zip" @change="onFileChange" :disabled="disabled"/>
 				</UFormField>
+
+				<!-- DB save option: only shown after a successful import when logged in -->
+				<template v-if="importedSuccessfully && user">
+					<UDivider />
+					<div class="flex flex-col items-center gap-2 text-center">
+						<p class="text-sm text-(--ui-text-muted)">Import successful. Save as a new resume in your account?</p>
+						<UButton
+							v-if="!savedToDB"
+							label="Save to My Resumes"
+							icon="i-lucide-cloud-upload"
+							color="primary"
+							variant="soft"
+							:loading="savingToDB"
+							:disabled="savingToDB"
+							class="cursor-pointer"
+							@click="saveImportedToDB"
+						/>
+						<p v-if="savedToDB" class="text-sm text-green-500 flex items-center gap-1">
+							<UIcon name="i-lucide-check" /> Saved to your resumes
+						</p>
+						<p v-if="dbSaveError" class="text-sm text-red-500">{{ dbSaveError }}</p>
+					</div>
+				</template>
 			</UForm>
 		</template>
 	</UModal>
