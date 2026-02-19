@@ -1,16 +1,6 @@
 -- =============================================================================
 -- RESUGEN - DB Upgrade Migration
 -- =============================================================================
--- Based on ChatGPT suggestion, reviewed and corrected by Kiro:
---   - REMOVED: job_descriptions table (job text is ephemeral, never persisted)
---   - ADDED: resumes.style_id ON DELETE SET NULL (styles are user-scoped, shared)
---   - KEPT: everything else as-is (certifications, cover_letters, cascades,
---           indexes, portfolio tables, get_my_applicant_data function)
---
--- HOW TO RUN: Paste this entire script into Supabase SQL Editor and execute.
--- =============================================================================
-
--- =============================================================================
 -- 0) EXTENSIONS
 -- =============================================================================
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
@@ -168,7 +158,7 @@ ALTER TABLE public.cover_letters
   ADD CONSTRAINT cover_letters_resume_id_fkey
   FOREIGN KEY (resume_id) REFERENCES public.resumes(id) ON DELETE CASCADE;
 
--- ⚠️ STYLE SAFETY: resumes.style_id -> ON DELETE SET NULL (NOT CASCADE)
+-- STYLE SAFETY: resumes.style_id -> ON DELETE SET NULL (NOT CASCADE)
 -- Styles are user-scoped and may be shared across resumes.
 -- Deleting a resume must NOT delete the style.
 ALTER TABLE public.resumes DROP CONSTRAINT IF EXISTS resumes_style_id_fkey;
@@ -398,7 +388,7 @@ CREATE INDEX IF NOT EXISTS applicant_certifications_user_id_idx ON public.applic
 -- 7) RLS POLICIES FOR NEW TABLES
 -- =============================================================================
 -- Existing tables already have RLS enabled with proper policies.
--- We only need to add RLS to the NEW tables created above.
+-- We add RLS to the NEW tables created above.
 
 -- certifications (resume-scoped)
 ALTER TABLE public.certifications ENABLE ROW LEVEL SECURITY;
@@ -578,13 +568,4 @@ SELECT jsonb_build_object(
 );
 $$;
 
--- =============================================================================
--- DONE
--- =============================================================================
--- REMOVED from ChatGPT suggestion: job_descriptions table
---   (job text is ephemeral per our spec — never persisted)
--- ADDED: resumes.style_id ON DELETE SET NULL
---   (styles are user-scoped, shared across resumes)
--- ADDED: RLS policies on all new tables
---   (matching the pattern of existing tables)
 -- =============================================================================

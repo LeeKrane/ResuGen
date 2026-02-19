@@ -1,5 +1,5 @@
 import { useSupabaseClient, useSupabaseUser } from '#imports'
-import { deriveEncryptionKey, encryptString, decryptString } from '~/app/utils/crypto'
+import { deriveEncryptionKey, encryptString, decryptString } from '../utils/crypto'
 
 /**
  * Client-side encryption service using AES-256-GCM + PBKDF2 key derivation.
