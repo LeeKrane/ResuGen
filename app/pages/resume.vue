@@ -94,7 +94,8 @@ function isResumeComplete(): boolean {
     !resumeData.languages.value.some(l => l.name?.trim().length > 0) ||
     !resumeData.skillCategories.value.some(c => c.name?.trim().length > 0) ||
     !resumeData.links.value.some(l => l.name?.trim().length > 0 || l.url?.trim().length > 0) ||
-    !resumeData.institutions.value.some(i => i.name?.trim().length > 0) ||
+    !resumeData.educationInstitutions.value.some(i => i.name?.trim().length > 0) ||
+    !resumeData.experienceInstitutions.value.some(i => i.name?.trim().length > 0) ||
     !resumeData.education.value.some(e => e.degree?.trim().length > 0 || e.text?.trim().length > 0) ||
     !resumeData.experience.value.some(e => e.position?.trim().length > 0 || e.text?.trim().length > 0) ||
     !resumeData.projects.value.some(p => p.name?.trim().length > 0 || p.description?.trim().length > 0)

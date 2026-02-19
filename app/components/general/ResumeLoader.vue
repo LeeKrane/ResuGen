@@ -27,7 +27,20 @@ async function saveImportedToDB() {
     const title = state.name.value?.trim() || 'Imported Resume'
     const kind = state.jobField.value === 'IT' ? 'IT' : 'Other'
     const newId = await createResume(title, kind as 'IT' | 'Other')
-    await saveResume(newId, resumeData.data)
+
+    // Include avatar from previewImage state (set by useRefreshAvatar after import)
+    const previewImage = useState<string | null>('previewImage')
+    let avatarData: string | undefined
+    let avatarContentType: string | undefined
+    if (previewImage.value) {
+      const match = previewImage.value.match(/^data:([^;]+);base64,(.+)$/)
+      if (match) {
+        avatarContentType = match[1]
+        avatarData = match[2]
+      }
+    }
+
+    await saveResume(newId, { ...resumeData.data, avatarData, avatarContentType })
     savedToDB.value = true
   } catch (e: any) {
     dbSaveError.value = e?.message ?? 'Failed to save to database'
@@ -98,7 +111,8 @@ async function onFileChange(event) {
 		} else {
 			state.links.value = [{name: "", url: "", icon: { label: "Website", value: "website", icon: "i-lucide-globe" }}]
 		}
-		state.institutions.value = Array.isArray(resumeData.institutions) ? resumeData.institutions : [{uuid: "", name: ""}]
+		state.educationInstitutions.value = Array.isArray(resumeData.educationInstitutions) ? resumeData.educationInstitutions : [{uuid: "", name: ""}]
+		state.experienceInstitutions.value = Array.isArray(resumeData.experienceInstitutions) ? resumeData.experienceInstitutions : [{uuid: "", name: ""}]
 		state.education.value = Array.isArray(resumeData.education) ? resumeData.education : [{degree: "", text: "", collapsibleOpen: true}]
 		state.experience.value = Array.isArray(resumeData.experience) ? resumeData.experience : [{position: "", text: "", collapsibleOpen: true, technologies: []}]
 		// Projects - validate structure and ensure repo links have icons
@@ -248,7 +262,7 @@ async function onFileChange(event) {
 
 				<!-- DB save option: only shown after a successful import when logged in -->
 				<template v-if="importedSuccessfully && user">
-					<UDivider />
+					<USeparator />
 					<div class="flex flex-col items-center gap-2 text-center">
 						<p class="text-sm text-(--ui-text-muted)">Import successful. Save as a new resume in your account?</p>
 						<UButton

@@ -92,7 +92,7 @@ const active = ref(3)
         <div class="flex flex-col items-center gap-6">
           <UButton
             label="Create Resume"
-            to="/edit"
+            :to="useSupabaseUser().value ? '/resumes' : '/login'"
             icon="i-lucide-square-pen"
             size="xl"
           />
@@ -228,7 +228,7 @@ const active = ref(3)
           color: 'primary',
           icon: 'i-lucide-square-pen',
           trailingIcon: 'i-lucide-arrow-right',
-          to: '/edit'
+          to: useSupabaseUser().value ? '/resumes' : '/login'
         },
         {
           label: 'Learn more about ResuGen',

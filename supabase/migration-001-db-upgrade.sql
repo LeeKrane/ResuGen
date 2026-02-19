@@ -569,3 +569,35 @@ SELECT jsonb_build_object(
 $$;
 
 -- =============================================================================
+
+-- ─── Institution UUID reference columns ───────────────────────────────────────
+-- Stores the encrypted local UUID of the selected institution on each entry.
+-- This replaces the name→UUID lookup that was unreliable on reload.
+
+ALTER TABLE public.education
+  ADD COLUMN IF NOT EXISTS institution_uuid_encrypted TEXT;
+
+ALTER TABLE public.experience
+  ADD COLUMN IF NOT EXISTS institution_uuid_encrypted TEXT;
+
+ALTER TABLE public.applicant_education
+  ADD COLUMN IF NOT EXISTS institution_uuid_encrypted TEXT;
+
+ALTER TABLE public.applicant_experience
+  ADD COLUMN IF NOT EXISTS institution_uuid_encrypted TEXT;
+
+-- ─── Technologies encrypted columns ──────────────────────────────────────────
+-- Stores technologies as encrypted JSON directly on each entry row.
+-- Avoids the complexity of UUID lookups into the shared technologies table.
+
+ALTER TABLE public.experience
+  ADD COLUMN IF NOT EXISTS technologies_encrypted TEXT;
+
+ALTER TABLE public.projects
+  ADD COLUMN IF NOT EXISTS technologies_encrypted TEXT;
+
+ALTER TABLE public.applicant_experience
+  ADD COLUMN IF NOT EXISTS technologies_encrypted TEXT;
+
+ALTER TABLE public.applicant_projects
+  ADD COLUMN IF NOT EXISTS technologies_encrypted TEXT;

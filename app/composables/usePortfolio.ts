@@ -25,6 +25,11 @@ import { useEncryption } from './useEncryption'
  *   const { portfolio, loading, error, load, save } = usePortfolio()
  *   await load()
  */
+
+// Module-level deduplication: shared across ALL composable instances.
+// A let inside the factory would create a new closure per call, breaking deduplication.
+let _sharedLoadPromise: Promise<void> | null = null
+
 export const usePortfolio = () => {
   const supabase = useSupabaseClient()
   const user = useSupabaseUser()
@@ -38,8 +43,23 @@ export const usePortfolio = () => {
   /**
    * Load all portfolio data for the current user from Supabase.
    * Fetches all applicant_* tables in parallel, decrypts, and maps to PortfolioData.
+   * If a load is already in progress, returns the existing promise (deduplication).
+   * If portfolio is already loaded, returns immediately (idempotent).
    */
   async function load(): Promise<void> {
+    // Already loaded — skip network call
+    if (portfolio.value) return
+    // Deduplicate concurrent calls (module-level, shared across all instances)
+    if (_sharedLoadPromise) return _sharedLoadPromise
+    _sharedLoadPromise = _doLoad()
+    try {
+      await _sharedLoadPromise
+    } finally {
+      _sharedLoadPromise = null
+    }
+  }
+
+  async function _doLoad(): Promise<void> {
     const userId = user.value?.id
     if (!userId) {
       error.value = 'Not authenticated'
@@ -207,6 +227,7 @@ export const usePortfolio = () => {
 function emptyPortfolio(): PortfolioData {
   return {
     profile: {
+      name: '',
       subtitle: '',
       email: '',
       phone: '',
@@ -221,7 +242,9 @@ function emptyPortfolio(): PortfolioData {
     experience: [],
     projects: [],
     certifications: [],
-    institutions: [],
+    educationInstitutions: [],
+    experienceInstitutions: [],
+    jobField: 'Other',
   }
 }
 

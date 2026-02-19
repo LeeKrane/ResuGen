@@ -328,7 +328,7 @@ const data = useRefResumeData()
 
 					<div class="flex flex-wrap justify-between items-center gap-1">
 						<h3 class="font-bold">
-							{{ data.institutions.value.find((i) => i.uuid === education.institution)?.name }}
+							{{ data.educationInstitutions.value.find((i) => i.uuid === education.institution)?.name }}
 						</h3>
 
 						<div class="flex items-center gap-1">
@@ -406,7 +406,7 @@ const data = useRefResumeData()
 						<div class="flex items-center gap-1 grow">
 							<UIcon name="i-lucide-building-2" :size="style.font.size * 1.5"/>
 							<h3 class="font-bold">
-								{{ data.institutions.value.find((i) => i.uuid === experience.institution)?.name }}
+								{{ data.experienceInstitutions.value.find((i) => i.uuid === experience.institution)?.name }}
 							</h3>
 							<span class="grow"/>
 							<span
@@ -560,6 +560,9 @@ const data = useRefResumeData()
 								<span>{{ qualification.date.month?.toString().padStart(2, '0') }}.{{ qualification.date.year }}</span>
 							</div>
 						</div>
+						<p v-if="qualification.issuer" class="ml-3 text-sm" :style="{ color: style.colors.text.subtitle }">
+							{{ qualification.issuer }}
+						</p>
 						<p v-if="qualification.description" class="ml-3 text-sm" :style="{ color: style.colors.text.subtitle }">
 							{{ qualification.description }}
 						</p>

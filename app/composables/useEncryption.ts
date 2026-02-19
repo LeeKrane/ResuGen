@@ -22,6 +22,7 @@ export const useEncryption = () => {
    * Derive AES-256-GCM key from user.id + salt via PBKDF2.
    * Called once after login; cached for the session.
    * If no salt exists yet (e.g. first OAuth login), generates and saves one automatically.
+   * Times out after 10s to prevent infinite loading if Supabase is unreachable.
    */
   async function deriveKey(): Promise<void> {
     if (cryptoKey.value) return
@@ -29,13 +30,20 @@ export const useEncryption = () => {
     const userId = user.value?.id
     if (!userId) throw new Error('Cannot derive encryption key: no authenticated user')
 
-    const { data, error } = await supabase
+    // Wrap the Supabase query in a 10s timeout so a hanging network call fails fast
+    const profileQuery = supabase
       .from('profiles')
       .select('encryption_key_salt')
       .eq('id', userId)
-      .single()
+      .maybeSingle()
 
-    if (error) throw new Error('Cannot derive encryption key: profile not found')
+    const timeout = new Promise<never>((_, reject) =>
+      setTimeout(() => reject(new Error('Encryption key derivation timed out — check Supabase connection')), 10_000)
+    )
+
+    const { data, error } = await Promise.race([profileQuery, timeout]) as Awaited<typeof profileQuery>
+
+    if (error) throw new Error('Cannot derive encryption key: ' + error.message)
 
     let salt = data?.encryption_key_salt as string | null
 
