@@ -21,6 +21,7 @@ export const useEncryption = () => {
   /**
    * Derive AES-256-GCM key from user.id + salt via PBKDF2.
    * Called once after login; cached for the session.
+   * If no salt exists yet (e.g. first OAuth login), generates and saves one automatically.
    */
   async function deriveKey(): Promise<void> {
     if (cryptoKey.value) return
@@ -34,11 +35,24 @@ export const useEncryption = () => {
       .eq('id', userId)
       .single()
 
-    if (error || !data?.encryption_key_salt) {
-      throw new Error('Cannot derive encryption key: salt not found')
+    if (error) throw new Error('Cannot derive encryption key: profile not found')
+
+    let salt = data?.encryption_key_salt as string | null
+
+    // First-time OAuth users won't have a salt — generate and persist one
+    if (!salt) {
+      const saltBytes = crypto.getRandomValues(new Uint8Array(32))
+      salt = btoa(String.fromCharCode(...saltBytes))
+
+      const { error: updateErr } = await supabase
+        .from('profiles')
+        .update({ encryption_key_salt: salt })
+        .eq('id', userId)
+
+      if (updateErr) throw new Error('Cannot save encryption salt: ' + updateErr.message)
     }
 
-    cryptoKey.value = await deriveEncryptionKey(userId, data.encryption_key_salt as string)
+    cryptoKey.value = await deriveEncryptionKey(userId, salt)
   }
 
   /**
