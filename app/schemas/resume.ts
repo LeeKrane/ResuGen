@@ -85,6 +85,7 @@ export const ProjectSchema = v.object({
 
 export const QualificationSchema = v.object({
   name: v.string(),
+  issuer: v.optional(v.string()),
   date: v.optional(EmploymentDateSchema),
   description: v.optional(v.string()),
 })
