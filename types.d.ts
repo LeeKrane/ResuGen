@@ -212,3 +212,37 @@ interface ResumeStyle {
 		}
 	}
 }
+
+interface PortfolioProfile {
+	subtitle: string
+	email: string
+	phone: string
+	address: string
+	summary: string
+	birthdate?: EmploymentDate
+	hobbies: string[]
+	avatarData?: string
+	avatarFilename?: string
+	avatarContentType?: string
+}
+
+interface PortfolioData {
+	profile: PortfolioProfile
+	links: Link[]
+	languages: Language[]
+	skillCategories: SkillCategory[]
+	education: Education[]
+	experience: Experience[]
+	projects: Project[]
+	certifications: Qualification[]
+	institutions: Institution[]
+}
+
+interface ResumeSummary {
+	id: string
+	title: string
+	kind: 'it' | 'other'
+	updatedAt: string
+	createdAt: string
+	duplicatedFrom?: string
+}
