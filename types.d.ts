@@ -246,3 +246,17 @@ interface ResumeSummary {
 	createdAt: string
 	duplicatedFrom?: string
 }
+
+interface ExtractRequirementsResponse {
+	keywords: string[]
+	responsibilities: string[]
+	mustHaves: string[]
+	niceToHaves: string[]
+}
+
+interface GenerateResumeDraftResponse {
+	title: string
+	resumeData: ResumeData
+	provenance: string[]
+	missing_info: string[]
+}
