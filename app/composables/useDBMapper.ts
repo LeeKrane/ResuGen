@@ -18,6 +18,12 @@ async function enc(value: string | undefined | null, key: CryptoKey): Promise<st
   return encryptString(value, key)
 }
 
+// Like enc() but always returns an encrypted string — encrypts empty string instead of returning null.
+// Use for NOT NULL columns in the DB.
+async function encReq(value: string | undefined | null, key: CryptoKey): Promise<string> {
+  return encryptString(value ?? '', key)
+}
+
 async function dec(value: string | undefined | null, key: CryptoKey): Promise<string> {
   if (value == null || value === '') return ''
   return decryptString(value, key)
@@ -62,6 +68,8 @@ export interface DBResumeRow {
   avatar_filename_encrypted: string | null
   avatar_content_type_encrypted: string | null
   hobbies_encrypted: string | null
+  education_institutions_encrypted: string | null
+  experience_institutions_encrypted: string | null
   is_public?: boolean
   created_at?: string
   updated_at?: string
@@ -71,6 +79,7 @@ export interface DBEducationRow {
   id?: string
   resume_id: string
   institution_id?: string | null
+  institution_uuid_encrypted?: string | null
   institution_name_encrypted: string | null
   institution_url_encrypted: string | null
   degree_encrypted: string
@@ -90,11 +99,13 @@ export interface DBExperienceRow {
   id?: string
   resume_id: string
   institution_id?: string | null
+  institution_uuid_encrypted?: string | null
   institution_name_encrypted: string | null
   institution_url_encrypted: string | null
   position_encrypted: string
   description_encrypted: string | null
   is_internship: boolean
+  technologies_encrypted?: string | null
   start_year_encrypted: string | null
   start_month_encrypted: string | null
   start_day_encrypted: string | null
@@ -118,6 +129,7 @@ export interface DBProjectRow {
   repo_link_icon_value_encrypted: string | null
   repo_link_icon_icon: string | null
   is_open_source: boolean
+  technologies_encrypted?: string | null
   start_year_encrypted: string | null
   start_month_encrypted: string | null
   start_day_encrypted: string | null
@@ -217,7 +229,7 @@ export async function resumeToRows(
     id: resumeId,
     title,
     kind: data.jobField === 'IT' ? 'it' : 'other',
-    name_encrypted: await enc(data.name, key),
+    name_encrypted: await encReq(data.name, key),
     subtitle_encrypted: await enc(data.subtitle, key),
     email_encrypted: await enc(data.email, key),
     phone_encrypted: await enc(data.phone, key),
@@ -230,14 +242,22 @@ export async function resumeToRows(
     avatar_filename_encrypted: null,
     avatar_content_type_encrypted: null,
     hobbies_encrypted: await enc(data.hobbies.filter(Boolean).join('\n'), key),
+    education_institutions_encrypted: await enc(JSON.stringify(data.educationInstitutions ?? []), key),
+    experience_institutions_encrypted: await enc(JSON.stringify(data.experienceInstitutions ?? []), key),
   }
 
   const education: DBEducationRow[] = await Promise.all(
-    data.education.map(async (e, i) => ({
+    data.education.map(async (e, i) => {
+      // e.institution is a UUID string in form state; look up name/url from the institution list
+      const instUuid = typeof e.institution === 'string' ? e.institution : (e.institution as any)?.uuid
+      const instObj = instUuid ? (data.educationInstitutions ?? []).find(i => i.uuid === instUuid) : undefined
+      return {
       resume_id: resumeId,
-      institution_name_encrypted: await enc(e.institution?.name, key),
-      institution_url_encrypted: await enc(e.institution?.url, key),
-      degree_encrypted: await enc(e.degree, key) ?? '',
+      institution_id: null,
+      institution_uuid_encrypted: await enc(instUuid, key),
+      institution_name_encrypted: await enc(instObj?.name ?? (e.institution as any)?.name, key),
+      institution_url_encrypted: await enc(instObj?.url ?? (e.institution as any)?.url, key),
+      degree_encrypted: await encReq(e.degree, key),
       description_encrypted: await enc(e.text, key),
       start_year_encrypted: await encNum(e.start?.year, key),
       start_month_encrypted: await encNum(e.start?.month, key),
@@ -248,17 +268,23 @@ export async function resumeToRows(
       is_active: e.active ?? false,
       sort_order: i,
       collapsible_open: e.collapsibleOpen ?? true,
-    }))
+    }})
   )
 
   const experience: DBExperienceRow[] = await Promise.all(
-    data.experience.map(async (e, i) => ({
+    data.experience.map(async (e, i) => {
+      const instUuid = typeof e.institution === 'string' ? e.institution : (e.institution as any)?.uuid
+      const instObj = instUuid ? (data.experienceInstitutions ?? []).find(i => i.uuid === instUuid) : undefined
+      return {
       resume_id: resumeId,
-      institution_name_encrypted: await enc(e.institution?.name, key),
-      institution_url_encrypted: await enc(e.institution?.url, key),
-      position_encrypted: await enc(e.position, key) ?? '',
+      institution_id: null,
+      institution_uuid_encrypted: await enc(instUuid, key),
+      institution_name_encrypted: await enc(instObj?.name ?? (e.institution as any)?.name, key),
+      institution_url_encrypted: await enc(instObj?.url ?? (e.institution as any)?.url, key),
+      position_encrypted: await encReq(e.position, key),
       description_encrypted: await enc(e.text, key),
       is_internship: e.internship ?? false,
+      technologies_encrypted: await enc(JSON.stringify(e.technologies ?? []), key),
       start_year_encrypted: await encNum(e.start?.year, key),
       start_month_encrypted: await encNum(e.start?.month, key),
       start_day_encrypted: await encNum(e.start?.day, key),
@@ -268,13 +294,13 @@ export async function resumeToRows(
       is_active: e.active ?? false,
       sort_order: i,
       collapsible_open: e.collapsibleOpen ?? true,
-    }))
+    }})
   )
 
   const projects: DBProjectRow[] = await Promise.all(
     data.projects.map(async (p, i) => ({
       resume_id: resumeId,
-      name_encrypted: await enc(p.name, key) ?? '',
+      name_encrypted: await encReq(p.name, key),
       description_encrypted: await enc(p.description, key),
       url_encrypted: await enc(p.url, key),
       repo_link_name_encrypted: await enc(p.repoLink?.name, key),
@@ -283,6 +309,7 @@ export async function resumeToRows(
       repo_link_icon_value_encrypted: await enc(p.repoLink?.icon?.value, key),
       repo_link_icon_icon: p.repoLink?.icon?.icon ?? null,
       is_open_source: p.openSource ?? false,
+      technologies_encrypted: await enc(JSON.stringify(p.technologies ?? []), key),
       start_year_encrypted: await encNum(p.start?.year, key),
       start_month_encrypted: await encNum(p.start?.month, key),
       start_day_encrypted: await encNum(p.start?.day, key),
@@ -303,14 +330,14 @@ export async function resumeToRows(
     skillCategories.push({
       id: catId,
       resume_id: resumeId,
-      name_encrypted: await enc(cat.name, key) ?? '',
+      name_encrypted: await encReq(cat.name, key),
       sort_order: ci,
     })
     for (let si = 0; si < cat.skills.length; si++) {
       const s = cat.skills[si]!
       skills.push({
         category_id: catId,
-        name_encrypted: await enc(s.name, key) ?? '',
+        name_encrypted: await encReq(s.name, key),
         level_encrypted: await enc(s.level, key),
         technology_label_encrypted: await enc(s.technology?.label, key),
         technology_value_encrypted: await enc(s.technology?.value, key),
@@ -326,8 +353,8 @@ export async function resumeToRows(
   const links: DBResumeLinkRow[] = await Promise.all(
     data.links.map(async (l, i) => ({
       resume_id: resumeId,
-      name_encrypted: await enc(l.name, key) ?? '',
-      url_encrypted: await enc(l.url, key) ?? '',
+      name_encrypted: await encReq(l.name, key),
+      url_encrypted: await encReq(l.url, key),
       icon_label_encrypted: await enc(l.icon?.label, key),
       icon_value_encrypted: await enc(l.icon?.value, key),
       icon_icon: l.icon?.icon ?? null,
@@ -338,7 +365,7 @@ export async function resumeToRows(
   const languages: DBResumeLanguageRow[] = await Promise.all(
     data.languages.map(async (l, i) => ({
       resume_id: resumeId,
-      name_encrypted: await enc(l.name, key) ?? '',
+      name_encrypted: await encReq(l.name, key),
       level_encrypted: await enc(l.level, key),
       sort_order: i,
     }))
@@ -347,8 +374,8 @@ export async function resumeToRows(
   const certifications: DBCertificationRow[] = await Promise.all(
     (data.qualifications ?? []).map(async (q, i) => ({
       resume_id: resumeId,
-      name_encrypted: await enc(q.name, key) ?? '',
-      issuer_encrypted: null,
+      name_encrypted: await encReq(q.name, key),
+      issuer_encrypted: await enc(q.issuer, key),
       description_encrypted: await enc(q.description, key),
       url_encrypted: null,
       date_year_encrypted: await encNum(q.date?.year, key),
@@ -367,7 +394,7 @@ export async function resumeToRows(
       recipient_name_encrypted: await enc(data.coverLetter.recipientName, key),
       company_name_encrypted: await enc(data.coverLetter.companyName, key),
       position_encrypted: await enc(data.coverLetter.position, key),
-      content_encrypted: await enc(data.coverLetter.content, key) ?? '',
+      content_encrypted: await encReq(data.coverLetter.content, key),
     }
   }
 
@@ -384,10 +411,7 @@ export async function rowsToResume(rows: DBResumeRows, key: CryptoKey): Promise<
 
   const education: Education[] = await Promise.all(
     rows.education.map(async (e) => ({
-      institution: {
-        name: await dec(e.institution_name_encrypted, key),
-        url: await decOpt(e.institution_url_encrypted, key),
-      },
+      institution: e.institution_uuid_encrypted ? await decOpt(e.institution_uuid_encrypted, key) : undefined,
       degree: await dec(e.degree_encrypted, key),
       text: await dec(e.description_encrypted, key),
       start: {
@@ -407,14 +431,11 @@ export async function rowsToResume(rows: DBResumeRows, key: CryptoKey): Promise<
 
   const experience: Experience[] = await Promise.all(
     rows.experience.map(async (e) => ({
-      institution: {
-        name: await dec(e.institution_name_encrypted, key),
-        url: await decOpt(e.institution_url_encrypted, key),
-      },
+      institution: e.institution_uuid_encrypted ? await decOpt(e.institution_uuid_encrypted, key) : undefined,
       position: await dec(e.position_encrypted, key),
       text: await dec(e.description_encrypted, key),
       internship: e.is_internship,
-      technologies: [], // loaded separately via join table
+      technologies: await (async () => { try { const raw = e.technologies_encrypted ? await dec(e.technologies_encrypted, key) : '[]'; return JSON.parse(raw) } catch { return [] } })(),
       start: {
         year: await decNum(e.start_year_encrypted, key),
         month: await decNum(e.start_month_encrypted, key),
@@ -444,7 +465,7 @@ export async function rowsToResume(rows: DBResumeRows, key: CryptoKey): Promise<
           icon: p.repo_link_icon_icon,
         } : undefined,
       },
-      technologies: [], // loaded separately via join table
+      technologies: await (async () => { try { const raw = p.technologies_encrypted ? await dec(p.technologies_encrypted, key) : '[]'; return JSON.parse(raw) } catch { return [] } })(),
       openSource: p.is_open_source,
       collapsibleOpen: p.collapsible_open,
       start: {
@@ -506,6 +527,7 @@ export async function rowsToResume(rows: DBResumeRows, key: CryptoKey): Promise<
   const qualifications: Qualification[] = await Promise.all(
     rows.certifications.map(async (c) => ({
       name: await dec(c.name_encrypted, key),
+      issuer: await decOpt(c.issuer_encrypted, key),
       description: await decOpt(c.description_encrypted, key),
       date: {
         year: await decNum(c.date_year_encrypted, key),
@@ -525,6 +547,26 @@ export async function rowsToResume(rows: DBResumeRows, key: CryptoKey): Promise<
     }
   }
 
+  // Birthdate: return undefined if all fields are undefined (avoids DatePicker crash)
+  const bdYear = await decNum(r.birth_year_encrypted, key)
+  const bdMonth = await decNum(r.birth_month_encrypted, key)
+  const bdDay = await decNum(r.birth_day_encrypted, key)
+  const birthdate = (bdYear == null && bdMonth == null && bdDay == null)
+    ? undefined
+    : { year: bdYear, month: bdMonth, day: bdDay }
+
+  // Decrypt institution lists from resume row
+  let educationInstitutions: Institution[] = []
+  let experienceInstitutions: Institution[] = []
+  try {
+    const eduInstRaw = await decOpt(r.education_institutions_encrypted, key)
+    if (eduInstRaw) educationInstitutions = JSON.parse(eduInstRaw)
+  } catch {}
+  try {
+    const expInstRaw = await decOpt(r.experience_institutions_encrypted, key)
+    if (expInstRaw) experienceInstitutions = JSON.parse(expInstRaw)
+  } catch {}
+
   return {
     name: await dec(r.name_encrypted, key),
     subtitle: await dec(r.subtitle_encrypted, key),
@@ -532,11 +574,7 @@ export async function rowsToResume(rows: DBResumeRows, key: CryptoKey): Promise<
     phone: await dec(r.phone_encrypted, key),
     address: await dec(r.address_encrypted, key),
     summary: await dec(r.summary_encrypted, key),
-    birthdate: {
-      year: await decNum(r.birth_year_encrypted, key),
-      month: await decNum(r.birth_month_encrypted, key),
-      day: await decNum(r.birth_day_encrypted, key),
-    },
+    birthdate,
     hobbies,
     languages: languages.length ? languages : [{ name: '' }],
     skillCategories: skillCategories.length ? skillCategories : [{
@@ -544,13 +582,16 @@ export async function rowsToResume(rows: DBResumeRows, key: CryptoKey): Promise<
       skills: [{ name: '', technology: { label: 'Custom', value: 'custom', icon: 'i-lucide-shapes' } }]
     }],
     links: links.length ? links : [{ name: '', url: '' }],
-    institutions: [], // loaded separately
+    educationInstitutions,
+    experienceInstitutions,
     education: education.length ? education : [{ degree: '', text: '', collapsibleOpen: true }],
     experience: experience.length ? experience : [{ position: '', text: '', collapsibleOpen: true, technologies: [] }],
     projects: projects.length ? projects : [{ name: '', description: '', url: '', repoLink: { name: '', url: '' }, technologies: [] }],
     jobField: r.kind === 'other' ? 'Other' : 'IT',
     qualifications,
     coverLetter,
+    avatarData: await decOpt(r.avatar_data_encrypted, key),
+    avatarContentType: await decOpt(r.avatar_content_type_encrypted, key),
   }
 }
 
@@ -558,6 +599,8 @@ export async function rowsToResume(rows: DBResumeRows, key: CryptoKey): Promise<
 
 export interface DBApplicantProfileRow {
   user_id: string
+  job_field: string | null
+  name_encrypted: string | null
   subtitle_encrypted: string | null
   email_encrypted: string | null
   phone_encrypted: string | null
@@ -570,6 +613,8 @@ export interface DBApplicantProfileRow {
   avatar_filename_encrypted: string | null
   avatar_content_type_encrypted: string | null
   hobbies_encrypted: string | null
+  education_institutions_encrypted: string | null
+  experience_institutions_encrypted: string | null
 }
 
 export interface DBApplicantLinkRow {
@@ -616,6 +661,7 @@ export interface DBApplicantEducationRow {
   id?: string
   user_id: string
   institution_id?: string | null
+  institution_uuid_encrypted?: string | null
   institution_name_encrypted: string | null
   institution_url_encrypted: string | null
   degree_encrypted: string
@@ -635,11 +681,13 @@ export interface DBApplicantExperienceRow {
   id?: string
   user_id: string
   institution_id?: string | null
+  institution_uuid_encrypted?: string | null
   institution_name_encrypted: string | null
   institution_url_encrypted: string | null
   position_encrypted: string
   description_encrypted: string | null
   is_internship: boolean
+  technologies_encrypted?: string | null
   start_year_encrypted: string | null
   start_month_encrypted: string | null
   start_day_encrypted: string | null
@@ -663,6 +711,7 @@ export interface DBApplicantProjectRow {
   repo_link_icon_value_encrypted: string | null
   repo_link_icon_icon: string | null
   is_open_source: boolean
+  technologies_encrypted?: string | null
   start_year_encrypted: string | null
   start_month_encrypted: string | null
   start_day_encrypted: string | null
@@ -709,6 +758,8 @@ export async function portfolioToRows(
 ): Promise<DBPortfolioRows> {
   const profile: DBApplicantProfileRow = {
     user_id: userId,
+    job_field: data.jobField ?? 'other',
+    name_encrypted: await enc(data.profile.name, key),
     subtitle_encrypted: await enc(data.profile.subtitle, key),
     email_encrypted: await enc(data.profile.email, key),
     phone_encrypted: await enc(data.profile.phone, key),
@@ -721,13 +772,15 @@ export async function portfolioToRows(
     avatar_filename_encrypted: await enc(data.profile.avatarFilename, key),
     avatar_content_type_encrypted: await enc(data.profile.avatarContentType, key),
     hobbies_encrypted: await enc(data.profile.hobbies.filter(Boolean).join('\n'), key),
+    education_institutions_encrypted: await enc(JSON.stringify(data.educationInstitutions ?? []), key),
+    experience_institutions_encrypted: await enc(JSON.stringify(data.experienceInstitutions ?? []), key),
   }
 
   const links: DBApplicantLinkRow[] = await Promise.all(
     data.links.map(async (l, i) => ({
       user_id: userId,
-      name_encrypted: await enc(l.name, key) ?? '',
-      url_encrypted: await enc(l.url, key) ?? '',
+      name_encrypted: await encReq(l.name, key),
+      url_encrypted: await encReq(l.url, key),
       icon_label_encrypted: await enc(l.icon?.label, key),
       icon_value_encrypted: await enc(l.icon?.value, key),
       icon_icon: l.icon?.icon ?? null,
@@ -738,7 +791,7 @@ export async function portfolioToRows(
   const languages: DBApplicantLanguageRow[] = await Promise.all(
     data.languages.map(async (l, i) => ({
       user_id: userId,
-      name_encrypted: await enc(l.name, key) ?? '',
+      name_encrypted: await encReq(l.name, key),
       level_encrypted: await enc(l.level, key),
       sort_order: i,
     }))
@@ -752,14 +805,14 @@ export async function portfolioToRows(
     skillCategories.push({
       id: catId,
       user_id: userId,
-      name_encrypted: await enc(cat.name, key) ?? '',
+      name_encrypted: await encReq(cat.name, key),
       sort_order: ci,
     })
     for (let si = 0; si < cat.skills.length; si++) {
       const s = cat.skills[si]!
       skills.push({
         category_id: catId,
-        name_encrypted: await enc(s.name, key) ?? '',
+        name_encrypted: await encReq(s.name, key),
         level_encrypted: await enc(s.level, key),
         technology_label_encrypted: await enc(s.technology?.label, key),
         technology_value_encrypted: await enc(s.technology?.value, key),
@@ -773,11 +826,16 @@ export async function portfolioToRows(
   }
 
   const education: DBApplicantEducationRow[] = await Promise.all(
-    data.education.map(async (e, i) => ({
+    data.education.map(async (e, i) => {
+      const instUuid = typeof e.institution === 'string' ? e.institution : (e.institution as any)?.uuid
+      const instObj = instUuid ? (data.educationInstitutions ?? []).find(inst => inst.uuid === instUuid) : undefined
+      return {
       user_id: userId,
-      institution_name_encrypted: await enc(e.institution?.name, key),
-      institution_url_encrypted: await enc(e.institution?.url, key),
-      degree_encrypted: await enc(e.degree, key) ?? '',
+      institution_id: null,
+      institution_uuid_encrypted: await enc(instUuid, key),
+      institution_name_encrypted: await enc(instObj?.name ?? (e.institution as any)?.name, key),
+      institution_url_encrypted: await enc(instObj?.url ?? (e.institution as any)?.url, key),
+      degree_encrypted: await encReq(e.degree, key),
       description_encrypted: await enc(e.text, key),
       start_year_encrypted: await encNum(e.start?.year, key),
       start_month_encrypted: await encNum(e.start?.month, key),
@@ -788,17 +846,23 @@ export async function portfolioToRows(
       is_active: e.active ?? false,
       sort_order: i,
       collapsible_open: e.collapsibleOpen ?? true,
-    }))
+    }})
   )
 
   const experience: DBApplicantExperienceRow[] = await Promise.all(
-    data.experience.map(async (e, i) => ({
+    data.experience.map(async (e, i) => {
+      const instUuid = typeof e.institution === 'string' ? e.institution : (e.institution as any)?.uuid
+      const instObj = instUuid ? (data.experienceInstitutions ?? []).find(inst => inst.uuid === instUuid) : undefined
+      return {
       user_id: userId,
-      institution_name_encrypted: await enc(e.institution?.name, key),
-      institution_url_encrypted: await enc(e.institution?.url, key),
-      position_encrypted: await enc(e.position, key) ?? '',
+      institution_id: null,
+      institution_uuid_encrypted: await enc(instUuid, key),
+      institution_name_encrypted: await enc(instObj?.name ?? (e.institution as any)?.name, key),
+      institution_url_encrypted: await enc(instObj?.url ?? (e.institution as any)?.url, key),
+      position_encrypted: await encReq(e.position, key),
       description_encrypted: await enc(e.text, key),
       is_internship: e.internship ?? false,
+      technologies_encrypted: await enc(JSON.stringify(e.technologies ?? []), key),
       start_year_encrypted: await encNum(e.start?.year, key),
       start_month_encrypted: await encNum(e.start?.month, key),
       start_day_encrypted: await encNum(e.start?.day, key),
@@ -808,13 +872,13 @@ export async function portfolioToRows(
       is_active: e.active ?? false,
       sort_order: i,
       collapsible_open: e.collapsibleOpen ?? true,
-    }))
+    }})
   )
 
   const projects: DBApplicantProjectRow[] = await Promise.all(
     data.projects.map(async (p, i) => ({
       user_id: userId,
-      name_encrypted: await enc(p.name, key) ?? '',
+      name_encrypted: await encReq(p.name, key),
       description_encrypted: await enc(p.description, key),
       url_encrypted: await enc(p.url, key),
       repo_link_name_encrypted: await enc(p.repoLink?.name, key),
@@ -823,6 +887,7 @@ export async function portfolioToRows(
       repo_link_icon_value_encrypted: await enc(p.repoLink?.icon?.value, key),
       repo_link_icon_icon: p.repoLink?.icon?.icon ?? null,
       is_open_source: p.openSource ?? false,
+      technologies_encrypted: await enc(JSON.stringify(p.technologies ?? []), key),
       start_year_encrypted: await encNum(p.start?.year, key),
       start_month_encrypted: await encNum(p.start?.month, key),
       start_day_encrypted: await encNum(p.start?.day, key),
@@ -837,8 +902,8 @@ export async function portfolioToRows(
   const certifications: DBApplicantCertificationRow[] = await Promise.all(
     data.certifications.map(async (c, i) => ({
       user_id: userId,
-      name_encrypted: await enc(c.name, key) ?? '',
-      issuer_encrypted: null,
+      name_encrypted: await encReq(c.name, key),
+      issuer_encrypted: await enc(c.issuer, key),
       description_encrypted: await enc(c.description, key),
       url_encrypted: null,
       date_year_encrypted: await encNum(c.date?.year, key),
@@ -905,10 +970,7 @@ export async function rowsToPortfolio(rows: DBPortfolioRows, key: CryptoKey): Pr
 
   const education: Education[] = await Promise.all(
     rows.education.map(async (e) => ({
-      institution: {
-        name: await dec(e.institution_name_encrypted, key),
-        url: await decOpt(e.institution_url_encrypted, key),
-      },
+      institution: e.institution_uuid_encrypted ? await decOpt(e.institution_uuid_encrypted, key) : undefined,
       degree: await dec(e.degree_encrypted, key),
       text: await dec(e.description_encrypted, key),
       start: {
@@ -928,14 +990,11 @@ export async function rowsToPortfolio(rows: DBPortfolioRows, key: CryptoKey): Pr
 
   const experience: Experience[] = await Promise.all(
     rows.experience.map(async (e) => ({
-      institution: {
-        name: await dec(e.institution_name_encrypted, key),
-        url: await decOpt(e.institution_url_encrypted, key),
-      },
+      institution: e.institution_uuid_encrypted ? await decOpt(e.institution_uuid_encrypted, key) : undefined,
       position: await dec(e.position_encrypted, key),
       text: await dec(e.description_encrypted, key),
       internship: e.is_internship,
-      technologies: [], // loaded separately
+      technologies: await (async () => { try { const raw = e.technologies_encrypted ? await dec(e.technologies_encrypted, key) : '[]'; return JSON.parse(raw) } catch { return [] } })(),
       start: {
         year: await decNum(e.start_year_encrypted, key),
         month: await decNum(e.start_month_encrypted, key),
@@ -965,7 +1024,7 @@ export async function rowsToPortfolio(rows: DBPortfolioRows, key: CryptoKey): Pr
           icon: proj.repo_link_icon_icon,
         } : undefined,
       },
-      technologies: [],
+      technologies: await (async () => { try { const raw = proj.technologies_encrypted ? await dec(proj.technologies_encrypted, key) : '[]'; return JSON.parse(raw) } catch { return [] } })(),
       openSource: proj.is_open_source,
       collapsibleOpen: proj.collapsible_open,
       start: {
@@ -984,6 +1043,7 @@ export async function rowsToPortfolio(rows: DBPortfolioRows, key: CryptoKey): Pr
   const certifications: Qualification[] = await Promise.all(
     rows.certifications.map(async (c) => ({
       name: await dec(c.name_encrypted, key),
+      issuer: await decOpt(c.issuer_encrypted, key),
       description: await decOpt(c.description_encrypted, key),
       date: {
         year: await decNum(c.date_year_encrypted, key),
@@ -993,18 +1053,37 @@ export async function rowsToPortfolio(rows: DBPortfolioRows, key: CryptoKey): Pr
     }))
   )
 
+  // Birthdate: return undefined unless all three fields are valid finite numbers (avoids DatePicker RangeError)
+  const pBdYear = await decNum(p.birth_year_encrypted, key)
+  const pBdMonth = await decNum(p.birth_month_encrypted, key)
+  const pBdDay = await decNum(p.birth_day_encrypted, key)
+  const profileBirthdate = (
+    typeof pBdYear === 'number' && isFinite(pBdYear) &&
+    typeof pBdMonth === 'number' && isFinite(pBdMonth) &&
+    typeof pBdDay === 'number' && isFinite(pBdDay)
+  ) ? { year: pBdYear, month: pBdMonth, day: pBdDay } : undefined
+
+  // Decrypt institution lists from profile row
+  let educationInstitutions: Institution[] = []
+  let experienceInstitutions: Institution[] = []
+  try {
+    const eduInstRaw = await decOpt(p.education_institutions_encrypted, key)
+    if (eduInstRaw) educationInstitutions = JSON.parse(eduInstRaw)
+  } catch {}
+  try {
+    const expInstRaw = await decOpt(p.experience_institutions_encrypted, key)
+    if (expInstRaw) experienceInstitutions = JSON.parse(expInstRaw)
+  } catch {}
+
   return {
     profile: {
+      name: await dec(p.name_encrypted, key),
       subtitle: await dec(p.subtitle_encrypted, key),
       email: await dec(p.email_encrypted, key),
       phone: await dec(p.phone_encrypted, key),
       address: await dec(p.address_encrypted, key),
       summary: await dec(p.summary_encrypted, key),
-      birthdate: {
-        year: await decNum(p.birth_year_encrypted, key),
-        month: await decNum(p.birth_month_encrypted, key),
-        day: await decNum(p.birth_day_encrypted, key),
-      },
+      birthdate: profileBirthdate,
       hobbies,
       avatarData: await decOpt(p.avatar_data_encrypted, key),
       avatarFilename: await decOpt(p.avatar_filename_encrypted, key),
@@ -1017,7 +1096,9 @@ export async function rowsToPortfolio(rows: DBPortfolioRows, key: CryptoKey): Pr
     experience,
     projects,
     certifications,
-    institutions: [], // loaded separately
+    educationInstitutions,
+    experienceInstitutions,
+    jobField: (p.job_field === 'it' ? 'IT' : 'Other') as 'IT' | 'Other',
   }
 }
 

@@ -77,6 +77,7 @@ interface Project {
 
 interface Qualification {
 	name: string
+	issuer?: string
 	date?: EmploymentDate
 	description?: string
 }
@@ -111,13 +112,16 @@ interface ResumeData {
 	languages: Language[],
 	skillCategories: SkillCategory[],
 	links: Link[],
-	institutions: Institution[],
+	educationInstitutions: Institution[],
+	experienceInstitutions: Institution[],
 	education: Education[],
 	experience: Experience[],
 	projects: Project[],
 	jobField: "IT" | "Other",
 	qualifications?: Qualification[],
 	coverLetter?: CoverLetter,
+	avatarData?: string,
+	avatarContentType?: string,
 }
 
 interface RefResumeData {
@@ -132,7 +136,8 @@ interface RefResumeData {
 	languages: Ref<Language[]>
 	skillCategories: Ref<SkillCategory[]>
 	links: Ref<Link[]>
-	institutions: Ref<Institution[]>
+	educationInstitutions: Ref<Institution[]>
+	experienceInstitutions: Ref<Institution[]>
 	education: Ref<Education[]>
 	experience: Ref<Experience[]>
 	projects: Ref<Project[]>
@@ -214,6 +219,7 @@ interface ResumeStyle {
 }
 
 interface PortfolioProfile {
+	name: string
 	subtitle: string
 	email: string
 	phone: string
@@ -235,7 +241,9 @@ interface PortfolioData {
 	experience: Experience[]
 	projects: Project[]
 	certifications: Qualification[]
-	institutions: Institution[]
+	educationInstitutions: Institution[]
+	experienceInstitutions: Institution[]
+	jobField?: 'IT' | 'Other'
 }
 
 interface ResumeSummary {

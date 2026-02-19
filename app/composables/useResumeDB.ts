@@ -217,9 +217,10 @@ export const useResumeDB = () => {
 
     const resumeId = crypto.randomUUID()
 
-    // Insert the resume row
-    // Cast to any: the generated Supabase types may not include all columns added by migration
+    // Insert the resume row — name_encrypted is NOT NULL in DB, so we must provide it
     const db = supabase as any
+    const { encryptString } = await import('../utils/crypto')
+    const nameEncrypted = await encryptString('', cryptoKey)
     const { error: insertErr } = await db
       .from('resumes')
       .insert({
@@ -228,6 +229,7 @@ export const useResumeDB = () => {
         title,
         kind: kind === 'IT' ? 'it' : 'other',
         duplicated_from: duplicatedFrom ?? null,
+        name_encrypted: nameEncrypted,
       })
     if (insertErr) throw new Error(insertErr.message)
 
@@ -236,6 +238,21 @@ export const useResumeDB = () => {
       // Build a minimal ResumeData from the portfolio
       const seedData: ResumeData = _portfolioToResumeData(fromPortfolio, title, kind)
       await _saveResumeRows(resumeId, seedData, cryptoKey)
+
+      // Copy avatar from portfolio directly (resumeToRows can't handle File objects from portfolio base64)
+      if (fromPortfolio.profile.avatarData) {
+        const { encryptString } = await import('../utils/crypto')
+        const db2 = supabase as any
+        await db2.from('resumes').update({
+          avatar_data_encrypted: await encryptString(fromPortfolio.profile.avatarData, cryptoKey),
+          avatar_filename_encrypted: fromPortfolio.profile.avatarFilename
+            ? await encryptString(fromPortfolio.profile.avatarFilename, cryptoKey)
+            : null,
+          avatar_content_type_encrypted: fromPortfolio.profile.avatarContentType
+            ? await encryptString(fromPortfolio.profile.avatarContentType, cryptoKey)
+            : null,
+        }).eq('id', resumeId)
+      }
     }
 
     // Refresh the list
@@ -398,12 +415,52 @@ export const useResumeDB = () => {
 
 /**
  * Encrypt and insert/replace all child rows for a resume.
+ * Also updates the resume row's encrypted profile fields (name, email, etc.).
  * Deletes existing child rows first, then reinserts.
  */
 async function _saveResumeRows(resumeId: string, data: ResumeData, cryptoKey: CryptoKey): Promise<void> {
   // Cast to any: resume child tables may not be fully typed in generated Supabase types
   const supabase = useSupabaseClient() as any
   const rows = await resumeToRows(data, resumeId, cryptoKey)
+
+  // Update the resume row's encrypted profile fields
+  const r = rows.resume
+
+  // Build the update payload — avatar columns are only included when data.avatarData
+  // is present (base64 string). resumeToRows always sets avatar_data_encrypted: null
+  // because it can't handle base64 strings (only File objects). Omitting avatar columns
+  // here prevents overwriting a previously-saved avatar with null on every save.
+  const resumeUpdatePayload: Record<string, any> = {
+    name_encrypted: r.name_encrypted,
+    subtitle_encrypted: r.subtitle_encrypted,
+    email_encrypted: r.email_encrypted,
+    phone_encrypted: r.phone_encrypted,
+    address_encrypted: r.address_encrypted,
+    summary_encrypted: r.summary_encrypted,
+    birth_year_encrypted: r.birth_year_encrypted,
+    birth_month_encrypted: r.birth_month_encrypted,
+    birth_day_encrypted: r.birth_day_encrypted,
+    hobbies_encrypted: r.hobbies_encrypted,
+    education_institutions_encrypted: r.education_institutions_encrypted,
+    experience_institutions_encrypted: r.experience_institutions_encrypted,
+  }
+
+  // Only update avatar columns when the in-memory state has avatar data.
+  // This preserves a previously-saved avatar when the user saves without changing it.
+  if (data.avatarData) {
+    const { encryptString } = await import('../utils/crypto')
+    resumeUpdatePayload.avatar_data_encrypted = await encryptString(data.avatarData, cryptoKey)
+    resumeUpdatePayload.avatar_content_type_encrypted = data.avatarContentType
+      ? await encryptString(data.avatarContentType, cryptoKey)
+      : null
+    resumeUpdatePayload.avatar_filename_encrypted = null
+  }
+
+  const { error: resumeUpdateErr } = await supabase
+    .from('resumes')
+    .update(resumeUpdatePayload)
+    .eq('id', resumeId)
+  if (resumeUpdateErr) throw new Error(`Update resume row: ${resumeUpdateErr.message}`)
 
   // Delete all child rows (CASCADE would handle this on resume delete, but here we're replacing)
   await Promise.all([
@@ -447,11 +504,13 @@ async function _saveResumeRows(resumeId: string, data: ResumeData, cryptoKey: Cr
 /**
  * Convert PortfolioData into a ResumeData seed.
  * Copies all sections from the portfolio into the resume structure.
- * Technologies are not copied (they come from join tables, not in scope here).
+ * Fields are scoped by kind: General resumes exclude IT-specific sections (projects, technologies).
  */
 function _portfolioToResumeData(portfolio: PortfolioData, title: string, kind: 'IT' | 'Other'): ResumeData {
+  const isIT = kind === 'IT'
+
   return {
-    name: title,
+    name: portfolio.profile.name || title,
     subtitle: portfolio.profile.subtitle,
     email: portfolio.profile.email,
     phone: portfolio.profile.phone,
@@ -465,11 +524,20 @@ function _portfolioToResumeData(portfolio: PortfolioData, title: string, kind: '
       skills: cat.skills.map(s => ({ ...s })),
     })),
     links: portfolio.links.map(l => ({ ...l })),
-    institutions: [],
+    educationInstitutions: (portfolio.educationInstitutions ?? []).map(i => ({ ...i })),
+    experienceInstitutions: (portfolio.experienceInstitutions ?? []).map(i => ({ ...i })),
     education: portfolio.education.map(e => ({ ...e, technologies: undefined as any })),
-    experience: portfolio.experience.map(e => ({ ...e, technologies: [] })),
-    projects: portfolio.projects.map(p => ({ ...p, technologies: [] })),
+    experience: portfolio.experience.map(e => ({
+      ...e,
+      // Only include technologies for IT resumes
+      technologies: isIT ? (e.technologies ?? []) : [],
+    })),
+    // Only include projects for IT resumes
+    projects: isIT
+      ? portfolio.projects.map(p => ({ ...p, technologies: p.technologies ?? [] }))
+      : [],
     jobField: kind,
     qualifications: portfolio.certifications.map(c => ({ ...c })),
+    coverLetter: undefined,
   }
 }

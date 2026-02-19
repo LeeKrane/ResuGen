@@ -6,10 +6,11 @@ export default defineNuxtPlugin(async () => {
   await loadUserState()
 
   // Wire portfolio load/clear to Supabase auth state changes.
-  // This handles: initial login, token refresh, and logout events.
+  // INITIAL_SESSION fires on page reload for already-authenticated users.
+  // SIGNED_IN fires after a fresh login.
   supabase.auth.onAuthStateChange(async (event, session) => {
-    if (event === 'SIGNED_IN' && session?.user) {
-      // Derive encryption key and load portfolio after login
+    if ((event === 'SIGNED_IN' || event === 'INITIAL_SESSION') && session?.user) {
+      // Derive encryption key and load portfolio
       const { deriveKey } = useEncryption()
       const { load } = usePortfolio()
       try {
@@ -21,11 +22,13 @@ export default defineNuxtPlugin(async () => {
     }
 
     if (event === 'SIGNED_OUT') {
-      // Clear encryption key and portfolio state on logout
+      // Clear encryption key and all user state on logout
       const { clearKey } = useEncryption()
-      const { clear } = usePortfolio()
+      const { clear: clearPortfolio } = usePortfolio()
+      const { clear: clearResumes } = useResumeDB()
       clearKey()
-      clear()
+      clearPortfolio()
+      clearResumes()
     }
   })
 })

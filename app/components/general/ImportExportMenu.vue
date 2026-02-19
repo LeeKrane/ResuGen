@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import JSZip from "jszip"
 
-const downloadZip = () => {
+const downloadZip = async () => {
 	const resumeData = useResumeData()
 	const resumeStyle = useResumeStyle()
 	const { coverLetter, hasCoverLetter } = useCoverLetter()
@@ -21,7 +21,8 @@ const downloadZip = () => {
 		languages: refResumeData.languages.value,
 		skillCategories: refResumeData.skillCategories.value,
 		links: refResumeData.links.value,
-		institutions: refResumeData.institutions.value,
+		educationInstitutions: refResumeData.educationInstitutions.value,
+		experienceInstitutions: refResumeData.experienceInstitutions.value,
 		education: refResumeData.education.value,
 		experience: refResumeData.experience.value,
 		projects: refResumeData.projects.value,
@@ -31,8 +32,23 @@ const downloadZip = () => {
 	}
 
 	zip.file("resume-data.json", JSON.stringify(completeResumeData, null, 2))
-	if (resumeData.avatar)
+
+	// Avatar: prefer the File object (freshly uploaded), fall back to the previewImage
+	// data URI (set when a resume is loaded from DB).
+	if (resumeData.avatar) {
 		zip.file("resume-avatar.webp", resumeData.avatar)
+	} else {
+		const previewImage = useState<string | null>('previewImage')
+		if (previewImage.value) {
+			const match = previewImage.value.match(/^data:([^;]+);base64,(.+)$/)
+			if (match) {
+				const binary = atob(match[2]!)
+				const bytes = new Uint8Array(binary.length)
+				for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i)
+				zip.file("resume-avatar.webp", bytes)
+			}
+		}
+	}
 	zip.file("resume-style.json", JSON.stringify({
 		font: resumeStyle.value.font,
 		colors: resumeStyle.value.colors,
@@ -59,17 +75,14 @@ const downloadZip = () => {
 </script>
 
 <template>
-	<UFieldGroup>
-		<GeneralResumeLoader/>
-		<UButton
-			class="cursor-pointer"
-			label="Export"
-			icon="i-material-symbols-file-export-rounded"
-			variant="outline"
-			loading-auto
-			@click="downloadZip"
-		/>
-	</UFieldGroup>
+	<UButton
+		class="cursor-pointer"
+		label="Export"
+		icon="i-material-symbols-file-export-rounded"
+		variant="outline"
+		loading-auto
+		@click="downloadZip"
+	/>
 </template>
 
 <style scoped>

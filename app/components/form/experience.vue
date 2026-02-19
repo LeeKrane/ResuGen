@@ -1,12 +1,10 @@
 <script setup lang="ts">
-const { isOther } = useJobField()
-
 const state = reactive({
-	institutions: useRefResumeData().institutions,
+	experienceInstitutions: useRefResumeData().experienceInstitutions,
 	experience: useRefResumeData().experience,
 })
 
-const selectableInstitutions = computed(() => state.institutions
+const selectableInstitutions = computed(() => state.experienceInstitutions
 	.filter((i) => i.name.length > 0)
 	.map((i) => {
 		return {label: i.name, value: i.uuid}
@@ -17,7 +15,7 @@ const selectableInstitutions = computed(() => state.institutions
 const computedCollapsableNames = computed(() => state.experience
 	.map((e) => {
 		return (e.position || e.institution)
-			? (e.position || '?') + ' at ' + (state.institutions.find((i) => i.uuid === e.institution)?.name || '?')
+			? (e.position || '?') + ' at ' + (state.experienceInstitutions.find((i) => i.uuid === e.institution)?.name || '?')
 			: undefined
 	})
 )
@@ -27,7 +25,7 @@ const computedCollapsableNames = computed(() => state.experience
 	<UForm
 		:state="state"
 		class="flex flex-col gap-8 m-4">
-		<FormInstitutions/>
+		<FormInstitutions v-model="state.experienceInstitutions"/>
 
 		<USeparator icon="i-lucide-briefcase"/>
 
@@ -118,10 +116,6 @@ const computedCollapsableNames = computed(() => state.experience
 				:default-value-getter="() =>{  return ({ position: '', text: '', collapsibleOpen: true, technologies: [] }) }"/>
 		</UFormField>
 
-		<template v-if="isOther">
-			<USeparator icon="i-lucide-award"/>
-			<FormQualifications/>
-		</template>
 	</UForm>
 </template>
 

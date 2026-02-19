@@ -21,6 +21,13 @@ const state = reactive({
 						variant="soft"
 						icon="i-lucide-award"
 						placeholder="Certified Project Manager"/>
+					<UInput
+						v-if="state.qualifications[index]"
+						v-model="state.qualifications[index].issuer"
+						class="w-full"
+						variant="soft"
+						icon="i-lucide-building"
+						placeholder="Issuing organization (e.g. TÜV Austria)"/>
 					<div class="flex items-center gap-1">
 						<label class="text-sm">Obtained on</label>
 						<FormDatePicker 

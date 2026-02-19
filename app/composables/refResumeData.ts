@@ -13,7 +13,8 @@ export const useRefResumeData: () => RefResumeData = () => {
 		languages: useState("languages", (): Language[] => [{name: ""}]),
 		skillCategories: useState("skillCategories", (): SkillCategory[] => [{name: "", skills: [{ technology: { label: "Custom", value: "custom", icon: "i-lucide-shapes" }, name: "", displayType: { label: "Icon", value: "icon", icon: "i-lucide-image" } }]}]),
 		links: useState("links", (): Link[] => [{name: "", url: ""}]),
-		institutions: useState("institutions", (): Institution[] => [{uuid: v7(), name: ""}]),
+		educationInstitutions: useState("educationInstitutions", (): Institution[] => [{uuid: v7(), name: ""}]),
+		experienceInstitutions: useState("experienceInstitutions", (): Institution[] => [{uuid: v7(), name: ""}]),
 		education: useState("education", (): Education[] => [{degree: "", text: "", collapsibleOpen: true}]),
 		experience: useState("experience", (): Experience[] => [{
 			position: "",

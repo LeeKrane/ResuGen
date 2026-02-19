@@ -35,5 +35,6 @@ export const PortfolioDataSchema = v.object({
   experience: v.array(ExperienceSchema),
   projects: v.array(ProjectSchema),
   certifications: v.array(QualificationSchema),
-  institutions: v.array(InstitutionSchema),
+  educationInstitutions: v.array(InstitutionSchema),
+  experienceInstitutions: v.array(InstitutionSchema),
 })

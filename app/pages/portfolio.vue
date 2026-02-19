@@ -1,55 +1,118 @@
 <script setup lang="ts">
+import { v7 } from 'uuid'
 /**
  * Portfolio page — the user's single source-of-truth for applicant data.
  *
  * Strategy: load portfolio from DB → populate the shared useState slots used by
  * the existing form components (useRefResumeData) → reuse those components as-is.
  * On save, read back from those same slots and persist to DB via usePortfolio.save().
- *
- * This avoids duplicating form components while keeping the portfolio/resume
- * data flows cleanly separated.
  */
 
 definePageMeta({ middleware: 'auth' })
 
-const { portfolio, loading, error, load, save } = usePortfolio()
+const { portfolio, error: portfolioError, load, save } = usePortfolio()
 const state = useRefResumeData()
-const { isIT } = useJobField()
+const { jobField, isIT } = useJobField()
+const { isReady: keyReady } = useEncryption()
 
 const saving = ref(false)
 const saveError = ref<string | null>(null)
 const saveSuccess = ref(false)
+const pageReady = ref(false)
+const pageError = ref<string | null>(null)
 
-// ─── Load portfolio into shared state on mount ───
+// ─── IT mode confirmation ───
+const showITConfirm = ref(false)
+const itConfirmedOnce = ref(false)
 
-onMounted(async () => {
-  // Portfolio may already be loaded by the auth plugin — only fetch if null
-  if (!portfolio.value) {
-    await load()
+function handleJobFieldChange(val: string) {
+  if (val === 'IT' && !itConfirmedOnce.value) {
+    showITConfirm.value = true
+    return
   }
-  if (portfolio.value) {
-    _populateState(portfolio.value)
+  jobField.value = val as 'IT' | 'Other'
+}
+
+function confirmIT() {
+  itConfirmedOnce.value = true
+  showITConfirm.value = false
+  jobField.value = 'IT'
+}
+
+function cancelIT() {
+  showITConfirm.value = false
+}
+
+// ─── Wait for user + load portfolio ───
+
+async function ensureLoaded() {
+  try {
+    const user = useSupabaseUser()
+    if (!user.value) {
+      await new Promise<void>((resolve) => {
+        const stop = watch(user, (u) => { if (u) { stop(); resolve() } }, { immediate: true })
+        setTimeout(() => { stop(); resolve() }, 5000)
+      })
+    }
+
+    // Wait for encryption key to be derived before loading (avoids flash of error on hard reload)
+    if (!keyReady.value) {
+      await new Promise<void>((resolve) => {
+        const stop = watch(keyReady, (ready) => { if (ready) { stop(); resolve() } }, { immediate: true })
+        setTimeout(() => { stop(); resolve() }, 8000)
+      })
+    }
+
+    await load()
+
+    if (portfolioError.value) {
+      pageError.value = portfolioError.value
+    }
+
+    if (portfolio.value) {
+      _populateState(portfolio.value)
+    }
+  } catch (e: any) {
+    pageError.value = e?.message ?? 'Failed to load portfolio'
+  } finally {
+    pageReady.value = true
+  }
+}
+
+onMounted(ensureLoaded)
+
+watch(portfolio, (p) => {
+  if (p) {
+    _populateState(p)
+    pageReady.value = true
+    pageError.value = null
   }
 })
 
-// Also react if portfolio loads after mount (e.g. slow auth)
-watch(portfolio, (p) => {
-  if (p) _populateState(p)
-}, { once: true })
-
 /**
  * Populate the shared useState slots from a PortfolioData object.
- * The form components (FormGeneral, FormEducation, etc.) read from these slots.
  */
 function _populateState(p: PortfolioData) {
-  state.name.value = p.profile.subtitle ? '' : '' // name is not in portfolio profile
+  state.name.value = p.profile.name ?? ''
   state.subtitle.value = p.profile.subtitle ?? ''
   state.email.value = p.profile.email ?? ''
   state.phone.value = p.profile.phone ?? ''
   state.address.value = p.profile.address ?? ''
   state.summary.value = p.profile.summary ?? ''
-  state.birthdate.value = p.profile.birthdate
+  const bd = p.profile.birthdate
+  const bdValid = bd &&
+    typeof bd.year === 'number' && isFinite(bd.year) &&
+    typeof bd.month === 'number' && isFinite(bd.month) &&
+    typeof bd.day === 'number' && isFinite(bd.day)
+  state.birthdate.value = bdValid ? bd : undefined
   state.hobbies.value = p.profile.hobbies?.length ? p.profile.hobbies : ['']
+  const previewImage = useState<string | null>('previewImage')
+  if (p.profile.avatarData) {
+    const mime = p.profile.avatarContentType ?? 'image/webp'
+    previewImage.value = `data:${mime};base64,${p.profile.avatarData}`
+  } else {
+    previewImage.value = null
+  }
   state.languages.value = p.languages?.length ? p.languages : [{ name: '' }]
   state.skillCategories.value = p.skillCategories?.length ? p.skillCategories : [{
     name: '',
@@ -60,7 +123,20 @@ function _populateState(p: PortfolioData) {
   state.experience.value = p.experience?.length ? p.experience.map(e => ({ ...e, technologies: e.technologies ?? [] })) : [{ position: '', text: '', collapsibleOpen: true, technologies: [] }]
   state.projects.value = p.projects?.length ? p.projects.map(pr => ({ ...pr, technologies: pr.technologies ?? [] })) : [{ name: '', description: '', url: '', repoLink: { name: '', url: '' }, technologies: [] }]
   state.qualifications.value = p.certifications ?? []
-  state.institutions.value = p.institutions?.length ? p.institutions : [{ name: '' }]
+  // Populate separate institution lists
+  const eduInst = p.educationInstitutions ?? []
+  const expInst = p.experienceInstitutions ?? []
+
+  state.educationInstitutions.value = eduInst.length ? eduInst : [{ uuid: v7(), name: '' }]
+  state.experienceInstitutions.value = expInst.length ? expInst : [{ uuid: v7(), name: '' }]
+  state.education.value = p.education?.length ? p.education : [{ degree: '', text: '', collapsibleOpen: true }]
+  state.experience.value = p.experience?.length
+    ? p.experience.map(e => ({ ...e, technologies: e.technologies ?? [] }))
+    : [{ position: '', text: '', collapsibleOpen: true, technologies: [] }]
+  // Set job field from portfolio (default to Other)
+  jobField.value = p.jobField ?? 'Other'
+  // If portfolio was already IT, mark as confirmed so modal doesn't show
+  if (p.jobField === 'IT') itConfirmedOnce.value = true
 }
 
 // ─── Save ───
@@ -71,9 +147,27 @@ async function savePortfolio() {
   saveSuccess.value = false
 
   try {
-    // Build PortfolioData from the current shared state
+    const avatarFile = state.avatar.value
+    let avatarData: string | undefined
+    let avatarFilename: string | undefined
+    let avatarContentType: string | undefined
+    if (avatarFile) {
+      const buf = await avatarFile.arrayBuffer()
+      const bytes = new Uint8Array(buf)
+      let binary = ''
+      for (let i = 0; i < bytes.byteLength; i++) binary += String.fromCharCode(bytes[i]!)
+      avatarData = btoa(binary)
+      avatarFilename = avatarFile.name
+      avatarContentType = avatarFile.type
+    } else {
+      avatarData = portfolio.value?.profile.avatarData
+      avatarFilename = portfolio.value?.profile.avatarFilename
+      avatarContentType = portfolio.value?.profile.avatarContentType
+    }
+
     const data: PortfolioData = {
       profile: {
+        name: state.name.value,
         subtitle: state.subtitle.value,
         email: state.email.value,
         phone: state.phone.value,
@@ -81,6 +175,9 @@ async function savePortfolio() {
         summary: state.summary.value,
         birthdate: state.birthdate.value,
         hobbies: state.hobbies.value.filter(h => h.trim()),
+        avatarData,
+        avatarFilename,
+        avatarContentType,
       },
       links: state.links.value,
       languages: state.languages.value,
@@ -89,12 +186,13 @@ async function savePortfolio() {
       experience: state.experience.value,
       projects: state.projects.value,
       certifications: state.qualifications.value,
-      institutions: state.institutions.value,
+      educationInstitutions: state.educationInstitutions.value,
+      experienceInstitutions: state.experienceInstitutions.value,
+      jobField: jobField.value,
     }
 
     await save(data)
     saveSuccess.value = true
-    // Clear success indicator after 3s
     setTimeout(() => { saveSuccess.value = false }, 3000)
   } catch (e: any) {
     saveError.value = e?.message ?? 'Failed to save portfolio'
@@ -117,22 +215,27 @@ const tabItems = computed(() => {
   }
   return tabs
 })
+
+const jobFieldOptions = [
+  { value: 'Other', label: 'General', icon: 'i-lucide-briefcase' },
+  { value: 'IT', label: 'IT / Developer', icon: 'i-lucide-code' },
+]
 </script>
 
 <template>
   <div>
     <!-- Loading state -->
-    <div v-if="loading" class="flex justify-center items-center py-16">
+    <div v-if="!pageReady" class="flex justify-center items-center py-16">
       <UIcon name="i-lucide-loader-circle" class="animate-spin text-4xl text-(--ui-text-muted)" />
     </div>
 
     <!-- Error state -->
-    <div v-else-if="error" class="flex justify-center py-8">
-      <UAlert color="error" :description="error" icon="i-lucide-alert-circle" />
+    <div v-else-if="pageError" class="flex justify-center py-8">
+      <UAlert color="error" :description="pageError" icon="i-lucide-alert-circle" />
     </div>
 
     <template v-else>
-      <!-- Header: title + import CTA + save button -->
+      <!-- Header -->
       <div class="flex flex-col mx-auto w-[clamp(24rem,65vw,56rem)] pt-4 pb-2 gap-3">
         <div class="flex items-center justify-between gap-4">
           <div>
@@ -140,9 +243,7 @@ const tabItems = computed(() => {
             <p class="text-sm text-(--ui-text-muted)">Your personal data source for all resumes</p>
           </div>
           <div class="flex items-center gap-2">
-            <!-- Import from file CTA -->
             <GeneralResumeLoader />
-            <!-- Save button -->
             <UButton
               label="Save Portfolio"
               icon="i-lucide-save"
@@ -155,20 +256,48 @@ const tabItems = computed(() => {
           </div>
         </div>
 
+        <!-- Job field toggle -->
+        <div class="flex items-center gap-3">
+          <span class="text-sm text-(--ui-text-muted)">Portfolio type:</span>
+          <USelect
+            :model-value="jobField"
+            :items="jobFieldOptions"
+            variant="soft"
+            size="sm"
+            class="w-48"
+            :icon="jobField === 'IT' ? 'i-lucide-code' : 'i-lucide-briefcase'"
+            @update:model-value="handleJobFieldChange"
+          />
+        </div>
+
         <!-- Save feedback -->
-        <UAlert
-          v-if="saveSuccess"
-          color="success"
-          description="Portfolio saved successfully."
-          icon="i-lucide-check"
-        />
-        <UAlert
-          v-if="saveError"
-          color="error"
-          :description="saveError"
-          icon="i-lucide-alert-circle"
-        />
+        <UAlert v-if="saveSuccess" color="success" description="Portfolio saved successfully." icon="i-lucide-check" />
+        <UAlert v-if="saveError" color="error" :description="saveError" icon="i-lucide-alert-circle" />
       </div>
+
+      <!-- IT confirmation modal -->
+      <UModal v-model:open="showITConfirm">
+        <template #content>
+          <div class="p-6 flex flex-col gap-4">
+            <div class="flex items-center gap-2">
+              <UIcon name="i-lucide-code" class="text-xl text-(--ui-primary)" />
+              <h2 class="text-lg font-semibold">Switch to IT Portfolio?</h2>
+            </div>
+            <p class="text-sm text-(--ui-text-muted)">
+              The IT portfolio includes additional fields for software developers and IT professionals,
+              such as projects, technology stacks, and repository links.
+            </p>
+            <p class="text-sm text-(--ui-text-muted)">
+              If you're not in the IT field, the regular portfolio covers everything you need.
+              You can switch back at any time without losing data.
+            </p>
+            <div class="flex justify-end gap-2 mt-2">
+              <UButton label="Stay on General" variant="outline" @click="cancelIT" class="cursor-pointer" />
+              <UButton label="I understand, switch to IT" color="primary" @click="confirmIT" class="cursor-pointer" />
+            </div>
+          </div>
+        </template>
+      </UModal>
 
       <!-- Tab navigation -->
       <div class="sticky top-16 w-full z-40 flex justify-center">
@@ -181,7 +310,7 @@ const tabItems = computed(() => {
         />
       </div>
 
-      <!-- Tab content — reuse existing form components -->
+      <!-- Tab content -->
       <div class="flex flex-col mx-auto w-[clamp(24rem,65vw,56rem)]">
         <div :class="activeTab === '0' ? 'block' : 'hidden'">
           <FormGeneral />
