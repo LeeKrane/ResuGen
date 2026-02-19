@@ -82,6 +82,7 @@ interface Qualification {
 	description?: string
 }
 
+
 interface CoverLetter {
 	content: string
 	recipientName?: string
@@ -263,8 +264,20 @@ interface ExtractRequirementsResponse {
 }
 
 interface GenerateResumeDraftResponse {
-	title: string
-	resumeData: ResumeData
+	name: string | null
+	subtitle: string | null
+	summary: string | null
+	experience: Array<{ position: string; text: string; technologies: string[] }>
+	education: Array<{ degree: string; text: string }>
+	skillCategories: Array<{ name: string; skills: Array<{ name: string }> }>
+	projects: Array<{ name: string; description: string }>
+	languages: Array<{ name: string; level: 'A1' | 'A2' | 'B1' | 'B2' | 'C1' | 'C2' | 'Native' }>
+	coverLetter: {
+		content: string
+		recipientName: string | null
+		companyName: string | null
+		position: string | null
+	}
 	provenance: string[]
 	missing_info: string[]
 }
