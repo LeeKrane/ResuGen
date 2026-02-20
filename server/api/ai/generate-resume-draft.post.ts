@@ -87,6 +87,7 @@ COVER LETTER REQUIREMENTS
 OUTPUT JSON FORMAT (JSON ONLY)
 Return exactly this JSON object shape (all keys required; no extra keys):
 {
+  "jobField": "IT or Other",
   "name": "string or null",
   "subtitle": "string or null",
   "summary": "string or null",
@@ -99,6 +100,11 @@ Return exactly this JSON object shape (all keys required; no extra keys):
   "provenance": ["string"],
   "missing_info": ["string"]
 }
+
+jobField RULES:
+- Set "jobField" to "IT" if the job description is for an IT/tech role.
+- Set "jobField" to "Other" if the job description is for a non-IT role.
+- This determines the resume template used (IT resumes show projects and technologies, Other resumes do not).
 
 CONTENT SELECTION GUIDANCE
 - Be selective: include the most job-relevant portfolio items (do not dump everything).

@@ -260,6 +260,15 @@ const tabItems = computed(() => {
             </div>
           </div>
           <div class="flex items-center gap-2">
+            <!-- Preview & Print -->
+            <UButton
+              label="Preview & Print"
+              icon="i-lucide-eye"
+              variant="outline"
+              color="neutral"
+              to="/resume"
+              class="cursor-pointer"
+            />
             <!-- Export ZIP -->
             <GeneralImportExportMenu />
             <!-- Save -->

@@ -264,6 +264,7 @@ interface ExtractRequirementsResponse {
 }
 
 interface GenerateResumeDraftResponse {
+	jobField: 'IT' | 'Other'
 	name: string | null
 	subtitle: string | null
 	summary: string | null

@@ -47,6 +47,7 @@ export const DraftCoverLetterSchema = v.object({
 })
 
 export const GenerateResumeDraftResponseSchema = v.object({
+  jobField: v.picklist(['IT', 'Other']),
   name: v.nullable(v.string()),
   subtitle: v.nullable(v.string()),
   summary: v.nullable(v.string()),
