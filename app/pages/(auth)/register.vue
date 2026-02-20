@@ -2,10 +2,6 @@
 import * as z from 'zod'
 import type { FormSubmitEvent } from "@nuxt/ui"
 
-definePageMeta({
-	middleware: ["logged-out"]
-})
-
 const toast = useToast()
 
 const fields = [{
