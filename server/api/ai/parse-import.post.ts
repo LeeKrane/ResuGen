@@ -7,7 +7,7 @@ import { ParseImportResponseSchema } from '../../../app/schemas/ai-responses'
  *
  * Parses an uploaded resume file into structured PortfolioData using OpenAI.
  *
- * Two processing paths (per ADR-008):
+ * Two processing paths:
  *   - PDF:  Pages sent as base64 images → gpt-4.1 with vision API
  *   - DOCX/TXT: Extracted text → gpt-4.1-mini with text prompt
  *
