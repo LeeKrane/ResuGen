@@ -67,6 +67,7 @@ export type GenerateResumeDraftResponse = v.InferOutput<typeof GenerateResumeDra
 // not the full TechnologySchema objects used in the app's data model.
 
 const ParsedProfileSchema = v.object({
+  name: v.optional(v.string()),
   subtitle: v.optional(v.string()),
   email: v.optional(v.string()),
   phone: v.optional(v.string()),
@@ -75,20 +76,43 @@ const ParsedProfileSchema = v.object({
   hobbies: v.optional(v.array(v.string())),
 })
 
+const ParsedDateSchema = v.object({
+  year: v.optional(v.number()),
+  month: v.optional(v.number()),
+})
+
 const ParsedEducationSchema = v.object({
   degree: v.string(),
-  text: v.string(),
+  institution: v.optional(v.string()),
+  institutionUrl: v.optional(v.string()),
+  text: v.optional(v.string()),
+  start: v.optional(ParsedDateSchema),
+  end: v.optional(ParsedDateSchema),
+  active: v.optional(v.boolean()),
 })
 
 const ParsedExperienceSchema = v.object({
   position: v.string(),
-  text: v.string(),
+  institution: v.optional(v.string()),
+  institutionUrl: v.optional(v.string()),
+  text: v.optional(v.string()),
   technologies: v.optional(v.array(v.string())),
+  start: v.optional(ParsedDateSchema),
+  end: v.optional(ParsedDateSchema),
+  active: v.optional(v.boolean()),
+  internship: v.optional(v.boolean()),
 })
 
 const ParsedProjectSchema = v.object({
   name: v.string(),
   description: v.string(),
+  url: v.optional(v.string()),
+  repoUrl: v.optional(v.string()),
+  repoPlatform: v.optional(v.string()),
+  openSource: v.optional(v.boolean()),
+  start: v.optional(ParsedDateSchema),
+  end: v.optional(ParsedDateSchema),
+  technologies: v.optional(v.array(v.string())),
 })
 
 const ParsedCertificationSchema = v.object({
@@ -106,9 +130,15 @@ const ParsedLanguageSchema = v.object({
   level: v.optional(v.picklist(['A1', 'A2', 'B1', 'B2', 'C1', 'C2', 'Native'])),
 })
 
+const ParsedSkillSchema = v.object({
+  name: v.string(),
+  technologyValue: v.optional(v.string()), // matched value from the known tech list, e.g. "python"
+  level: v.optional(v.picklist(['Basic', 'Decent', 'Good', 'Proficient', 'Expert'])),
+})
+
 const ParsedSkillCategorySchema = v.object({
   name: v.string(),
-  skills: v.array(v.object({ name: v.string() })),
+  skills: v.array(ParsedSkillSchema),
 })
 
 const ParsedDataSchema = v.object({

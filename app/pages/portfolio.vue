@@ -121,7 +121,7 @@ function _populateState(p: PortfolioData) {
   state.links.value = p.links?.length ? p.links : [{ name: '', url: '' }]
   state.education.value = p.education?.length ? p.education : [{ degree: '', text: '', collapsibleOpen: true }]
   state.experience.value = p.experience?.length ? p.experience.map(e => ({ ...e, technologies: e.technologies ?? [] })) : [{ position: '', text: '', collapsibleOpen: true, technologies: [] }]
-  state.projects.value = p.projects?.length ? p.projects.map(pr => ({ ...pr, technologies: pr.technologies ?? [] })) : [{ name: '', description: '', url: '', repoLink: { name: '', url: '' }, technologies: [] }]
+  state.projects.value = p.projects?.length ? p.projects.map(pr => ({ ...pr, technologies: pr.technologies ?? [], repoLink: pr.repoLink ?? { name: '', url: '' } })) : [{ name: '', description: '', url: '', repoLink: { name: '', url: '' }, technologies: [] }]
   state.qualifications.value = p.certifications ?? []
   // Populate separate institution lists
   const eduInst = p.educationInstitutions ?? []
@@ -244,6 +244,14 @@ const jobFieldOptions = [
           </div>
           <div class="flex items-center gap-2">
             <GeneralResumeLoader />
+            <UButton
+              label="Import from file"
+              icon="i-lucide-file-plus"
+              variant="outline"
+              color="neutral"
+              to="/import"
+              class="cursor-pointer"
+            />
             <UButton
               label="Save Portfolio"
               icon="i-lucide-save"
