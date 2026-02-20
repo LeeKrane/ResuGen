@@ -2,10 +2,6 @@
 import * as z from 'zod'
 import type { FormSubmitEvent } from "@nuxt/ui"
 
-definePageMeta({
-	middleware: ["logged-out"]
-})
-
 const supabase = useSupabaseClient()
 const requestURL = useRequestURL()
 const toast = useToast()
