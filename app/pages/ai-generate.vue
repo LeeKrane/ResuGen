@@ -91,16 +91,77 @@ async function generateDraft() {
 }
 
 // ─── Step 3: Save draft as new resume ───
+
+/**
+ * Map the flat GenerateResumeDraftResponse into a full ResumeData object
+ * that useResumeDB.saveResume() expects.
+ */
+function draftToResumeData(d: GenerateResumeDraftResponse, kind: 'IT' | 'Other'): ResumeData {
+  return {
+    name: d.name ?? '',
+    subtitle: d.subtitle ?? '',
+    email: portfolio.value?.profile.email ?? '',
+    birthdate: portfolio.value?.profile.birthdate,
+    phone: portfolio.value?.profile.phone ?? '',
+    address: portfolio.value?.profile.address ?? '',
+    summary: d.summary ?? '',
+    hobbies: portfolio.value?.profile.hobbies ?? [],
+    languages: d.languages.map(l => ({ name: l.name, level: l.level })),
+    skillCategories: d.skillCategories.map(cat => ({
+      name: cat.name,
+      skills: cat.skills.map(s => ({ name: s.name })),
+    })),
+    links: portfolio.value?.links ?? [],
+    educationInstitutions: portfolio.value?.educationInstitutions ?? [],
+    experienceInstitutions: portfolio.value?.experienceInstitutions ?? [],
+    education: d.education.map(e => ({ degree: e.degree, text: e.text })),
+    experience: d.experience.map(e => ({
+      position: e.position,
+      text: e.text,
+      technologies: [], // AI returns string[] but ResumeData expects Technology[] — leave empty, user can add in editor
+    })),
+    projects: d.projects.map(p => ({
+      name: p.name,
+      description: p.description,
+      repoLink: { name: '', url: '' },
+      technologies: [],
+    })),
+    jobField: kind,
+    qualifications: portfolio.value?.certifications ?? [],
+    coverLetter: {
+      content: d.coverLetter.content,
+      recipientName: d.coverLetter.recipientName ?? undefined,
+      companyName: d.coverLetter.companyName ?? undefined,
+      position: d.coverLetter.position ?? undefined,
+    },
+  }
+}
+
 async function saveDraft() {
-  if (!draft.value?.resumeData) return
+  if (!draft.value) return
   saving.value = true
   saveError.value = null
   step.value = 'saving'
 
   try {
-    const title = draft.value.title || 'AI Generated Resume'
-    const id = await createResume(title, 'IT', portfolio.value ?? undefined)
-    await saveResume(id, draft.value.resumeData, title)
+    const kind: 'IT' | 'Other' = draft.value.jobField
+    const resumeData = draftToResumeData(draft.value, kind)
+
+    // Generate title: Generated_Resume_YYYY-MM-DD_N
+    const { resumes: existingResumes, listResumes: refreshList } = useResumeDB()
+    if (!existingResumes.value.length) await refreshList()
+    const today = new Date().toISOString().slice(0, 10)
+    const prefix = `Generated_Resume_${today}_`
+    const existing = existingResumes.value
+      .map(r => r.title)
+      .filter(t => t.startsWith(prefix))
+      .map(t => parseInt(t.replace(prefix, ''), 10))
+      .filter(n => !isNaN(n))
+    const next = existing.length ? Math.max(...existing) + 1 : 1
+    const title = `${prefix}${next}`
+
+    const id = await createResume(title, kind, portfolio.value ?? undefined)
+    await saveResume(id, resumeData, title)
     router.push(`/resumes/${id}`)
   } catch (e: any) {
     const raw = e?.message ?? 'Failed to save resume'
@@ -239,13 +300,50 @@ function reset() {
 
         <!-- Draft summary -->
         <div class="rounded-lg border border-(--ui-border) p-4 flex flex-col gap-3 text-sm">
-          <div v-if="draft.title" class="flex gap-2">
-            <span class="font-medium w-28 shrink-0">Title</span>
-            <span class="text-(--ui-text-muted)">{{ draft.title }}</span>
+          <div class="flex gap-2">
+            <span class="font-medium w-28 shrink-0">Resume Type</span>
+            <UBadge
+              :label="draft.jobField === 'IT' ? 'IT' : 'General'"
+              :color="draft.jobField === 'IT' ? 'info' : 'neutral'"
+              variant="subtle"
+              size="sm"
+            />
           </div>
-          <div v-if="draft.resumeData?.summary" class="flex gap-2">
+          <div v-if="draft.name" class="flex gap-2">
+            <span class="font-medium w-28 shrink-0">Name</span>
+            <span class="text-(--ui-text-muted)">{{ draft.name }}</span>
+          </div>
+          <div v-if="draft.subtitle" class="flex gap-2">
+            <span class="font-medium w-28 shrink-0">Subtitle</span>
+            <span class="text-(--ui-text-muted)">{{ draft.subtitle }}</span>
+          </div>
+          <div v-if="draft.summary" class="flex gap-2">
             <span class="font-medium w-28 shrink-0">Summary</span>
-            <span class="text-(--ui-text-muted)">{{ draft.resumeData.summary }}</span>
+            <span class="text-(--ui-text-muted)">{{ draft.summary }}</span>
+          </div>
+          <div v-if="draft.experience?.length" class="flex gap-2">
+            <span class="font-medium w-28 shrink-0">Experience</span>
+            <span class="text-(--ui-text-muted)">{{ draft.experience.length }} position(s)</span>
+          </div>
+          <div v-if="draft.education?.length" class="flex gap-2">
+            <span class="font-medium w-28 shrink-0">Education</span>
+            <span class="text-(--ui-text-muted)">{{ draft.education.length }} entry/entries</span>
+          </div>
+          <div v-if="draft.skillCategories?.length" class="flex gap-2">
+            <span class="font-medium w-28 shrink-0">Skills</span>
+            <span class="text-(--ui-text-muted)">{{ draft.skillCategories.length }} category/categories</span>
+          </div>
+          <div v-if="draft.projects?.length" class="flex gap-2">
+            <span class="font-medium w-28 shrink-0">Projects</span>
+            <span class="text-(--ui-text-muted)">{{ draft.projects.length }} project(s)</span>
+          </div>
+          <div v-if="draft.languages?.length" class="flex gap-2">
+            <span class="font-medium w-28 shrink-0">Languages</span>
+            <span class="text-(--ui-text-muted)">{{ draft.languages.map(l => l.name).join(', ') }}</span>
+          </div>
+          <div v-if="draft.coverLetter?.content" class="flex gap-2">
+            <span class="font-medium w-28 shrink-0">Cover Letter</span>
+            <span class="text-(--ui-text-muted)">Included</span>
           </div>
           <div v-if="draft.provenance?.length" class="flex gap-2">
             <span class="font-medium w-28 shrink-0">Based on</span>

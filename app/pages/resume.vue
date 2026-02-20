@@ -79,30 +79,18 @@ const goBackToEdit = () => {
 	navigateTo('/edit')
 }
 
-// check resumeData for null or undefined
+// check resumeData — returns true if there is ANY meaningful content to display
 function isResumeComplete(): boolean {
   const resumeData = useRefResumeData()
-  if (
-    !resumeData.avatar.value ||
-    resumeData.name.value?.trim() === "" ||
-    resumeData.subtitle.value?.trim() === "" ||
-    resumeData.email.value?.trim() === "" ||
-    resumeData.phone.value?.trim() === "" ||
-    resumeData.address.value?.trim() === "" ||
-    resumeData.summary.value?.trim() === "" ||
-    !resumeData.hobbies.value.some(h => h.trim().length > 0) ||
-    !resumeData.languages.value.some(l => l.name?.trim().length > 0) ||
-    !resumeData.skillCategories.value.some(c => c.name?.trim().length > 0) ||
-    !resumeData.links.value.some(l => l.name?.trim().length > 0 || l.url?.trim().length > 0) ||
-    !resumeData.educationInstitutions.value.some(i => i.name?.trim().length > 0) ||
-    !resumeData.experienceInstitutions.value.some(i => i.name?.trim().length > 0) ||
-    !resumeData.education.value.some(e => e.degree?.trim().length > 0 || e.text?.trim().length > 0) ||
-    !resumeData.experience.value.some(e => e.position?.trim().length > 0 || e.text?.trim().length > 0) ||
-    !resumeData.projects.value.some(p => p.name?.trim().length > 0 || p.description?.trim().length > 0)
-  ) {
-    return false
-  }
-  return true
+  // At minimum, the resume should have a name or some content in any section
+  if (resumeData.name.value?.trim()) return true
+  if (resumeData.email.value?.trim()) return true
+  if (resumeData.summary.value?.trim()) return true
+  if (resumeData.experience.value?.some(e => e.position?.trim() || e.text?.trim())) return true
+  if (resumeData.education.value?.some(e => e.degree?.trim() || e.text?.trim())) return true
+  if (resumeData.skillCategories.value?.some(c => c.name?.trim())) return true
+  if (resumeData.projects.value?.some(p => p.name?.trim() || p.description?.trim())) return true
+  return false
 }
 
 onMounted(() => {

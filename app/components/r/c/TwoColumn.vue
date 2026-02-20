@@ -331,10 +331,10 @@ const data = useRefResumeData()
 							{{ data.educationInstitutions.value.find((i) => i.uuid === education.institution)?.name }}
 						</h3>
 
-						<div class="flex items-center gap-1">
+						<div v-if="education.start?.year || education.end?.year || education.active" class="flex items-center gap-1">
 							<UIcon name="i-lucide-clock" :size="style.font.size * 1.5"/>
 							<span>
-									{{ education.start?.month?.toString().padStart(2, '0') }}.{{ education.start?.year }} - {{ education.active && !education.end ? "Present" : `${education.active ? "(" : ""}${education.end?.month?.toString().padStart(2, '0')}.${education.end?.year}${education.active ? ")" : ""}` }}
+									{{ education.start?.month != null ? education.start.month.toString().padStart(2, '0') + '.' : '' }}{{ education.start?.year ?? '' }} - {{ education.active && !education.end ? "Present" : `${education.active ? "(" : ""}${education.end?.month != null ? education.end.month.toString().padStart(2, '0') + '.' : ''}${education.end?.year ?? ''}${education.active ? ")" : ""}` }}
 								</span>
 						</div>
 					</div>
@@ -394,10 +394,10 @@ const data = useRefResumeData()
 							{{ experience.position }}
 						</h3>
 
-						<div class="flex items-center gap-1">
+						<div v-if="experience.start?.year || experience.end?.year || experience.active" class="flex items-center gap-1">
 							<UIcon name="i-lucide-clock" :size="style.font.size * 1.5"/>
 							<span>
-									{{ experience.start?.month?.toString().padStart(2, '0') }}.{{ experience.start?.year }} - {{ experience.active && !experience.end ? "Present" : `${experience.active ? "(" : ""}${experience.end?.month?.toString().padStart(2, '0')}.${experience.end?.year}${experience.active ? ")" : ""}` }}
+									{{ experience.start?.month != null ? experience.start.month.toString().padStart(2, '0') + '.' : '' }}{{ experience.start?.year ?? '' }} - {{ experience.active && !experience.end ? "Present" : `${experience.active ? "(" : ""}${experience.end?.month != null ? experience.end.month.toString().padStart(2, '0') + '.' : ''}${experience.end?.year ?? ''}${experience.active ? ")" : ""}` }}
 								</span>
 						</div>
 					</div>
@@ -528,10 +528,10 @@ const data = useRefResumeData()
 						</div>
 
 						<div class="flex flex-col items-end gap-1 shrink-0">
-							<div v-if="project.start" class="flex shrink-0 items-center gap-1">
+							<div v-if="project.start?.year" class="flex shrink-0 items-center gap-1">
 								<UIcon name="i-lucide-clock" :size="style.font.size * 1.5"/>
 								<span>
-								{{ project.start?.month?.toString().padStart(2, '0') }}.{{ project.start?.year }} - {{ !project.end ? "Present" : `${project.end?.month?.toString().padStart(2, '0')}.${project.end?.year}` }}
+								{{ project.start?.month != null ? project.start.month.toString().padStart(2, '0') + '.' : '' }}{{ project.start?.year ?? '' }} - {{ !project.end ? "Present" : `${project.end?.month != null ? project.end.month.toString().padStart(2, '0') + '.' : ''}${project.end?.year ?? ''}` }}
 							</span>
 							</div>
 						</div>
@@ -555,9 +555,9 @@ const data = useRefResumeData()
 								<UIcon name="i-lucide-dot" :size="style.font.size * 1.75" class="-ml-1.5"/>
 								{{ qualification.name }}
 							</span>
-							<div v-if="qualification.date" class="flex items-center gap-1">
+							<div v-if="qualification.date?.year || qualification.date?.month" class="flex items-center gap-1">
 								<UIcon name="i-lucide-calendar" :size="style.font.size * 1.5"/>
-								<span>{{ qualification.date.month?.toString().padStart(2, '0') }}.{{ qualification.date.year }}</span>
+								<span>{{ qualification.date.month != null ? qualification.date.month.toString().padStart(2, '0') + '.' : '' }}{{ qualification.date.year ?? '' }}</span>
 							</div>
 						</div>
 						<p v-if="qualification.issuer" class="ml-3 text-sm" :style="{ color: style.colors.text.subtitle }">
