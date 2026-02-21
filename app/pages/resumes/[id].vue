@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { v7 } from 'uuid'
+import { buildSkillFromName } from '~/utils/technologyMatcher'
 /**
  * Resume edit page — loads a resume by ID, populates the shared useState slots,
  * and reuses the existing form components (same pattern as portfolio.vue).
@@ -116,7 +117,10 @@ function _populateState(data: ResumeData) {
   state.birthdate.value = (bd && (bd.year != null || bd.month != null || bd.day != null)) ? bd : undefined
   state.hobbies.value = data.hobbies?.length ? data.hobbies : ['']
   state.languages.value = data.languages?.length ? data.languages : [{ name: '' }]
-  state.skillCategories.value = data.skillCategories?.length ? data.skillCategories : [{
+  state.skillCategories.value = data.skillCategories?.length ? data.skillCategories.map(cat => ({
+    ...cat,
+    skills: cat.skills.map(s => s.technology ? s : buildSkillFromName(s.name)),
+  })) : [{
     name: '',
     skills: [{ technology: { label: 'Custom', value: 'custom', icon: 'i-lucide-shapes' }, name: '', displayType: { label: 'Text', value: 'text', icon: 'i-lucide-letter-text' } }]
   }]

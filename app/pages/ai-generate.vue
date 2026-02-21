@@ -8,6 +8,7 @@
  */
 
 import { redactJobText } from '../utils/redactJobText'
+import { buildSkillFromName } from '../utils/technologyMatcher'
 
 definePageMeta({ middleware: 'auth' })
 
@@ -109,7 +110,7 @@ function draftToResumeData(d: GenerateResumeDraftResponse, kind: 'IT' | 'Other')
     languages: d.languages.map(l => ({ name: l.name, level: l.level })),
     skillCategories: d.skillCategories.map(cat => ({
       name: cat.name,
-      skills: cat.skills.map(s => ({ name: s.name })),
+      skills: cat.skills.map(s => buildSkillFromName(s.name)),
     })),
     links: portfolio.value?.links ?? [],
     educationInstitutions: portfolio.value?.educationInstitutions ?? [],
