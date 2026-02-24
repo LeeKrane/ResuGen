@@ -12,7 +12,7 @@ import { ParseImportResponseSchema } from '../../../app/schemas/ai-responses'
  *   - DOCX/TXT: Extracted text → gpt-4.1-mini with text prompt
  *
  * Request body:
- *   For PDF:      { fileType: 'pdf', pages: string[] }  — array of base64 PNG data URIs
+ *   For PDF:      { fileType: 'pdf', pages: string[] }  - array of base64 PNG data URIs
  *   For DOCX/TXT: { fileType: 'docx' | 'txt', rawText: string }
  *
  * Response: ParseImportResponse
@@ -58,7 +58,7 @@ STRICT NO-GUESSING POLICY (NON-NEGOTIABLE)
 2) If a field is ambiguous or absent, OMIT it from data and ADD it to missing_fields.
 3) NEVER infer, assume, or fabricate dates, titles, descriptions, skills, or any other data.
 4) Assign a confidence score (0.0–1.0) for each extracted top-level field in the confidence object.
-5) Avatar/photo data CANNOT be extracted — always add "avatarData" to missing_fields.
+5) Avatar/photo data CANNOT be extracted - always add "avatarData" to missing_fields.
 
 LANGUAGE LEVEL MAPPING (CEFR)
 Map informal language proficiency descriptions to CEFR levels:
@@ -87,7 +87,7 @@ FIELD EXTRACTION RULES
 - links: extract URLs for GitHub, LinkedIn, portfolio sites, etc.
 - languages: spoken/written languages with CEFR levels
 
-OUTPUT JSON FORMAT (JSON ONLY — no markdown, no code fences)
+OUTPUT JSON FORMAT (JSON ONLY - no markdown, no code fences)
 {
   "data": {
     "profile": { "subtitle": "string", "email": "string", "phone": "string", "address": "string", "summary": "string", "hobbies": ["string"] },
@@ -102,7 +102,7 @@ OUTPUT JSON FORMAT (JSON ONLY — no markdown, no code fences)
   "confidence": { "fieldName": 0.0 },
   "missing_fields": ["string"]
 }
-All fields in data are optional — only include what is clearly present in the resume.`
+All fields in data are optional - only include what is clearly present in the resume.`
 
   const openai = getOpenAIClient()
 

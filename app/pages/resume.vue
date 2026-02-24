@@ -8,10 +8,24 @@ import {useVueToPrint} from "vue-to-print"
 
 const resumeContainer = ref<HTMLDivElement | null>(null)
 const coverLetterContainer = ref<HTMLDivElement | null>(null)
+const twoColumnRef = ref<{ padToPageBottom: () => void; removePad: () => void; getSidebarGradient: () => string | undefined } | null>(null)
 
 const { handlePrint } = useVueToPrint({
 	content: () => resumeContainer.value!,
-	documentTitle: "Resume"
+	documentTitle: "Resume",
+	onBeforeGetContent: () => { twoColumnRef.value?.padToPageBottom() },
+	onAfterPrint: () => { twoColumnRef.value?.removePad() },
+	print: async (iframe: HTMLIFrameElement) => {
+		// Inject the sidebar gradient onto the iframe's html element so it fills
+		// every page including the bottom of the last page
+		const gradient = twoColumnRef.value?.getSidebarGradient()
+		if (gradient && iframe.contentDocument) {
+			iframe.contentDocument.documentElement.style.background = gradient
+			iframe.contentDocument.documentElement.style.setProperty('-webkit-print-color-adjust', 'exact')
+			iframe.contentDocument.documentElement.style.setProperty('print-color-adjust', 'exact')
+		}
+		await iframe.contentWindow?.print()
+	},
 })
 
 const { handlePrint: handlePrintCoverLetter } = useVueToPrint({
@@ -79,7 +93,7 @@ const goBackToEdit = () => {
 	navigateTo('/edit')
 }
 
-// check resumeData — returns true if there is ANY meaningful content to display
+// check resumeData - returns true if there is ANY meaningful content to display
 function isResumeComplete(): boolean {
   const resumeData = useRefResumeData()
   // At minimum, the resume should have a name or some content in any section
@@ -242,9 +256,9 @@ onMounted(() => {
 				maxWidth: `${maxWidth}px`,
 				transform: `translateX(${-(!styleSliderBottom && slideOverBodyWidth > 0 ? slideOverBodyWidth + 48 : 0)/2}px)`,
 			}"
-			class="max-h-[calc(100vh-13rem)] print:w-[210mm] print:h-[297mm] not-print:w-3xl not-print:h-[calc(var(--container-3xl)*297/210)] shadow-xl mx-auto origin-top-left print:shadow-none not-print:m-4 transition-transform overflow-scroll">
+			class="max-h-[calc(100vh-13rem)] print:w-[210mm] print:h-auto not-print:w-3xl not-print:h-[calc(var(--container-3xl)*297/210)] shadow-xl mx-auto origin-top-left print:shadow-none not-print:m-4 transition-transform overflow-scroll">
 			<div ref="resumeContainer">
-				<RCTwoColumn />
+				<RCTwoColumn ref="twoColumnRef" />
 			</div>
 		</div>
 

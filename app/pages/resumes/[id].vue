@@ -2,7 +2,7 @@
 import { v7 } from 'uuid'
 import { buildSkillFromName } from '~/utils/technologyMatcher'
 /**
- * Resume edit page — loads a resume by ID, populates the shared useState slots,
+ * Resume edit page - loads a resume by ID, populates the shared useState slots,
  * and reuses the existing form components (same pattern as portfolio.vue).
  */
 
@@ -149,7 +149,7 @@ function _populateState(data: ResumeData) {
   }
 }
 
-// ─── Save ───
+//  Save 
 async function handleSave() {
   saving.value = true
   saveError.value = null

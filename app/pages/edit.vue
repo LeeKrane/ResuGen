@@ -8,9 +8,9 @@ import { useVueToPrint } from "vue-to-print"
 const { isIT } = useJobField()
 const activeTab = ref("0")
 
-// Print functionality - no refs needed since we navigate to resume page
+// Print functionality no refs needed since we navigate to resume page
 
-// Print functionality - render components inline for printing
+// Print functionality, render components inline for printing
 const resumeContainer = ref<HTMLDivElement | null>(null)
 const coverLetterContainer = ref<HTMLDivElement | null>(null)
 const showPrintModal = ref(false)
@@ -19,11 +19,7 @@ const printType = ref<'resume' | 'cover-letter'>('resume')
 const { handlePrint: vueToPrintResume } = useVueToPrint({
 	content: () => resumeContainer.value!,
 	documentTitle: "Resume",
-	onBeforePrint: () => {
-		console.log('Starting resume print...')
-	},
 	onAfterPrint: () => {
-		console.log('Resume print completed')
 		showPrintModal.value = false
 	}
 })
@@ -31,52 +27,36 @@ const { handlePrint: vueToPrintResume } = useVueToPrint({
 const { handlePrint: vueToPrintCoverLetter } = useVueToPrint({
 	content: () => coverLetterContainer.value!,
 	documentTitle: "Cover_Letter",
-	onBeforePrint: () => {
-		console.log('Starting cover letter print...')
-	},
 	onAfterPrint: () => {
-		console.log('Cover letter print completed')
 		showPrintModal.value = false
 	}
 })
 
 const handlePrint = () => {
-	console.log('Print Resume clicked!')
 	if (hasResumeContent.value) {
 		printType.value = 'resume'
 		showPrintModal.value = true
 		nextTick(() => {
 			setTimeout(() => {
 				if (resumeContainer.value) {
-					console.log('Resume container found, attempting print...')
 					vueToPrintResume()
-				} else {
-					console.error('Resume container not found!')
 				}
-			}, 1000) // Wait for component to render
+			}, 1000)
 		})
-	} else {
-		console.log('No resume content to print')
 	}
 }
 
 const handlePrintCoverLetter = () => {
-	console.log('Print Cover Letter clicked!')
 	if (hasCoverLetterContent.value) {
 		printType.value = 'cover-letter'
 		showPrintModal.value = true
 		nextTick(() => {
 			setTimeout(() => {
 				if (coverLetterContainer.value) {
-					console.log('Cover letter container found, attempting print...')
 					vueToPrintCoverLetter()
-				} else {
-					console.error('Cover letter container not found!')
 				}
-			}, 1000) // Wait for component to render
+			}, 1000)
 		})
-	} else {
-		console.log('No cover letter content to print')
 	}
 }
 
@@ -121,12 +101,6 @@ const hasResumeContent = computed(() => {
 })
 
 const hasCoverLetterContent = computed(() => hasCoverLetter.value)
-
-// Debug content availability (can be removed later)
-watchEffect(() => {
-	console.log('hasResumeContent:', hasResumeContent.value)
-	console.log('hasCoverLetterContent:', hasCoverLetterContent.value)
-})
 
 const tabItems = computed(() => {
 	const baseTabs = [

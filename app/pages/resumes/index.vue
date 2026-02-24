@@ -1,6 +1,6 @@
 <script setup lang="ts">
 /**
- * Resumes list page — shows all user resumes with CRUD actions.
+ * Resumes list page - shows all user resumes with CRUD actions.
  * Auth-protected: requires login.
  */
 
@@ -15,7 +15,7 @@ const createError = ref<string | null>(null)
 const pageReady = ref(false)
 const pageError = ref<string | null>(null)
 
-// ─── ZIP Import ───
+//  ZIP Import 
 const showImportModal = ref(false)
 const importError = ref<string | null>(null)
 const importing = ref(false)
@@ -47,7 +47,7 @@ async function onImportFile(event: Event) {
     const kind: 'IT' | 'Other' = resumeData.jobField === 'IT' ? 'IT' : 'Other'
     const title = generateTitle('Import_Resume')
 
-    // Create the resume row (blank — we'll save data next)
+    // Create the resume row (blank - we'll save data next)
     const newId = await createResume(title, kind)
 
     // Extract avatar if present
@@ -74,7 +74,7 @@ async function onImportFile(event: Event) {
   }
 }
 
-// ─── Kind selection modal ───
+//  Kind selection modal 
 const showKindModal = ref(false)
 const pendingAction = ref<'blank' | 'portfolio' | null>(null)
 
@@ -128,7 +128,7 @@ function generateTitle(prefix: string = 'Resume'): string {
   return `${fullPrefix}${next}`
 }
 
-// ─── Delete ───
+//  Delete 
 const showDeleteConfirm = ref(false)
 const deleteTarget = ref<ResumeSummary | null>(null)
 
@@ -149,7 +149,7 @@ async function confirmDelete() {
   }
 }
 
-// ─── Duplicate ───
+//  Duplicate 
 async function handleDuplicate(resume: ResumeSummary) {
   creating.value = true
   createError.value = null
@@ -168,7 +168,7 @@ function formatDate(iso: string): string {
   } catch { return iso }
 }
 
-// ─── Init ───
+//  Init 
 onMounted(async () => {
   try {
     const user = useSupabaseUser()

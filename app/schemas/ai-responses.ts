@@ -1,6 +1,6 @@
 import * as v from 'valibot'
 
-// ─── extract-requirements response ───
+//  extract-requirements response 
 
 export const ExtractRequirementsResponseSchema = v.object({
   keywords: v.array(v.string()),
@@ -11,7 +11,7 @@ export const ExtractRequirementsResponseSchema = v.object({
 
 export type ExtractRequirementsResponse = v.InferOutput<typeof ExtractRequirementsResponseSchema>
 
-// ─── generate-resume-draft response ───
+//  generate-resume-draft response 
 
 export const DraftExperienceSchema = v.object({
   position: v.string(),
@@ -63,62 +63,67 @@ export const GenerateResumeDraftResponseSchema = v.object({
 
 export type GenerateResumeDraftResponse = v.InferOutput<typeof GenerateResumeDraftResponseSchema>
 
-// ─── parse-import response ───
+//  parse-import response 
 // Uses simplified sub-schemas since AI returns flat strings for technologies,
 // not the full TechnologySchema objects used in the app's data model.
 
+// Helper: accepts both undefined (key omitted) and null (key present but null),
+// which LLMs frequently produce for absent fields.
+const optNull = <T extends v.BaseSchema<unknown, unknown, v.BaseIssue<unknown>>>(schema: T) =>
+  v.optional(v.nullable(schema))
+
 const ParsedProfileSchema = v.object({
-  name: v.optional(v.string()),
-  subtitle: v.optional(v.string()),
-  email: v.optional(v.string()),
-  phone: v.optional(v.string()),
-  address: v.optional(v.string()),
-  summary: v.optional(v.string()),
-  hobbies: v.optional(v.array(v.string())),
+  name: optNull(v.string()),
+  subtitle: optNull(v.string()),
+  email: optNull(v.string()),
+  phone: optNull(v.string()),
+  address: optNull(v.string()),
+  summary: optNull(v.string()),
+  hobbies: optNull(v.array(v.string())),
 })
 
 const ParsedDateSchema = v.object({
-  year: v.optional(v.number()),
-  month: v.optional(v.number()),
+  year: optNull(v.number()),
+  month: optNull(v.number()),
 })
 
 const ParsedEducationSchema = v.object({
   degree: v.string(),
-  institution: v.optional(v.string()),
-  institutionUrl: v.optional(v.string()),
-  text: v.optional(v.string()),
-  start: v.optional(ParsedDateSchema),
-  end: v.optional(ParsedDateSchema),
-  active: v.optional(v.boolean()),
+  institution: optNull(v.string()),
+  institutionUrl: optNull(v.string()),
+  text: optNull(v.string()),
+  start: optNull(ParsedDateSchema),
+  end: optNull(ParsedDateSchema),
+  active: optNull(v.boolean()),
 })
 
 const ParsedExperienceSchema = v.object({
   position: v.string(),
-  institution: v.optional(v.string()),
-  institutionUrl: v.optional(v.string()),
-  text: v.optional(v.string()),
-  technologies: v.optional(v.array(v.string())),
-  start: v.optional(ParsedDateSchema),
-  end: v.optional(ParsedDateSchema),
-  active: v.optional(v.boolean()),
-  internship: v.optional(v.boolean()),
+  institution: optNull(v.string()),
+  institutionUrl: optNull(v.string()),
+  text: optNull(v.string()),
+  technologies: optNull(v.array(v.string())),
+  start: optNull(ParsedDateSchema),
+  end: optNull(ParsedDateSchema),
+  active: optNull(v.boolean()),
+  internship: optNull(v.boolean()),
 })
 
 const ParsedProjectSchema = v.object({
   name: v.string(),
   description: v.string(),
-  url: v.optional(v.string()),
-  repoUrl: v.optional(v.string()),
-  repoPlatform: v.optional(v.string()),
-  openSource: v.optional(v.boolean()),
-  start: v.optional(ParsedDateSchema),
-  end: v.optional(ParsedDateSchema),
-  technologies: v.optional(v.array(v.string())),
+  url: optNull(v.string()),
+  repoUrl: optNull(v.string()),
+  repoPlatform: optNull(v.string()),
+  openSource: optNull(v.boolean()),
+  start: optNull(ParsedDateSchema),
+  end: optNull(ParsedDateSchema),
+  technologies: optNull(v.array(v.string())),
 })
 
 const ParsedCertificationSchema = v.object({
   name: v.string(),
-  issuer: v.optional(v.string()),
+  issuer: optNull(v.string()),
 })
 
 const ParsedLinkSchema = v.object({
@@ -128,13 +133,13 @@ const ParsedLinkSchema = v.object({
 
 const ParsedLanguageSchema = v.object({
   name: v.string(),
-  level: v.optional(v.picklist(['A1', 'A2', 'B1', 'B2', 'C1', 'C2', 'Native'])),
+  level: optNull(v.picklist(['A1', 'A2', 'B1', 'B2', 'C1', 'C2', 'Native'])),
 })
 
 const ParsedSkillSchema = v.object({
   name: v.string(),
-  technologyValue: v.optional(v.string()), // matched value from the known tech list, e.g. "python"
-  level: v.optional(v.picklist(['Basic', 'Decent', 'Good', 'Proficient', 'Expert'])),
+  technologyValue: optNull(v.string()), // matched value from the known tech list like "python"
+  level: optNull(v.picklist(['Basic', 'Decent', 'Good', 'Proficient', 'Expert'])),
 })
 
 const ParsedSkillCategorySchema = v.object({
@@ -155,7 +160,7 @@ const ParsedDataSchema = v.object({
 
 export const ParseImportResponseSchema = v.object({
   data: ParsedDataSchema,
-  confidence: v.record(v.string(), v.number()),
+  confidence: v.record(v.string(), v.nullable(v.number())),
   missing_fields: v.array(v.string()),
 })
 

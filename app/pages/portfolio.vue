@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { v7 } from 'uuid'
 /**
- * Portfolio page — the user's single source-of-truth for applicant data.
+ * Portfolio page - the user's single source-of-truth for applicant data.
  *
  * Strategy: load portfolio from DB → populate the shared useState slots used by
  * the existing form components (useRefResumeData) → reuse those components as-is.
@@ -21,7 +21,7 @@ const saveSuccess = ref(false)
 const pageReady = ref(false)
 const pageError = ref<string | null>(null)
 
-// ─── IT mode confirmation ───
+//  IT mode confirmation
 const showITConfirm = ref(false)
 const itConfirmedOnce = ref(false)
 
@@ -43,7 +43,7 @@ function cancelIT() {
   showITConfirm.value = false
 }
 
-// ─── Wait for user + load portfolio ───
+// Wait for user + load portfolio
 
 async function ensureLoaded() {
   try {
@@ -139,7 +139,7 @@ function _populateState(p: PortfolioData) {
   if (p.jobField === 'IT') itConfirmedOnce.value = true
 }
 
-// ─── Save ───
+// Save
 
 async function savePortfolio() {
   saving.value = true
@@ -243,7 +243,6 @@ const jobFieldOptions = [
             <p class="text-sm text-(--ui-text-muted)">Your personal data source for all resumes</p>
           </div>
           <div class="flex items-center gap-2">
-            <GeneralResumeLoader />
             <UButton
               label="Import from file"
               icon="i-lucide-file-plus"

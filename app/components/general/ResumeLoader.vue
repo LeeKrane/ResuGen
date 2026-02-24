@@ -6,7 +6,7 @@ const state = useRefResumeData()
 const errorMessage = ref<string | null>(null)
 const disabled = ref(false)
 
-// DB save after import — only shown when user is logged in
+// DB save after import - only shown when user is logged in
 const user = useSupabaseUser()
 const importedSuccessfully = ref(false)
 const savingToDB = ref(false)
@@ -87,7 +87,6 @@ async function onFileChange(event) {
 		const avatarBlob = await loadedZip.file('resume-avatar.webp')?.async('blob');
 
 		// Update state with validated data - batch updates to avoid reactivity issues
-		console.log('Starting data import...')
 		
 		// Basic fields
 		state.name.value = resumeData.name || ""
@@ -176,6 +175,7 @@ async function onFileChange(event) {
 		if (Array.isArray(resumeData.qualifications)) {
 			state.qualifications.value = resumeData.qualifications.map(qual => ({
 				name: qual.name || "",
+				issuer: qual.issuer || "",
 				date: qual.date,
 				description: qual.description
 			}))
@@ -203,12 +203,11 @@ async function onFileChange(event) {
 						position: coverLetterData.position || ""
 					}
 				}
-			} catch (error) {
-				console.warn('Error parsing cover-letter.json, using data from resume-data.json instead:', error)
+			} catch {
+				// cover-letter.json parse failed, data from resume-data.json is used instead
 			}
 		}
 		
-		console.log('Data import completed successfully')
 		importedSuccessfully.value = true
 
 		if (avatarBlob) {
@@ -229,7 +228,6 @@ async function onFileChange(event) {
 		}
 	} catch (error) {
 		errorMessage.value = 'Error reading the zip file: ' + error.message;
-		console.error('Error reading zip file:', error);
 		disabled.value = false
 	}
 

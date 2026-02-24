@@ -11,16 +11,16 @@ const {icon, label, defaultValueGetter, raw = false} = defineProps<{
 <template>
 	<UButton
 		v-if="raw"
-		:icon
-		:label
+		:icon="icon"
+		:label="label"
 		size="md"
 		variant="soft"
 		class="mx-auto cursor-pointer"
 		@click="() => { model!.push(defaultValueGetter()) }"/>
 	<div v-else class="flex">
 		<UButton
-			:icon
-			:label
+			:icon="icon"
+			:label="label"
 			size="md"
 			variant="soft"
 			class="mx-auto cursor-pointer"

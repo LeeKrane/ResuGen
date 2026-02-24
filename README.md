@@ -11,7 +11,7 @@ A modern, intuitive, and open-source resume generator designed to help you creat
 - **ATS-Friendly**: Optimized for Applicant Tracking Systems
 - **Browser-based PDF Export**: Print to PDF directly through your browser
 - **Data Portability**: Import/Export your resume data as ZIP
-- **AI Resume Import**: Upload a PDF, DOCX, or TXT resume — AI extracts structured data
+- **AI Resume Import**: Upload a PDF, DOCX, or TXT resume - AI extracts structured data
 - **Flexible Customization**: Personalize colors, spacing, and typography
 - **Type-Safe**: Built with TypeScript for reliability
 - **Aesthetic Design**: Subtle particle animation background

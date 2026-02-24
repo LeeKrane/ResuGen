@@ -8,7 +8,7 @@ import OpenAI from 'openai'
  *
  * Deployment note:
  *   - Set NUXT_OPENAI_API_KEY as a secret environment variable in your hosting provider.
- *   - Never use NUXT_PUBLIC_OPENAI_API_KEY — that would expose the key in the browser bundle.
+ *   - Never use NUXT_PUBLIC_OPENAI_API_KEY - that would expose the key in the browser bundle.
  *   - On Vercel/Railway/Render: add it under "Environment Variables" in the project settings.
  */
 export function getOpenAIClient(): OpenAI {

@@ -1,6 +1,6 @@
 import * as v from 'valibot'
 
-// ─── Shared primitives ───
+// Shared primitives 
 
 export const EmploymentDateSchema = v.object({
   year: v.optional(v.number()),
@@ -97,7 +97,7 @@ export const CoverLetterSchema = v.object({
   position: v.optional(v.string()),
 })
 
-// ─── ResumeData ───
+//  ResumeData 
 
 export const ResumeDataSchema = v.object({
   name: v.string(),
@@ -121,7 +121,7 @@ export const ResumeDataSchema = v.object({
   coverLetter: v.optional(CoverLetterSchema),
 })
 
-// ─── ResumeStyle ───
+// ResumeStyle 
 
 export const SectionStateSchema = v.object({
   enabled: v.boolean(),
@@ -199,7 +199,7 @@ export const ResumeStyleSchema = v.object({
   }),
 })
 
-// ─── ResumeSummary (for list view) ───
+// ResumeSummary (for list view)
 
 export const ResumeSummarySchema = v.object({
   id: v.string(),

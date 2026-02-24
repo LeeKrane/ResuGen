@@ -97,7 +97,7 @@ STRICT NO-GUESSING POLICY (NON-NEGOTIABLE)
 2) If a field is ambiguous or absent, OMIT it from data and ADD it to missing_fields.
 3) NEVER infer, assume, or fabricate dates, titles, descriptions, skills, or any other data.
 4) Assign a confidence score (0.0–1.0) for each extracted top-level field in the confidence object.
-5) Avatar/photo data CANNOT be extracted — always add "avatarData" to missing_fields.
+5) Avatar/photo data CANNOT be extracted - always add "avatarData" to missing_fields.
 
 LANGUAGE LEVEL MAPPING (CEFR)
 Map informal language proficiency descriptions to CEFR levels:
@@ -143,7 +143,7 @@ PROJECT FIELDS
 - projects[].description: project description
 - projects[].url: project website/demo URL if present
 - projects[].repoUrl: repository URL if present (e.g. GitHub link)
-- projects[].repoPlatform: one of "github", "gitlab", "bitbucket", "sourcehut", "forgejo", "gitea", "subversion", "mercurial" — inferred from repoUrl domain if present
+- projects[].repoPlatform: one of "github", "gitlab", "bitbucket", "sourcehut", "forgejo", "gitea", "subversion", "mercurial" - inferred from repoUrl domain if present
 - projects[].openSource: true only if explicitly stated as open source
 - projects[].start: { year, month } if present
 - projects[].end: { year, month } if present
@@ -154,16 +154,16 @@ FIELD EXTRACTION RULES
 - profile.subtitle: professional title or headline (e.g., "Senior Frontend Engineer")
 - profile.summary: professional summary or objective paragraph
 - profile.hobbies: only if explicitly listed as hobbies/interests
-- links: extract ALL URLs found in the resume — GitHub profiles, LinkedIn, portfolio/personal websites, social media, etc. Use descriptive names like "GitHub", "LinkedIn", "Portfolio", "Website". If a URL appears anywhere in the resume (header, footer, contact section), include it.
+- links: extract ALL URLs found in the resume - GitHub profiles, LinkedIn, portfolio/personal websites, social media, etc. Use descriptive names like "GitHub", "LinkedIn", "Portfolio", "Website". If a URL appears anywhere in the resume (header, footer, contact section), include it.
 - education[].degree: degree name (e.g., "B.Sc. Computer Science")
-- education[].institution: institution name only (e.g., "Johannes Kepler Universität Linz") — do NOT include in text
+- education[].institution: institution name only (e.g., "Johannes Kepler Universität Linz") - do NOT include in text
 - education[].institutionUrl: official website URL if well-known (omit if unsure)
 - education[].text: any additional details beyond degree and institution (omit if nothing extra)
 - education[].start: { year, month } from start date if present (month is 1-12)
 - education[].end: { year, month } from end date if present; omit if still ongoing
 - education[].active: true if currently ongoing (e.g. "laufend", "present", "current")
 - experience[].position: job title only
-- experience[].institution: employer/company name only — do NOT include in text
+- experience[].institution: employer/company name only - do NOT include in text
 - experience[].institutionUrl: official website URL if well-known (omit if unsure)
 - experience[].text: job description, responsibilities, achievements (no dates, no company name)
 - experience[].technologies: technologies/tools mentioned in that specific role (as string array of names)
@@ -175,14 +175,14 @@ FIELD EXTRACTION RULES
 - certifications: this field captures certifications, awards, hackathon wins, competitions, honors, scholarships, and any other notable accomplishments. Include ALL of these:
   - Professional certifications (e.g. "AWS Solutions Architect")
   - Awards and honors (e.g. "Dean's List", "Employee of the Year")
-  - Hackathon wins and competition results (e.g. "1st Place — HackZurich 2023")
+  - Hackathon wins and competition results (e.g. "1st Place - HackZurich 2023")
   - Scholarships and grants
   - Any other notable achievements that don't fit education or experience
 - certifications[].name: the name of the certification, award, or accomplishment
 - certifications[].issuer: issuing organization, event name, or awarding body (if mentioned)
 - languages: spoken/written languages with CEFR levels
 
-OUTPUT JSON FORMAT (JSON ONLY — no markdown, no code fences)
+OUTPUT JSON FORMAT (JSON ONLY - no markdown, no code fences)
 {
   "data": {
     "profile": { "name": "string", "subtitle": "string", "email": "string", "phone": "string", "address": "string", "summary": "string", "hobbies": ["string"] },
@@ -197,7 +197,7 @@ OUTPUT JSON FORMAT (JSON ONLY — no markdown, no code fences)
   "confidence": { "fieldName": 0.0 },
   "missing_fields": ["string"]
 }
-All fields in data are optional — only include what is clearly present in the resume.
+All fields in data are optional - only include what is clearly present in the resume.
 For dates: only include year/month if explicitly stated. Never guess or infer dates.`
 
 export default defineEventHandler(async (event) => {
@@ -232,7 +232,7 @@ export default defineEventHandler(async (event) => {
   let messages: any[]
 
   if (ext === 'pdf') {
-    // Send PDF as base64 directly — OpenAI handles text-layer and scanned PDFs natively
+    // Send PDF as base64 directly - OpenAI handles text-layer and scanned PDFs natively
     const base64 = filePart.data.toString('base64')
     messages = [
       { role: 'system', content: SYSTEM_PROMPT },

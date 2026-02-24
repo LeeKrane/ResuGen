@@ -1,9 +1,9 @@
 <script setup lang="ts">
 /**
- * AI Generate page — takes a job description, calls AI endpoints to extract
+ * AI Generate page, takes a job description, calls AI endpoints to extract
  * requirements and generate a tailored resume draft from the user's portfolio.
  *
- * Job text is stored in a Vue ref() ONLY — never persisted to any storage.
+ * Job text is stored in a Vue ref() ONLY, never persisted to any storage.
  * All error handlers use redactJobText() before logging or displaying errors.
  */
 
@@ -16,35 +16,35 @@ const { portfolio, load: loadPortfolio } = usePortfolio()
 const { createResume, saveResume } = useResumeDB()
 const router = useRouter()
 
-// ─── Ephemeral job text (never persisted) ───
+//  Ephemeral job text (never persisted) 
 const jobText = ref('')
 
-// ─── Step state ───
+//  Step state 
 type Step = 'input' | 'requirements' | 'draft' | 'saving'
 const step = ref<Step>('input')
 
-// ─── Requirements extraction ───
+//  Requirements extraction 
 const extracting = ref(false)
 const extractError = ref<string | null>(null)
 const requirements = ref<ExtractRequirementsResponse | null>(null)
 
-// ─── Draft generation ───
+//  Draft generation 
 const generating = ref(false)
 const generateError = ref<string | null>(null)
 const draft = ref<GenerateResumeDraftResponse | null>(null)
 
-// ─── Save ───
+//  Save 
 const saving = ref(false)
 const saveError = ref<string | null>(null)
 
-// ─── Ensure portfolio is loaded ───
+//  Ensure portfolio is loaded 
 onMounted(async () => {
   if (!portfolio.value) {
     await loadPortfolio()
   }
 })
 
-// ─── Step 1: Extract requirements ───
+//  Step 1: Extract requirements 
 async function analyzeJob() {
   if (!jobText.value.trim()) return
   extracting.value = true
@@ -66,7 +66,7 @@ async function analyzeJob() {
   }
 }
 
-// ─── Step 2: Generate resume draft ───
+//  Step 2: Generate resume draft 
 async function generateDraft() {
   if (!portfolio.value) {
     generateError.value = 'Portfolio not loaded. Please try again.'
@@ -91,7 +91,7 @@ async function generateDraft() {
   }
 }
 
-// ─── Step 3: Save draft as new resume ───
+//  Step 3: Save draft as new resume 
 
 /**
  * Map the flat GenerateResumeDraftResponse into a full ResumeData object
@@ -115,18 +115,51 @@ function draftToResumeData(d: GenerateResumeDraftResponse, kind: 'IT' | 'Other')
     links: portfolio.value?.links ?? [],
     educationInstitutions: portfolio.value?.educationInstitutions ?? [],
     experienceInstitutions: portfolio.value?.experienceInstitutions ?? [],
-    education: d.education.map(e => ({ degree: e.degree, text: e.text })),
-    experience: d.experience.map(e => ({
-      position: e.position,
-      text: e.text,
-      technologies: [], // AI returns string[] but ResumeData expects Technology[] — leave empty, user can add in editor
-    })),
-    projects: d.projects.map(p => ({
-      name: p.name,
-      description: p.description,
-      repoLink: { name: '', url: '' },
-      technologies: [],
-    })),
+    education: d.education.map(e => {
+      // Look up matching portfolio entry to carry over dates and institution
+      const portfolioEdu = portfolio.value?.education?.find(
+        pe => pe.degree?.trim().toLowerCase() === e.degree?.trim().toLowerCase()
+      )
+      return {
+        degree: e.degree,
+        text: e.text,
+        institution: portfolioEdu?.institution,
+        start: portfolioEdu?.start,
+        end: portfolioEdu?.end,
+        active: portfolioEdu?.active,
+      }
+    }),
+    experience: d.experience.map(e => {
+      // Look up matching portfolio entry to carry over dates and institution
+      const portfolioExp = portfolio.value?.experience?.find(
+        pe => pe.position?.trim().toLowerCase() === e.position?.trim().toLowerCase()
+      )
+      return {
+        position: e.position,
+        text: e.text,
+        institution: portfolioExp?.institution,
+        start: portfolioExp?.start,
+        end: portfolioExp?.end,
+        active: portfolioExp?.active,
+        internship: portfolioExp?.internship,
+        technologies: [],
+      }
+    }),
+    projects: d.projects.map(p => {
+      const portfolioProj = portfolio.value?.projects?.find(
+        pp => pp.name?.trim().toLowerCase() === p.name?.trim().toLowerCase()
+      )
+      return {
+        name: p.name,
+        description: p.description,
+        repoLink: portfolioProj?.repoLink ?? { name: '', url: '' },
+        url: portfolioProj?.url,
+        openSource: portfolioProj?.openSource,
+        start: portfolioProj?.start,
+        end: portfolioProj?.end,
+        technologies: [],
+      }
+    }),
     jobField: kind,
     qualifications: portfolio.value?.certifications ?? [],
     coverLetter: {
@@ -180,7 +213,7 @@ function reset() {
   extractError.value = null
   generateError.value = null
   saveError.value = null
-  // Note: jobText is intentionally NOT cleared — user may want to re-analyze
+  // Note: jobText is intentionally NOT cleared - user may want to re-analyze
 }
 </script>
 

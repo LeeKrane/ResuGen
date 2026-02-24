@@ -11,9 +11,10 @@ import {
   InstitutionSchema,
 } from './resume'
 
-// ─── PortfolioData ───
+//  PortfolioData 
 
 export const PortfolioProfileSchema = v.object({
+  name: v.string(),
   subtitle: v.string(),
   email: v.string(),
   phone: v.string(),
@@ -37,4 +38,5 @@ export const PortfolioDataSchema = v.object({
   certifications: v.array(QualificationSchema),
   educationInstitutions: v.array(InstitutionSchema),
   experienceInstitutions: v.array(InstitutionSchema),
+  jobField: v.optional(v.picklist(['IT', 'Other'])),
 })
