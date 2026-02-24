@@ -17,7 +17,7 @@ import {
 import { useEncryption } from './useEncryption'
 
 /**
- * useResumeDB — composable for CRUD operations on the user's resumes.
+ * useResumeDB - composable for CRUD operations on the user's resumes.
  *
  * Resumes and their child tables (education, experience, projects, etc.) ARE in the
  * generated Supabase types, so no `as any` cast is needed here.
@@ -77,7 +77,7 @@ export const useResumeDB = () => {
   }
 
   /**
-   * Load a full resume by ID — fetches the resume row + all child rows in parallel,
+   * Load a full resume by ID - fetches the resume row + all child rows in parallel,
    * decrypts all encrypted fields, and returns a ResumeData object.
    *
    * Returns null if the resume is not found or does not belong to the current user.
@@ -192,13 +192,13 @@ export const useResumeDB = () => {
     error.value = null
   }
 
-  // ─── Create ───
+  //  Create 
 
   /**
    * Create a new resume row and return its ID.
    *
    * @param title  Display title for the resume
-   * @param kind   'IT' or 'Other' — determines which template is used
+   * @param kind   'IT' or 'Other' - determines which template is used
    * @param fromPortfolio  Optional PortfolioData to seed the resume's child tables from
    * @param duplicatedFrom  Optional source resume ID (for lineage tracking)
    */
@@ -217,7 +217,7 @@ export const useResumeDB = () => {
 
     const resumeId = crypto.randomUUID()
 
-    // Insert the resume row — name_encrypted is NOT NULL in DB, so we must provide it
+    // Insert the resume row - name_encrypted is NOT NULL in DB, so we must provide it
     const db = supabase as any
     const { encryptString } = await import('../utils/crypto')
     const nameEncrypted = await encryptString('', cryptoKey)
@@ -269,13 +269,13 @@ export const useResumeDB = () => {
     return createResume(title, kind)
   }
 
-  // ─── Save ───
+  //  Save 
 
   /**
    * Persist all resume data for a given resume ID.
    *
    * Strategy: upsert the resume row, then delete-and-reinsert all child tables.
-   * Same approach as usePortfolio.save() — simple and correct for small data volumes.
+   * Same approach as usePortfolio.save() - simple and correct for small data volumes.
    */
   async function saveResume(id: string, data: ResumeData, title?: string): Promise<void> {
     const userId = user.value?.id
@@ -315,7 +315,7 @@ export const useResumeDB = () => {
     }
   }
 
-  // ─── Delete ───
+  //  Delete 
 
   /**
    * Delete a resume by ID.
@@ -324,7 +324,7 @@ export const useResumeDB = () => {
    * all child rows (education, experience, projects, skills, etc.) are removed
    * atomically by the database. No manual child cleanup is needed here.
    *
-   * The associated resume_style row is NOT deleted — it uses ON DELETE SET NULL,
+   * The associated resume_style row is NOT deleted - it uses ON DELETE SET NULL,
    * so styles survive resume deletion and can be reused.
    */
   async function deleteResume(id: string): Promise<void> {
@@ -354,7 +354,7 @@ export const useResumeDB = () => {
     }
   }
 
-  // ─── Duplicate ───
+  //  Duplicate 
 
   /**
    * Duplicate a resume by ID.
@@ -411,7 +411,7 @@ export const useResumeDB = () => {
   }
 }
 
-// ─── Private helpers ───
+//  Private helpers 
 
 /**
  * Encrypt and insert/replace all child rows for a resume.
@@ -426,7 +426,7 @@ async function _saveResumeRows(resumeId: string, data: ResumeData, cryptoKey: Cr
   // Update the resume row's encrypted profile fields
   const r = rows.resume
 
-  // Build the update payload — avatar columns are only included when data.avatarData
+  // Build the update payload - avatar columns are only included when data.avatarData
   // is present (base64 string). resumeToRows always sets avatar_data_encrypted: null
   // because it can't handle base64 strings (only File objects). Omitting avatar columns
   // here prevents overwriting a previously-saved avatar with null on every save.

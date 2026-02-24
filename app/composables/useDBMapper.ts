@@ -1,7 +1,7 @@
 import { encryptString, decryptString } from '../utils/crypto'
 
 /**
- * DB Mapper — bidirectional mapping between TypeScript interfaces and Supabase DB rows.
+ * DB Mapper - bidirectional mapping between TypeScript interfaces and Supabase DB rows.
  *
  * Naming convention:
  *   - DB rows use snake_case with `_encrypted` suffix on sensitive columns
@@ -11,14 +11,14 @@ import { encryptString, decryptString } from '../utils/crypto'
  * Null/undefined fields are handled gracefully (null in DB → undefined in TS).
  */
 
-// ─── Helpers ───
+//  Helpers 
 
 async function enc(value: string | undefined | null, key: CryptoKey): Promise<string | null> {
   if (value == null || value === '') return null
   return encryptString(value, key)
 }
 
-// Like enc() but always returns an encrypted string — encrypts empty string instead of returning null.
+// Like enc() but always returns an encrypted string - encrypts empty string instead of returning null.
 // Use for NOT NULL columns in the DB.
 async function encReq(value: string | undefined | null, key: CryptoKey): Promise<string> {
   return encryptString(value ?? '', key)
@@ -46,7 +46,7 @@ async function decNum(value: string | undefined | null, key: CryptoKey): Promise
   return isNaN(n) ? undefined : n
 }
 
-// ─── Resume row types (DB shape) ───
+//  Resume row types (DB shape) 
 
 export interface DBResumeRow {
   id?: string
@@ -217,7 +217,7 @@ export interface DBResumeRows {
   coverLetter: DBCoverLetterRow | null
 }
 
-// ─── Resume → DB rows ───
+//  Resume → DB rows 
 
 export async function resumeToRows(
   data: ResumeData,
@@ -401,7 +401,7 @@ export async function resumeToRows(
   return { resume, education, experience, projects, skillCategories, skills, links, languages, certifications, coverLetter }
 }
 
-// ─── DB rows → ResumeData ───
+//  DB rows → ResumeData 
 
 export async function rowsToResume(rows: DBResumeRows, key: CryptoKey): Promise<ResumeData> {
   const r = rows.resume
@@ -595,7 +595,7 @@ export async function rowsToResume(rows: DBResumeRows, key: CryptoKey): Promise<
   }
 }
 
-// ─── Portfolio row types (DB shape) ───
+//  Portfolio row types (DB shape) 
 
 export interface DBApplicantProfileRow {
   user_id: string
@@ -749,7 +749,7 @@ export interface DBPortfolioRows {
   certifications: DBApplicantCertificationRow[]
 }
 
-// ─── PortfolioData → DB rows ───
+//  PortfolioData → DB rows 
 
 export async function portfolioToRows(
   data: PortfolioData,
@@ -918,7 +918,7 @@ export async function portfolioToRows(
   return { profile, links, languages, skillCategories, skills, education, experience, projects, certifications }
 }
 
-// ─── DB rows → PortfolioData ───
+//  DB rows → PortfolioData 
 
 export async function rowsToPortfolio(rows: DBPortfolioRows, key: CryptoKey): Promise<PortfolioData> {
   const p = rows.profile
@@ -1102,7 +1102,7 @@ export async function rowsToPortfolio(rows: DBPortfolioRows, key: CryptoKey): Pr
   }
 }
 
-// ─── Style row type (DB shape) ───
+//  Style row type (DB shape) 
 
 export interface DBStyleRow {
   id?: string
@@ -1152,7 +1152,7 @@ export interface DBStyleRow {
   updated_at?: string
 }
 
-// ─── ResumeStyle → DB row ───
+//  ResumeStyle → DB row 
 
 export function styleToRow(style: ResumeStyle, name: string = 'Default'): Omit<DBStyleRow, 'id' | 'user_id' | 'created_at' | 'updated_at'> {
   return {
@@ -1200,7 +1200,7 @@ export function styleToRow(style: ResumeStyle, name: string = 'Default'): Omit<D
   }
 }
 
-// ─── DB row → ResumeStyle ───
+//  DB row → ResumeStyle 
 
 export function rowToStyle(row: DBStyleRow): ResumeStyle {
   return {

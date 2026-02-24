@@ -7,7 +7,7 @@ import { GenerateResumeDraftResponseSchema } from '../../../app/schemas/ai-respo
  *
  * Generates a tailored resume draft + cover letter from the user's portfolio
  * data and a job description. The AI may only rephrase or highlight existing
- * portfolio data — it must NEVER invent experiences, skills, or qualifications.
+ * portfolio data - it must NEVER invent experiences, skills, or qualifications.
  *
  * Request body:
  *   {

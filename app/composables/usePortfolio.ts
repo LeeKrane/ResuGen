@@ -16,7 +16,7 @@ import {
 import { useEncryption } from './useEncryption'
 
 /**
- * usePortfolio — reactive composable for reading and writing the user's portfolio.
+ * usePortfolio - reactive composable for reading and writing the user's portfolio.
  *
  * The portfolio is the single source-of-truth for applicant data (applicant_* tables).
  * All sensitive fields are encrypted client-side before storage and decrypted on load.
@@ -47,7 +47,7 @@ export const usePortfolio = () => {
    * If portfolio is already loaded, returns immediately (idempotent).
    */
   async function load(): Promise<void> {
-    // Already loaded — skip network call
+    // Already loaded - skip network call
     if (portfolio.value) return
     // Deduplicate concurrent calls (module-level, shared across all instances)
     if (_sharedLoadPromise) return _sharedLoadPromise
@@ -222,7 +222,7 @@ export const usePortfolio = () => {
   }
 }
 
-// ─── Helpers ───
+//  Helpers 
 
 function emptyPortfolio(): PortfolioData {
   return {

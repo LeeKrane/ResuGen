@@ -6,15 +6,14 @@ import { deriveEncryptionKey, encryptString, decryptString } from '../utils/cryp
  *
  * Key derivation: PBKDF2(user.id, profiles.encryption_key_salt, 100_000, SHA-256)
  *
- * ⚠️ SECURITY NOTE (thesis): A DB admin with access to user.id + salt could
- * reconstruct the key. In production, use a user passphrase or per-device
- * CryptoKey. Accepted trade-off for this student project.
+ * Security note: key derivation uses user.id + salt stored in the DB, meaning
+ * a DB admin with access to both could reconstruct the key.
  */
 export const useEncryption = () => {
   const supabase = useSupabaseClient()
   const user = useSupabaseUser()
 
-  // Cached CryptoKey — lives in memory only, cleared on logout
+  // Cached CryptoKey - lives in memory only, cleared on logout
   const cryptoKey = useState<CryptoKey | null>('encryptionKey', () => null)
   const isReady = computed(() => cryptoKey.value !== null)
 
@@ -38,7 +37,7 @@ export const useEncryption = () => {
       .maybeSingle()
 
     const timeout = new Promise<never>((_, reject) =>
-      setTimeout(() => reject(new Error('Encryption key derivation timed out — check Supabase connection')), 10_000)
+      setTimeout(() => reject(new Error('Encryption key derivation timed out - check Supabase connection')), 10_000)
     )
 
     const { data, error } = await Promise.race([profileQuery, timeout]) as Awaited<typeof profileQuery>
@@ -47,7 +46,7 @@ export const useEncryption = () => {
 
     let salt = data?.encryption_key_salt as string | null
 
-    // First-time OAuth users won't have a salt — generate and persist one
+    // First-time OAuth users won't have a salt - generate and persist one
     if (!salt) {
       const saltBytes = crypto.getRandomValues(new Uint8Array(32))
       salt = btoa(String.fromCharCode(...saltBytes))
@@ -67,7 +66,7 @@ export const useEncryption = () => {
    * Encrypt plaintext → base64 ciphertext.
    */
   async function encrypt(plaintext: string): Promise<string> {
-    if (!cryptoKey.value) throw new Error('Encryption key not ready — call deriveKey() first')
+    if (!cryptoKey.value) throw new Error('Encryption key not ready - call deriveKey() first')
     return encryptString(plaintext, cryptoKey.value)
   }
 
@@ -75,11 +74,11 @@ export const useEncryption = () => {
    * Decrypt base64 ciphertext → plaintext.
    */
   async function decrypt(ciphertextB64: string): Promise<string> {
-    if (!cryptoKey.value) throw new Error('Encryption key not ready — call deriveKey() first')
+    if (!cryptoKey.value) throw new Error('Encryption key not ready - call deriveKey() first')
     try {
       return await decryptString(ciphertextB64, cryptoKey.value)
     } catch {
-      throw new Error('Decryption failed — data may be corrupted or key mismatch')
+      throw new Error('Decryption failed - data may be corrupted or key mismatch')
     }
   }
 

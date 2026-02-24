@@ -2,14 +2,14 @@
 import { v7 } from 'uuid'
 
 /**
- * Import page — upload a resume file (PDF, DOCX, TXT) and merge/replace
+ * Import page upload a resume file (PDF, DOCX, TXT) and merge/replace
  * the user's portfolio via AI-assisted parsing.
  *
  * Flow:
  *   1. User uploads a file
  *   2. File is sent to /api/ai/upload-resume (server extracts + parses via OpenAI)
  *   3. Review screen shows extracted data; user picks Replace or Merge
- *   4. Confirm → save to portfolio via usePortfolio().save()
+ *   4. Confirm and save to portfolio via usePortfolio().save()
  */
 
 definePageMeta({ middleware: 'auth' })
@@ -56,7 +56,7 @@ type ParsedData = {
   certifications?: Array<{ name: string; issuer?: string }>
 }
 
-// ─── State ───
+// State
 const step = ref<'upload' | 'review' | 'done'>('upload')
 const uploading = ref(false)
 const uploadError = ref<string | null>(null)
@@ -113,7 +113,7 @@ const reviewProjects = ref<Array<{
 }>>([])
 const reviewCertifications = ref<Array<{ name: string; issuer: string }>>([])
 
-// ─── Known technologies for client-side matching ───
+// Known technologies for client-side matching
 const KNOWN_TECHNOLOGIES = [
   { label: 'Alpine Linux', value: 'alpine-linux' }, { label: 'Alpine.js', value: 'alpinejs' },
   { label: 'Android', value: 'android' }, { label: 'Angular', value: 'angular' },
@@ -224,7 +224,7 @@ const techTypeItems = [
   ...KNOWN_TECHNOLOGIES.map(t => ({ label: t.label, value: t.value })),
 ]
 
-// ─── File upload ───
+// File upload
 const fileInput = ref<HTMLInputElement | null>(null)
 const selectedFile = ref<File | null>(null)
 
@@ -280,7 +280,7 @@ async function uploadAndParse() {
     reviewSkillCategories.value = (res.data.skillCategories ?? []).map(c => ({
       name: c.name,
       skills: c.skills.map(s => {
-        // Client-side technology matching — AI response may or may not have technologyValue
+        // Client-side technology matching - AI response may or may not have technologyValue
         const matched = s.technologyValue ? s.technologyValue : matchTechnology(s.name)
         return {
           name: s.name,
@@ -339,12 +339,13 @@ async function uploadAndParse() {
   }
 }
 
-// ─── Helpers ───
+// Helpers
 function parseDate(year: string, month: string): EmploymentDate | undefined {
   const y = parseInt(year)
   const m = parseInt(month)
   if (!y) return undefined
-  return { year: y, month: m || undefined }
+  // DatePicker requires year+month+day to display; default day to 1 when only year/month are known
+  return { year: y, month: m || 1, day: 1 }
 }
 
 function buildInstitutions(
@@ -372,7 +373,7 @@ function buildInstitutions(
   return { institutions, uuidMap }
 }
 
-// ─── Confirm import ───
+// Confirm import
 const { portfolio, load, save } = usePortfolio()
 const { isReady: keyReady } = useEncryption()
 
@@ -456,7 +457,8 @@ async function confirmImport() {
           return {
             degree: e.degree,
             text: e.text,
-            institution: instUuid ? { uuid: instUuid, name: instName } : undefined,
+            // Form components expect institution as a UUID string (USelect value), not an object
+            institution: instUuid || undefined,
             start: parseDate(e.startYear, e.startMonth),
             end: e.active ? undefined : parseDate(e.endYear, e.endMonth),
             active: e.active || undefined,
@@ -472,7 +474,8 @@ async function confirmImport() {
           return {
             position: e.position,
             text: e.text,
-            institution: instUuid ? { uuid: instUuid, name: instName } : undefined,
+            // Form components expect institution as a UUID string (USelect value), not an object
+            institution: instUuid || undefined,
             start: parseDate(e.startYear, e.startMonth),
             end: e.active ? undefined : parseDate(e.endYear, e.endMonth),
             active: e.active || undefined,
@@ -548,7 +551,7 @@ function emptyPortfolio(): PortfolioData {
   }
 }
 
-// ─── Confidence helpers ───
+// Confidence helpers
 function confidenceColor(field: string): 'success' | 'warning' | 'error' | 'neutral' {
   const c = confidence.value[field]
   if (c === undefined) return 'neutral'
@@ -572,7 +575,7 @@ const hasAnyData = computed(() =>
   reviewSkillCategories.value.length > 0
 )
 
-// ─── SessionStorage persistence for review data ───
+// SessionStorage persistence for review data
 const STORAGE_KEY = 'import-review-state'
 
 function saveReviewToSession() {
@@ -594,7 +597,7 @@ function saveReviewToSession() {
       reviewCertifications: reviewCertifications.value,
     }
     sessionStorage.setItem(STORAGE_KEY, JSON.stringify(state))
-  } catch { /* quota exceeded or SSR — ignore */ }
+  } catch { /* quota exceeded or SSR - ignore */ }
 }
 
 function restoreReviewFromSession() {
@@ -616,7 +619,7 @@ function restoreReviewFromSession() {
     reviewExperience.value = state.reviewExperience ?? []
     reviewProjects.value = state.reviewProjects ?? []
     reviewCertifications.value = state.reviewCertifications ?? []
-  } catch { /* parse error or SSR — ignore */ }
+  } catch { /* parse error or SSR - ignore */ }
 }
 
 // Persist on changes (debounced via deep watch)
@@ -670,7 +673,7 @@ watch(step, (val) => {
           <UIcon name="i-lucide-cloud-upload" class="text-5xl text-(--ui-text-muted)" />
           <div class="text-center">
             <p class="font-medium">Drop your resume here or click to browse</p>
-            <p class="text-sm text-(--ui-text-muted) mt-1">Supports PDF, DOCX, and TXT — max 10 MB</p>
+            <p class="text-sm text-(--ui-text-muted) mt-1">Supports PDF, DOCX, and TXT - max 10 MB</p>
           </div>
           <input
             ref="fileInput"
@@ -815,7 +818,7 @@ watch(step, (val) => {
               />
               <USelect
                 v-model="skill.level"
-                :items="[{ label: '—', value: 'none' }, { label: 'Basic', value: 'Basic' }, { label: 'Decent', value: 'Decent' }, { label: 'Good', value: 'Good' }, { label: 'Proficient', value: 'Proficient' }, { label: 'Expert', value: 'Expert' }]"
+                :items="[{ label: '-', value: 'none' }, { label: 'Basic', value: 'Basic' }, { label: 'Decent', value: 'Decent' }, { label: 'Good', value: 'Good' }, { label: 'Proficient', value: 'Proficient' }, { label: 'Expert', value: 'Expert' }]"
                 placeholder="Level"
                 class="w-28"
               />
@@ -938,7 +941,7 @@ watch(step, (val) => {
             <div class="flex gap-2">
               <USelect
                 v-model="proj.repoPlatform"
-                :items="[{ label: '— No repo —', value: 'none' }, { label: 'GitHub', value: 'github' }, { label: 'GitLab', value: 'gitlab' }, { label: 'Bitbucket', value: 'bitbucket' }, { label: 'Sourcehut', value: 'sourcehut' }, { label: 'Forgejo', value: 'forgejo' }, { label: 'Gitea', value: 'gitea' }, { label: 'Subversion', value: 'subversion' }, { label: 'Mercurial', value: 'mercurial' }]"
+                :items="[{ label: '- No repo -', value: 'none' }, { label: 'GitHub', value: 'github' }, { label: 'GitLab', value: 'gitlab' }, { label: 'Bitbucket', value: 'bitbucket' }, { label: 'Sourcehut', value: 'sourcehut' }, { label: 'Forgejo', value: 'forgejo' }, { label: 'Gitea', value: 'gitea' }, { label: 'Subversion', value: 'subversion' }, { label: 'Mercurial', value: 'mercurial' }]"
                 placeholder="Repository Platform"
                 class="w-44 shrink-0"
               />

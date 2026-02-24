@@ -4,17 +4,88 @@ import HSeparator from "~/components/general/HSeparator.vue";
 const previewImage = useState<string | null>("previewImage", () => null)
 const style = useResumeStyle()
 const data = useRefResumeData()
+
+// Compute sidebar pixel width (same formula as the left column width style)
+const sidebarWidthPx = computed(() =>
+	(style.value.layout.margin / 8 * 32.5 + 250) * (style.value.layout.sizeRatio / 100) * 3
+)
+
+// Background gradient: sidebar color on the left, page bg on the right.
+// Applied both to the wrapper div (screen preview) and to CSS custom properties
+// on <html> so that main.css can paint the body background in print - the body
+// always fills the full page height, so the sidebar reaches the bottom of every
+// printed page without adding extra blank pages.
+const wrapperBackground = computed(() => {
+	if (!style.value.layout.showBackground) return undefined
+	const w = sidebarWidthPx.value
+	const sidebar = style.value.colors.bgElevated
+	const bg = style.value.colors.bg
+	return `linear-gradient(to right, ${sidebar} ${w}px, ${bg} ${w}px)`
+})
+
+// Sync CSS custom properties to <html> so the print body background stays in sync
+watchEffect(() => {
+	if (!import.meta.client) return
+	const root = document.documentElement
+	if (style.value.layout.showBackground) {
+		root.style.setProperty('--print-sidebar-width', `${sidebarWidthPx.value}px`)
+		root.style.setProperty('--print-sidebar-color', style.value.colors.bgElevated ?? '')
+		root.style.setProperty('--print-bg-color', style.value.colors.bg ?? '')
+	} else {
+		root.style.removeProperty('--print-sidebar-width')
+		root.style.removeProperty('--print-sidebar-color')
+		root.style.removeProperty('--print-bg-color')
+	}
+})
+
+// Before printing: pad the wrapper so it fills to the bottom of the last page.
+// A4 at 96dpi = 297mm. 1mm = 3.7795275591px at 96dpi.
+// We measure the wrapper height, compute how many px remain on the last page,
+// and add exactly that as padding-bottom so the gradient reaches the page edge.
+const wrapperRef = ref<HTMLDivElement | null>(null)
+
+function padToPageBottom() {
+	const el = wrapperRef.value
+	if (!el) return
+	el.style.paddingBottom = ''
+	const h = el.getBoundingClientRect().height
+	const pageHeightPx = 297 * 3.7795275591
+	const remainder = h % pageHeightPx
+	if (remainder > 1) {
+		el.style.paddingBottom = `${pageHeightPx - remainder}px`
+	}
+}
+
+function removePad() {
+	if (wrapperRef.value) wrapperRef.value.style.paddingBottom = ''
+}
+
+// Expose so resume.vue can call padToPageBottom via onBeforeGetContent
+// and getSidebarGradient via the print callback to set iframe html background
+defineExpose({ padToPageBottom, removePad, getSidebarGradient: () => wrapperBackground.value })
+
+onMounted(() => {
+	// Also handle native browser print (Ctrl+P)
+	window.addEventListener('beforeprint', padToPageBottom)
+	window.addEventListener('afterprint', removePad)
+	onUnmounted(() => {
+		window.removeEventListener('beforeprint', padToPageBottom)
+		window.removeEventListener('afterprint', removePad)
+	})
+})
 </script>
 
 <template>
 	<div
+			ref="wrapperRef"
 			:style="{
-				backgroundColor: `${style.layout.showBackground ? style.colors.bg : undefined}`,
+				background: wrapperBackground,
 				fontSize: `${style.font.size}pt`,
 				lineHeight: style.font.lineHeight,
-				// fontFamily: style.font.family,
 			}"
-			class="flex not-print:w-3xl not-print:min-h-[calc(var(--container-3xl)*297/210)] overflow-y-clip">
+			class="flex not-print:w-3xl not-print:min-h-[calc(var(--container-3xl)*297/210)] not-print:overflow-y-clip print:overflow-visible">
+
+		<!-- No fixed sidebar element needed: the gradient on this wrapper covers every page -->
 
 		<!--------------------------------------------->
 		<!-------          Left Column          ------->
@@ -22,14 +93,13 @@ const data = useRefResumeData()
 
 		<div
 				:style="{
-					width: `${(style.layout.margin/8*32.5 + 250) * (style.layout.sizeRatio / 100) * 3}px`,
+					width: `${sidebarWidthPx}px`,
 					padding: `${style.layout.margin/8 + 1}rem`,
 					paddingRight: style.layout.style === 'fancy' ? `${style.layout.margin/8}rem` : `${style.layout.margin/8 + 1}rem`,
-					backgroundColor: `${style.layout.showBackground ? style.colors.bgElevated : undefined}`,
 					gap: `${style.layout.sectionSpacing/8}rem`,
 					color: style.colors.text.baseElevated,
 				}"
-				class="flex flex-col min-h-full shrink-0 z-20">
+				class="flex flex-col min-h-full shrink-0 relative">
 
 			<!-- Avatar -->
 
@@ -207,7 +277,7 @@ const data = useRefResumeData()
 				</div>
 			</div>
 
-			<div class="invisible h-96"/>
+			<div class="invisible h-96 print:hidden"/>
 		</div>
 
 		<!---------------------------------------------->
@@ -217,7 +287,7 @@ const data = useRefResumeData()
 		<div v-if="style.layout.style === 'fancy'" class="relative mr-7">
 			<div class="absolute top-0 flex flex-col">
 				<DividerWavyDotted
-						class="w-10 h-[72rem]"
+						class="w-10 h-[72rem] print:h-[200rem]"
 						:style="{
 							fill: style.colors.bgElevated,
 						}"
@@ -233,11 +303,10 @@ const data = useRefResumeData()
 		<div
 				:style="{
 					padding: `${style.layout.margin/8 + 1}rem`,
-					backgroundColor: `${style.layout.showBackground ? style.colors.bg : undefined}`,
 					gap: `${style.layout.sectionSpacing/8}rem`,
 					color: style.colors.text.base,
 				}"
-				class="flex flex-col h-full grow">
+				class="flex flex-col h-full grow relative">
 
 			<!-- Name, Subtitle, and Links -->
 
@@ -296,7 +365,7 @@ const data = useRefResumeData()
 
 			<div
 					v-if="style.sections.major.summary.enabled && data.summary.value?.trim()"
-					class="flex flex-col gap-1">
+					class="flex flex-col gap-1 print-entry">
 				<HSeparator label="Professional Summary" icon="i-lucide-file-text" />
 				<p>{{ data.summary }}</p>
 			</div>
@@ -305,13 +374,13 @@ const data = useRefResumeData()
 
 			<div
 					v-if="style.sections.major.education.enabled && data.education.value.some(edu => edu.degree?.trim() || edu.text?.trim())"
-					class="flex flex-col">
+					class="flex flex-col print-section">
 				<HSeparator label="Education" icon="i-lucide-graduation-cap" />
 
 				<div
 						v-for="(education, edIndex) in data.education.value"
 						:key="education.degree"
-						class="relative flex flex-col gap-1 pl-5.5 nth-[2]:mt-1 not-last:pb-2">
+						class="relative flex flex-col gap-1 pl-5.5 nth-[2]:mt-1 not-last:pb-2 print-entry">
 					<div
 							class="absolute w-3 h-3 top-[0.2rem] left-1.5 -translate-x-1/2 border rounded-full z-20"
 							:style="{
@@ -368,13 +437,13 @@ const data = useRefResumeData()
 
 			<div
 					v-if="style.sections.major.experience.enabled && data.experience.value.some(exp => exp.position?.trim() || exp.text?.trim())"
-					class="flex flex-col">
+					class="flex flex-col print-section">
 				<HSeparator label="Work Experience" icon="i-lucide-briefcase" />
 
 				<div
 						v-for="(experience, exIndex) in data.experience.value"
 						:key="experience.position"
-						class="relative flex flex-col gap-1 pl-5.5 nth-[2]:mt-1 not-last:pb-2">
+						class="relative flex flex-col gap-1 pl-5.5 nth-[2]:mt-1 not-last:pb-2 print-entry">
 					<div
 							class="absolute w-3 h-3 top-[0.2rem] left-1.5 -translate-x-1/2 border rounded-full z-20"
 							:style="{
@@ -456,13 +525,13 @@ const data = useRefResumeData()
 
 			<div
 					v-if="style.sections.major.projects.enabled && data.projects.value.some(proj => proj.name?.trim())"
-					class="flex flex-col">
+					class="flex flex-col print-section">
 				<HSeparator label="Projects" icon="i-lucide-code-xml" />
 
 				<div
 						v-for="(project, pIndex) in data.projects.value"
 						:key="project.name"
-						class="relative flex flex-col gap-1 px-2.5 py-1.5 nth-[2]:mt-1 not-last:mb-2 rounded-sm"
+						class="relative flex flex-col gap-1 px-2.5 py-1.5 nth-[2]:mt-1 not-last:mb-2 rounded-sm print-entry"
 						:class="[
 								style.effects.useBorders ? 'border' : '',
 								style.effects.useShades ? 'drop-shadow-md' : '',
@@ -542,14 +611,14 @@ const data = useRefResumeData()
 			<!-- Qualifications/Certifications -->
 			<div
 					v-if="style.sections.major.certifications.enabled && data.qualifications.value.length > 0"
-					class="flex flex-col">
+					class="flex flex-col print-section">
 				<HSeparator label="Qualifications" icon="i-lucide-award" />
 
 				<ul class="flex flex-col gap-1">
 					<li
 							v-for="qualification in data.qualifications.value"
 							:key="qualification.name"
-							class="flex flex-col gap-1">
+							class="flex flex-col gap-1 print-entry">
 						<div class="flex flex-wrap justify-between items-center gap-1">
 							<span class="flex items-center font-bold">
 								<UIcon name="i-lucide-dot" :size="style.font.size * 1.75" class="-ml-1.5"/>
@@ -574,5 +643,16 @@ const data = useRefResumeData()
 </template>
 
 <style scoped>
+@media print {
+	/* Prevent page breaks inside individual entries */
+	.print-entry {
+		break-inside: avoid;
+		page-break-inside: avoid;
+	}
 
+	/* Keep section headers with their content */
+	.print-section {
+		break-inside: avoid-column;
+	}
+}
 </style>

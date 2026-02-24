@@ -1,9 +1,8 @@
 /**
- * Pure crypto utility functions — no Nuxt/Supabase dependencies.
- * Used by useEncryption composable and directly testable.
+ * Pure crypto utility functions, no Nuxt/Supabase dependencies.
+ * Used by useEncryption composable
  *
- * ⚠️ SECURITY NOTE (thesis): Key derivation uses user.id + salt, which a DB
- * admin could reconstruct. Accepted trade-off for student project.
+ * Key derivation uses user.id + salt, which a DB admin could reconstruct.
  */
 
 const IV_LENGTH = 12 // 96-bit IV for AES-GCM
@@ -41,7 +40,7 @@ export async function deriveEncryptionKey(
 }
 
 /**
- * Encrypt plaintext → base64 string.
+ * Encrypt plaintext, base64 string.
  * Format: base64( 12-byte IV || AES-GCM ciphertext )
  */
 export async function encryptString(
@@ -65,7 +64,7 @@ export async function encryptString(
 }
 
 /**
- * Decrypt base64 ciphertext → plaintext string.
+ * Decrypt base64 ciphertext, plaintext string.
  * Expects format: base64( 12-byte IV || AES-GCM ciphertext )
  */
 export async function decryptString(

@@ -570,7 +570,7 @@ $$;
 
 -- =============================================================================
 
--- ─── Institution UUID reference columns ───────────────────────────────────────
+--  Institution UUID reference columns 
 -- Stores the encrypted local UUID of the selected institution on each entry.
 -- This replaces the name→UUID lookup that was unreliable on reload.
 
@@ -586,7 +586,7 @@ ALTER TABLE public.applicant_education
 ALTER TABLE public.applicant_experience
   ADD COLUMN IF NOT EXISTS institution_uuid_encrypted TEXT;
 
--- ─── Technologies encrypted columns ──────────────────────────────────────────
+--  Technologies encrypted columns 
 -- Stores technologies as encrypted JSON directly on each entry row.
 -- Avoids the complexity of UUID lookups into the shared technologies table.
 

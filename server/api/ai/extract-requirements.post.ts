@@ -13,7 +13,7 @@ import { ExtractRequirementsResponseSchema } from '../../../app/schemas/ai-respo
  * Model: gpt-4.1-mini-2025-04-14 (snapshot for reproducibility)
  *
  * Security:
- *   - Cache-Control: no-store — response must never be cached
+ *   - Cache-Control: no-store - response must never be cached
  *   - Request/response bodies are NOT logged (only method, path, status, timing)
  *   - jobText is ephemeral: used only for this request, never persisted
  */
