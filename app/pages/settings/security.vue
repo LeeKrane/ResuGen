@@ -241,6 +241,10 @@ const twoFactorMethods = computed(() => [
   },
 ])
 
+const enrollTotpSecret = ref<string | null>(null)
+const enrollTotpUri = ref<string | null>(null)
+const showManualSetup = ref(false)
+
 const enroll2FAModal = ref(false)
 const enrollLoading = ref(false)
 const enrollQrSvg = ref<string | null>(null)
@@ -264,6 +268,9 @@ async function generateQr() {
       enrollFactorId.value = null
       enrollQrSvg.value = null
       enrollCode.value = ''
+      enrollTotpSecret.value = null
+      enrollTotpUri.value = null
+      showManualSetup.value = false
     }
 
     await cleanupUnverifiedFactors()
@@ -286,6 +293,9 @@ async function generateQr() {
 
     enrollFactorId.value = data.id
     enrollQrSvg.value = data.totp?.qr_code ?? null
+    enrollTotpSecret.value = (data as any).totp?.secret ?? null
+    enrollTotpUri.value = (data as any).totp?.uri ?? (data as any).totp?.otpauth_url ?? null
+    showManualSetup.value = false
   } catch (e: any) {
     toast.add({ title: 'Could not generate QR', description: e?.message ?? String(e), color: 'error' })
   } finally {
@@ -298,6 +308,9 @@ function openEnrollModal() {
   enrollCode.value = ''
   enrollQrSvg.value = null
   enrollFactorId.value = null
+  enrollTotpSecret.value = null
+  enrollTotpUri.value = null
+  showManualSetup.value = false
 
   const nextIndex = allFactors.value.filter(f => f.type === 'totp').length + 1
   enrollFriendlyName.value = `Authenticator ${nextIndex}`
@@ -316,6 +329,9 @@ async function cancelEnroll() {
   enrollCode.value = ''
   enrollQrSvg.value = ''
   enrollFactorId.value = null
+  enrollTotpSecret.value = null
+  enrollTotpUri.value = null
+  showManualSetup.value = false
 
   await refreshFactors()
 }
@@ -348,6 +364,9 @@ async function verifyTotpEnroll() {
     enrollQrSvg.value = null
     enrollFactorId.value = null
     enrollFriendlyName.value = ''
+    enrollTotpSecret.value = null
+    enrollTotpUri.value = null
+    showManualSetup.value = false
 
     await refreshFactors()
     await refreshRecoveryStatus()
@@ -561,6 +580,28 @@ onMounted(async () => {
             </div>
 
             <img v-else-if="enrollQrSvg" :src="enrollQrSvg" class="w-48 h-48" />
+          </div>
+
+          <div v-if="qrReady" class="flex flex-col items-center gap-2">
+            <UButton variant="outline" class="w-72" @click="showManualSetup = !showManualSetup">
+              {{ showManualSetup ? 'Hide manual setup' : 'Can’t scan QR? Enter code manually' }}
+            </UButton>
+
+            <div v-if="showManualSetup" class="w-full max-w-md mt-2 space-y-3">
+              <div v-if="enrollTotpSecret" class="rounded-md border p-3">
+                <p class="text-xs text-gray-500 mb-1">Secret</p>
+                <p class="font-mono text-sm break-all">{{ enrollTotpSecret }}</p>
+              </div>
+
+              <div v-else class="text-xs text-gray-500 text-center">
+                Secret not available from SDK response.
+              </div>
+
+              <div v-if="enrollTotpUri" class="rounded-md border p-3">
+                <p class="text-xs text-gray-500 mb-1">OTPAuth URI</p>
+                <p class="font-mono text-xs break-all">{{ enrollTotpUri }}</p>
+              </div>
+            </div>
           </div>
 
           <UInput v-model="enrollCode" placeholder="123456" inputmode="numeric" autocomplete="one-time-code" />
