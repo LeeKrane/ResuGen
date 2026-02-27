@@ -91,11 +91,12 @@ async function onVerify() {
 </script>
 
 <template>
-  <div class="p-6 max-w-sm mx-auto flex flex-col gap-4">
+  <div class="p-6 w-full max-w-sm mx-auto flex flex-col gap-4">
     <h1 class="text-lg font-medium">Multi-factor authentication</h1>
 
     <UFormField label="Choose a verification method">
       <USelect
+          class="w-full"
           v-model="selectedFactorId"
           :items="allFactors.map(f => ({
           label: `${f.friendlyName} (${f.type.toUpperCase()})${f.status !== 'verified' ? ' - unverified' : ''}`,
@@ -103,6 +104,9 @@ async function onVerify() {
         }))"
           placeholder="Select a factor"
       />
+      <p v-if="selectedFactor" class="text-xs text-gray-500 mt-1">
+        Selected: <span class="font-medium">{{ selectedFactor.friendlyName }}</span>
+      </p>
     </UFormField>
 
     <UFormField label="Authentication code">
