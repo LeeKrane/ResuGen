@@ -1,5 +1,5 @@
-import { supabaseAdmin } from '~/server/utils/supabaseAdmin'
-import { generateRecoveryCodes, normalizeRecoveryCode } from '~/server/utils/recoveryCodes'
+import { supabaseAdmin } from '~~/server/utils/supabaseAdmin'
+import { generateRecoveryCodes, normalizeRecoveryCode } from '~~/server/utils/recoveryCodes'
 import { hash } from '@node-rs/argon2'
 
 export default defineEventHandler(async (event) => {
