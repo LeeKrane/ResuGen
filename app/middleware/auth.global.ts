@@ -19,8 +19,10 @@ export default defineNuxtRouteMiddleware(async (to) => {
 
 	const mfaRequired = data?.nextLevel === 'aal2' && data?.currentLevel !== 'aal2'
 
+	const allowedWhenMfaRequired = to.path === '/' || to.path === '/mfa'
+
 	// MFA required - force /mfa and remember target page
-	if (mfaRequired && to.path !== '/mfa') {
+	if (mfaRequired && !allowedWhenMfaRequired) {
 		return navigateTo({
 			path: '/mfa',
 			query: { redirect: to.fullPath }
