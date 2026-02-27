@@ -1,5 +1,5 @@
-import { supabaseAdmin } from '~/server/utils/supabaseAdmin'
-import { requireUser } from '~/server/utils/auth-guards'
+import { supabaseAdmin } from '~~/server/utils/supabaseAdmin'
+import { requireUser } from '~~/server/utils/auth-guards'
 
 export default defineEventHandler(async (event) => {
     const user = await requireUser(event)

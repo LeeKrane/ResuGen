@@ -1,5 +1,5 @@
 import { verify } from '@node-rs/argon2'
-import { normalizeRecoveryCode } from '~/server/utils/recoveryCodes'
+import { normalizeRecoveryCode } from '~~/server/utils/recoveryCodes'
 
 export default defineEventHandler(async (event) => {
     const user = await requireUser(event) // user is AAL1-authenticated at this point
