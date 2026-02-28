@@ -2,11 +2,11 @@
 import * as z from 'zod'
 import type { FormSubmitEvent } from "@nuxt/ui"
 
+import { useUserState } from '~/composables/useUserState'
+
 const supabase = useSupabaseClient()
 const requestURL = useRequestURL()
 const toast = useToast()
-
-import { useUserState } from '~/composables/useUserState'
 const { setUserState } = await useUserState();
 
 const fields = [{
@@ -85,7 +85,27 @@ async function onSubmit(payload: FormSubmitEvent<SchemaLogin>) {
 		toast.add({ title: 'Error logging in', description: error.message, color: 'error', icon: 'i-lucide-triangle-alert' })
 		return
 	} else {
-		toast.add({ title: 'Successfully logged in!', color: 'success', icon: 'i-lucide-check' })
+    const { data: aal, error: aalError } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel()
+    if (aalError || !aal) {
+      await navigateTo('/me')
+      setUserState(useSupabaseUser().value)
+      return
+    }
+
+    const mfaRequired = aal.nextLevel === 'aal2' && aal.currentLevel !== 'aal2'
+
+    if (mfaRequired) {
+      toast.add({
+        title: 'Two-factor authentication required',
+        description: 'Please complete two-factor authentication to access your account.',
+        color: 'warning',
+        icon: 'i-lucide-triangle-alert',
+      })
+      await navigateTo({ path: '/mfa', query: { redirect: '/me' } })
+      return
+    }
+
+    toast.add({ title: 'Successfully logged in!', color: 'success', icon: 'i-lucide-check' })
 		navigateTo('/me')
 		setUserState(useSupabaseUser().value)
 	}
