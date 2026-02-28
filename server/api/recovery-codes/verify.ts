@@ -34,14 +34,20 @@ export default defineEventHandler(async (event) => {
     if (!matchId) return { ok: false }
 
     // consume (single-use)
-    const { error: updErr } = await admin
+    const { data: consumed, error: updErr } = await admin
         .from('recovery_codes')
         .update({ used_at: new Date().toISOString() })
         .eq('id', matchId)
+        .eq('user_id', user.id)
         .is('used_at', null)
         .is('revoked_at', null)
+        .select('id')
+        .maybeSingle()
 
     if (updErr) throw createError({ statusCode: 500, statusMessage: updErr.message })
+    if (!consumed) {
+        throw createError({ statusCode: 400, statusMessage: 'Recovery code already used or invalid' })
+    }
 
     setCookie(event, 'mfa_recovery_window', '1', {
         httpOnly: true,
