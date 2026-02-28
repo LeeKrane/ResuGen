@@ -1,8 +1,7 @@
 import { supabaseAdmin } from '~~/server/utils/supabaseAdmin'
 import { generateRecoveryCodes, normalizeRecoveryCode } from '~~/server/utils/recoveryCodes'
 import { hash } from '@node-rs/argon2'
-import { requireUser } from '~~/server/utils/auth-guards'
-import { hasVerifiedTotp} from "~~/server/utils/auth-guards";
+import { requireUser, hasVerifiedTotp} from '~~/server/utils/auth-guards'
 
 export default defineEventHandler(async (event) => {
     const user = await requireUser(event) // implement like your auth guard (from session)
