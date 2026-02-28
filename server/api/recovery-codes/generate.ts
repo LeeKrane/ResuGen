@@ -1,16 +1,15 @@
 import { supabaseAdmin } from '~~/server/utils/supabaseAdmin'
 import { generateRecoveryCodes, normalizeRecoveryCode } from '~~/server/utils/recoveryCodes'
 import { hash } from '@node-rs/argon2'
+import { requireUser } from '~~/server/utils/auth-guards'
+import { hasVerifiedTotp} from "~~/server/utils/auth-guards";
 
 export default defineEventHandler(async (event) => {
     const user = await requireUser(event) // implement like your auth guard (from session)
     const admin = supabaseAdmin()
 
-    // 1) Ensure user has at least one verified MFA factor (TOTP)
-    //    You can store "has2fa" in your own profile, OR query Supabase MFA via your existing logic.
-    //    If you don't have server-side factor info, at least block if you know none are configured.
-    const has2FA = await hasTwoFactorEnabledForUser(admin, user.id) // implement
-    if (!has2FA) {
+    const has2fa = await hasVerifiedTotp(event)
+    if (!has2fa) {
         throw createError({ statusCode: 400, statusMessage: 'Enable 2FA first' })
     }
 
