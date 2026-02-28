@@ -224,7 +224,7 @@ const twoFactorMethods = computed(() => [
   {
     icon: "i-lucide-save-all",
     title: "Recovery codes",
-    description: "Recovery codes can be used to access your account without your two-factor authentication codes.",
+    description: "Recovery codes can be used to access your account without your two-factor authentication codes. Generating/Regenerating them can take some time.",
     action: !twoFactorMethodsConfigured.value ? 'Enable 2FA first' : recoveryCodesAvailable.value ? 'Regenerate' : 'Generate',
   // Update to reflect actual count // Color spectrum: 6-5 codes: primary or success, 4-3 codes: warning, 2-0 codes: danger
     badge: recoveryBadge.value,
@@ -423,6 +423,23 @@ watch(enrollFriendlyName, async (newVal, oldVal) => {
   }
 })
 
+const closePreventToastLock = ref(false)
+
+function onRecoveryClosePrevent() {
+  if (closePreventToastLock.value) return
+  closePreventToastLock.value = true
+
+  toast.add({
+    title: 'Please confirm you stored the codes and press Done.',
+    color: 'warning',
+  })
+
+  // unlock shortly after (covers the double event from backdrop click)
+  setTimeout(() => {
+    closePreventToastLock.value = false
+  }, 250)
+}
+
 onMounted(async () => {
   await refreshFactors()
   await refreshRecoveryStatus()
@@ -529,7 +546,13 @@ onMounted(async () => {
       </template>
     </UModal>
 
-    <UModal v-model:open="recoveryCodesModal" title="Recovery codes">
+    <UModal
+        v-model:open="recoveryCodesModal"
+        title="Recovery codes"
+        :dismissible="false"
+        :close="false"
+        @close:prevent="onRecoveryClosePrevent"
+    >
       <template #body>
         <div class="flex flex-col gap-4 p-2">
           <p class="text-sm text-gray-500">
