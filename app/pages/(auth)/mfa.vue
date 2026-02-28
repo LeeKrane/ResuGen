@@ -88,6 +88,30 @@ async function onVerify() {
   }
 }
 
+const recoveryCode = ref('')
+
+async function useRecoveryCode() {
+  loading.value = true
+  try {
+    const res = await $fetch<{ ok: boolean }>('/api/recovery-codes/verify', {
+      method: 'POST',
+      body: { code: recoveryCode.value.trim() },
+    })
+    if (!res.ok) {
+      toast.add({title: 'Invalid recovery code', color: 'error'})
+      return
+    }
+    toast.add({
+      title: 'Recovery code accepted',
+      description: 'You have 10 mintues to update your 2FA settings.',
+      color: 'success'
+    })
+
+    await navigateTo('/settings/security')
+  } finally {
+    loading.value = false
+  }
+}
 </script>
 
 <template>
@@ -132,5 +156,16 @@ async function onVerify() {
     <div v-else class="text-sm opacity-80">
       No MFA factors found for this account.
     </div>
+
+
+    <UDivider label="or" />
+
+    <UFormField label="Recovery code" >
+      <UInput v-model="recoveryCode" placeholder="XXXX-XXXX-XXXX" autocomplete="off" />
+    </UFormField>
+
+    <UButton variant="outline" :loading="loading" :disabled="!recoveryCode" @click="useRecoveryCode">
+      Use recovery code
+    </UButton>
   </div>
 </template>

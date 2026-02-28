@@ -18,8 +18,18 @@ export default defineNuxtRouteMiddleware(async (to) => {
 	if (error || !data) return
 
 	const mfaRequired = data?.nextLevel === 'aal2' && data?.currentLevel !== 'aal2'
+	const is2FASettings = to.path === '/settings/security' || to.path.startsWith('/settings/security/')
 
-	const allowedWhenMfaRequired = to.path === '/' || to.path === '/mfa'
+	let hasRecoveryWindow = false
+	if (mfaRequired && is2FASettings) {
+		const res = await $fetch<{ ok: boolean }>('/api/utils/recovery-window')
+		hasRecoveryWindow = res.ok
+	}
+
+	const allowedWhenMfaRequired =
+		to.path === '/' ||
+		to.path === '/mfa' ||
+		(hasRecoveryWindow && is2FASettings)
 
 	// MFA required - force /mfa and remember target page
 	if (mfaRequired && !allowedWhenMfaRequired) {
