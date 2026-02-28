@@ -1,10 +1,10 @@
 import { verify } from '@node-rs/argon2'
 import { normalizeRecoveryCode } from '~~/server/utils/recoveryCodes'
+import { setCookie } from 'h3'
 
 export default defineEventHandler(async (event) => {
     const user = await requireUser(event) // user is AAL1-authenticated at this point
     const admin = supabaseAdmin()
-
     const body = await readBody<{ code?: string }>(event)
     const code = (body.code ?? '').trim()
     if (!code) throw createError({ statusCode: 400, statusMessage: 'Missing code' })
@@ -42,6 +42,14 @@ export default defineEventHandler(async (event) => {
         .is('revoked_at', null)
 
     if (updErr) throw createError({ statusCode: 500, statusMessage: updErr.message })
+
+    setCookie(event, 'mfa_recovery_window', '1', {
+        httpOnly: true,
+        sameSite: 'lax',
+        secure: process.env.NODE_ENV === 'production',
+        path: '/',
+        maxAge: 10 * 60,
+    })
 
     return { ok: true }
 })
