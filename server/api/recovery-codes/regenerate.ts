@@ -12,19 +12,20 @@ export default defineEventHandler(async (event) => {
         throw createError({ statusCode: 400, statusMessage: 'Enable 2FA first' })
     }
 
-    const { error: revokeErr } = await admin
+    const { error: delErr } = await admin
         .from('recovery_codes')
-        .update({ revoked_at: new Date().toISOString() })
+        .delete()
         .eq('user_id', user.id)
-        .is('revoked_at', null)
 
-    if (revokeErr) throw createError({ statusCode: 500, statusMessage: revokeErr.message })
+    if (delErr) throw createError({ statusCode: 500, statusMessage: delErr.message })
 
     const codes = generateRecoveryCodes(10)
     const rows = await Promise.all(
         codes.map(async (code) => ({
             user_id: user.id,
             code_hash: await hash(normalizeRecoveryCode(code)),
+            used_at: null,
+            revoked_at: null,
         })),
     )
 
