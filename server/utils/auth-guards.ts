@@ -1,6 +1,17 @@
 import type { H3Event } from 'h3'
 import { serverSupabaseClient, serverSupabaseUser } from '#supabase/server'
 
+export async function hasVerifiedTotp(event: H3Event) {
+    const client = await serverSupabaseClient(event)
+
+    const { data, error } = await client.auth.mfa.listFactors()
+    if (error) {
+        throw createError({ statusCode: 500, statusMessage: error.message })
+    }
+
+    return (data?.totp ?? []).some(f => f.status === 'verified')
+}
+
 export async function requireUser(event: H3Event) {
     const user = await serverSupabaseUser(event)
     if (!user) throw createError({ statusCode: 401, statusMessage: 'Unauthorized' })
