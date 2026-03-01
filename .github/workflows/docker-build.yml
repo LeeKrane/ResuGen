@@ -58,6 +58,26 @@ jobs:
           sed -i 's/"nuxt-particles":.*,//' package.json.docker
           sed -i "/^[[:space:]]*'nuxt-particles',$/d" nuxt.config.ts.docker
           sed -i '/particles: {/,/},/d' nuxt.config.ts.docker
+          
+          # Create a proper pnpm-workspace.yaml for Docker (single package)
+          cat > pnpm-workspace.yaml.docker << 'EOF'
+          packages:
+            - '.'
+          
+          onlyBuiltDependencies:
+            - '@parcel/watcher'
+            - '@tailwindcss/oxide'
+            - esbuild
+            - sharp
+            - unrs-resolver
+            - vue-demi
+          EOF
+          
+          # Debug: show the modified files
+          echo "=== Modified package.json.docker ==="
+          head -20 package.json.docker
+          echo "=== pnpm-workspace.yaml.docker ==="
+          cat pnpm-workspace.yaml.docker
 
       - name: Create Dockerfile
         run: |
@@ -74,7 +94,7 @@ jobs:
           # Copy modified package files (without nuxt-particles)
           COPY package.json.docker package.json
           COPY pnpm-lock.yaml ./
-          COPY pnpm-workspace.yaml ./
+          COPY pnpm-workspace.yaml.docker pnpm-workspace.yaml
           
           # Install dependencies
           FROM base AS deps
