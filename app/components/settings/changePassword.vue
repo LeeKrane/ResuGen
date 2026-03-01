@@ -29,23 +29,23 @@ const fields = [
 const loading = ref(false)
 
 const schema = z.object({
-  currentPassword: z.string(),
-	newPassword: z.string()
+  currentPassword: z.string('Current password is required'),
+	newPassword: z.string('New password is required')
 			.min(8, 'Must be at least 8 characters')
 			.max(128, 'Must be at most 128 characters')
 			.regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).*$/, 'Your password needs at least one uppercase letter, one lowercase letter, and one number.')
 			.regex(/^(?=.*[!@#$%^&*()_+\-=[\]{}|;:'",.<>/?~`]).*$/, 'Your password needs at least one special character: !@#$%^&*()_+-=[]{}|;:\'",.<>?~`'),
-	confirmPassword: z.string()
+	confirmPassword: z.string('Please confirm your new password')
 }).superRefine((data, ctx) => {
   if (data.currentPassword === data.newPassword) {
     ctx.addIssue({
-      code: z.ZodIssueCode.custom,
+      code: "custom",
       message: "New password must be different from current password",
       path: ['newPassword']
     });
   } else if (data.newPassword !== data.confirmPassword) {
 		ctx.addIssue({
-			code: z.ZodIssueCode.custom,
+			code: "custom",
 			message: 'Passwords do not match',
 			path: ['confirmPassword']
 		})
