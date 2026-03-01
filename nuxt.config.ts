@@ -135,5 +135,18 @@ export default defineNuxtConfig({
         hidePoweredBy: true,
         removeLoggers: true,
         sri: true,
-	}
+	},
+    routeRules: {
+        '/api/recovery-codes/verify': {
+            security: {
+                rateLimiter: {
+                    tokensPerInterval: 5,
+                    interval: 60_000, // 1 min
+                    headers: true,
+                    // if you run behind Cloudflare later:
+                    // ipHeader: 'cf-connecting-ip',
+                },
+            },
+        },
+    }
 })
