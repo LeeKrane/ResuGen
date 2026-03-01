@@ -116,7 +116,7 @@ async function useRecoveryCode() {
 
 <template>
   <div class="p-6 w-full max-w-sm mx-auto flex flex-col gap-4">
-    <h1 class="text-lg font-medium">Multi-factor authentication</h1>
+    <h1 class="text-lg font-medium">Two-factor authentication</h1>
     <div v-if="typeof route.query.redirect === 'string'" class="rounded-md border border-red-500 p-3 text-sm">
       Two-factor authentication required. <br /> Please verify to continue.
     </div>
