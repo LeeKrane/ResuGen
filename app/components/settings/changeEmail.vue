@@ -20,13 +20,13 @@ const fields = [{
 const loading = ref(false)
 
 const schema = z.object({
-  newEmail: z.string()
+  newEmail: z.string('New email is required').
     .email("Invalid email address"),
-  confirmEmail: z.string()
+  confirmEmail: z.string('Please confirm your new email')
 }).superRefine((data, ctx) => {
   if (data.newEmail !== data.confirmEmail) {
     ctx.addIssue({
-      code: z.ZodIssueCode.custom,
+      code: "custom",
       message: "Emails do not match",
       path: ["confirmEmail"]
     });

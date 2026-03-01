@@ -67,8 +67,8 @@ const providers = [{
 const loading = ref(false)
 
 const schemaLogin = z.object({
-	email: z.string().email('Invalid email'),
-	password: z.string()
+	email: z.string('Enter your email').email('Invalid email'),
+	password: z.string('Enter your password')
 })
 
 type SchemaLogin = z.output<typeof schemaLogin>
@@ -98,7 +98,7 @@ async function onSubmit(payload: FormSubmitEvent<SchemaLogin>) {
 const forgotPasswordModalOpen = ref(false)
 
 const schemaResetPassword = z.object({
-	email: z.string().email('Invalid email'),
+	email: z.string('Enter your email').email('Invalid email'),
 })
 
 type SchemaResetPassword = z.output<typeof schemaResetPassword>

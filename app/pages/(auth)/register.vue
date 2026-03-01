@@ -28,17 +28,17 @@ const fields = [{
 const loading = ref(false)
 
 const schemaRegister = z.object({
-	email: z.string().email('Invalid email'),
-	password: z.string()
+	email: z.string('Enter your email').email('Invalid email'),
+	password: z.string('Enter your password')
 			.min(8, 'Must be at least 8 characters')
 			.max(128, 'Must be at most 128 characters')
 			.regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).*$/, 'Your password needs at least one uppercase letter, one lowercase letter, and one number.')
 			.regex(/^(?=.*[!@#$%^&*()_+\-=[\]{}|;:'",.<>/?~`]).*$/, 'Your password needs at least one special character: !@#$%^&*()_+-=[]{}|;:\'",.<>?~`'),
-	confirmPassword: z.string()
+	confirmPassword: z.string('Please confirm your password')
 }).superRefine((data, ctx) => {
 	if (data.password !== data.confirmPassword) {
 		ctx.addIssue({
-			code: z.ZodIssueCode.custom,
+			code: "custom",
 			message: 'Passwords do not match',
 			path: ['confirmPassword']
 		})
