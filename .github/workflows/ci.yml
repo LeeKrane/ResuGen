@@ -33,6 +33,10 @@ jobs:
         run: |
           # Remove problematic nuxt-particles dependency for CI
           sed -i 's/"nuxt-particles":.*,//' package.json
+          # Remove nuxt-particles from Nuxt config
+          sed -i "/^[[:space:]]*'nuxt-particles',$/d" nuxt.config.ts
+          # Remove particles config block
+          sed -i '/particles: {/,/},/d' nuxt.config.ts
           pnpm install --no-frozen-lockfile
 
       - name: Run ESLint
@@ -63,6 +67,10 @@ jobs:
         run: |
           # Remove problematic nuxt-particles dependency for CI
           sed -i 's/"nuxt-particles":.*,//' package.json
+          # Remove nuxt-particles from Nuxt config
+          sed -i "/^[[:space:]]*'nuxt-particles',$/d" nuxt.config.ts
+          # Remove particles config block
+          sed -i '/particles: {/,/},/d' nuxt.config.ts
           pnpm install --no-frozen-lockfile
 
       - name: Run tests with coverage
@@ -98,6 +106,10 @@ jobs:
         run: |
           # Remove problematic nuxt-particles dependency for CI
           sed -i 's/"nuxt-particles":.*,//' package.json
+          # Remove nuxt-particles from Nuxt config
+          sed -i "/^[[:space:]]*'nuxt-particles',$/d" nuxt.config.ts
+          # Remove particles config block
+          sed -i '/particles: {/,/},/d' nuxt.config.ts
           pnpm install --no-frozen-lockfile
 
       - name: Build application
@@ -138,6 +150,10 @@ jobs:
         run: |
           # Remove problematic nuxt-particles dependency for CI
           sed -i 's/"nuxt-particles":.*,//' package.json
+          # Remove nuxt-particles from Nuxt config
+          sed -i "/^[[:space:]]*'nuxt-particles',$/d" nuxt.config.ts
+          # Remove particles config block
+          sed -i '/particles: {/,/},/d' nuxt.config.ts
           pnpm install --no-frozen-lockfile
 
       - name: Run npm audit
