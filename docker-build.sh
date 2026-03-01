@@ -12,13 +12,13 @@ else
     echo "⚠️  No .env.docker file found. Using default values."
     echo "   Copy .env.docker.example to .env.docker and fill in your values for production builds."
     export SUPABASE_URL="http://localhost:54321"
-    export SUPABASE_ANON_KEY="dummy-key-for-local-build"
+    export SUPABASE_KEY="dummy-key-for-local-build"
 fi
 
 echo "🐳 Building Docker image with build args..."
 docker build -t resugen:local \
     --build-arg SUPABASE_URL="$SUPABASE_URL" \
-    --build-arg SUPABASE_ANON_KEY="$SUPABASE_ANON_KEY" \
+    --build-arg SUPABASE_KEY="$SUPABASE_KEY" \
     .
 
 echo "✅ Build successful! Testing the container..."
@@ -31,7 +31,7 @@ docker rm resugen-test 2>/dev/null || true
 echo "🚀 Starting container..."
 docker run -d -p 3000:3000 --name resugen-test \
     -e SUPABASE_URL="$SUPABASE_URL" \
-    -e SUPABASE_ANON_KEY="$SUPABASE_ANON_KEY" \
+    -e SUPABASE_KEY="$SUPABASE_KEY" \
     resugen:local
 
 # Wait for the container to start
