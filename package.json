@@ -29,7 +29,7 @@
     "@iconify-json/lucide": "^1.2.64",
     "@iconify-json/simple-icons": "^1.2.49",
     "@internationalized/date": "^3.9.0",
-    "@nuxt/image": "1.10.0",
+    "@nuxt/image": "1.11.0",
     "@nuxt/ui": "3.3.0",
     "jszip": "^3.10.1",
     "nuxt": "^3.18.1",
