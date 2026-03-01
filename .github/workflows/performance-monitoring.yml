@@ -1,0 +1,246 @@
+name: Performance Monitoring & Benchmarking
+
+on:
+  schedule:
+    # Run performance tests daily at 2 AM UTC
+    - cron: '0 2 * * *'
+  workflow_dispatch:
+    inputs:
+      target_environment:
+        description: 'Environment to test'
+        required: true
+        default: 'staging'
+        type: choice
+        options:
+          - staging
+          - production
+      test_duration:
+        description: 'Test duration in minutes'
+        required: true
+        default: '5'
+        type: string
+
+jobs:
+  lighthouse-audit:
+    name: Lighthouse Performance Audit
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        environment: [staging, production]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install Lighthouse CI
+        run: npm install -g @lhci/cli@0.12.x
+
+      - name: Run Lighthouse CI
+        run: |
+          lhci autorun
+        env:
+          LHCI_GITHUB_APP_TOKEN: ${{ secrets.LHCI_GITHUB_APP_TOKEN }}
+          LHCI_TARGET_URL: ${{ matrix.environment == 'staging' && vars.STAGING_URL || vars.PRODUCTION_URL }}
+
+      - name: Upload Lighthouse results
+        uses: actions/upload-artifact@v4
+        with:
+          name: lighthouse-results-${{ matrix.environment }}
+          path: .lighthouseci/
+          retention-days: 30
+
+  load-testing:
+    name: Load Testing with k6
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup k6
+        uses: grafana/setup-k6-action@v1
+
+      - name: Create k6 test script
+        run: |
+          cat > load-test.js << 'EOF'
+          import http from 'k6/http';
+          import { check, sleep } from 'k6';
+          import { Rate } from 'k6/metrics';
+
+          export let errorRate = new Rate('errors');
+
+          export let options = {
+            stages: [
+              { duration: '2m', target: 10 }, // Ramp up
+              { duration: '5m', target: 50 }, // Stay at 50 users
+              { duration: '2m', target: 0 },  // Ramp down
+            ],
+            thresholds: {
+              http_req_duration: ['p(95)<2000'], // 95% of requests under 2s
+              errors: ['rate<0.1'], // Error rate under 10%
+            },
+          };
+
+          const BASE_URL = __ENV.TARGET_URL || 'https://example.com';
+
+          export default function() {
+            // Test main page
+            let response = http.get(`${BASE_URL}/`);
+            check(response, {
+              'status is 200': (r) => r.status === 200,
+              'response time < 2000ms': (r) => r.timings.duration < 2000,
+            }) || errorRate.add(1);
+
+            sleep(1);
+
+            // Test API endpoints if available
+            response = http.get(`${BASE_URL}/api/health`);
+            check(response, {
+              'API health check': (r) => r.status === 200,
+            }) || errorRate.add(1);
+
+            sleep(1);
+          }
+          EOF
+
+      - name: Run load test against staging
+        if: github.event.inputs.target_environment == 'staging' || github.event.inputs.target_environment == ''
+        run: |
+          k6 run --duration=${{ github.event.inputs.test_duration || '5' }}m load-test.js
+        env:
+          TARGET_URL: ${{ vars.STAGING_URL }}
+
+      - name: Run load test against production
+        if: github.event.inputs.target_environment == 'production'
+        run: |
+          k6 run --duration=${{ github.event.inputs.test_duration || '5' }}m load-test.js
+        env:
+          TARGET_URL: ${{ vars.PRODUCTION_URL }}
+
+  uptime-monitoring:
+    name: Uptime & Availability Check
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        environment: [staging, production]
+    steps:
+      - name: Check uptime
+        run: |
+          URL="${{ matrix.environment == 'staging' && vars.STAGING_URL || vars.PRODUCTION_URL }}"
+          
+          echo "Checking uptime for $URL"
+          
+          # Multiple checks with retry logic
+          for i in {1..5}; do
+            if curl -f -s --max-time 30 "$URL" > /dev/null; then
+              echo "✅ Check $i: $URL is responding"
+              RESPONSE_TIME=$(curl -o /dev/null -s -w '%{time_total}' "$URL")
+              echo "Response time: ${RESPONSE_TIME}s"
+            else
+              echo "❌ Check $i: $URL is not responding"
+              exit 1
+            fi
+            sleep 10
+          done
+
+      - name: Check SSL certificate
+        run: |
+          URL="${{ matrix.environment == 'staging' && vars.STAGING_URL || vars.PRODUCTION_URL }}"
+          DOMAIN=$(echo "$URL" | sed 's|https\?://||' | sed 's|/.*||')
+          
+          echo "Checking SSL certificate for $DOMAIN"
+          
+          # Check SSL certificate expiry
+          EXPIRY=$(echo | openssl s_client -servername "$DOMAIN" -connect "$DOMAIN:443" 2>/dev/null | openssl x509 -noout -dates | grep notAfter | cut -d= -f2)
+          EXPIRY_EPOCH=$(date -d "$EXPIRY" +%s)
+          CURRENT_EPOCH=$(date +%s)
+          DAYS_UNTIL_EXPIRY=$(( (EXPIRY_EPOCH - CURRENT_EPOCH) / 86400 ))
+          
+          echo "SSL certificate expires in $DAYS_UNTIL_EXPIRY days"
+          
+          if [ $DAYS_UNTIL_EXPIRY -lt 30 ]; then
+            echo "⚠️ SSL certificate expires soon!"
+            exit 1
+          fi
+
+  report-results:
+    name: Generate Performance Report
+    runs-on: ubuntu-latest
+    needs: [lighthouse-audit, load-testing, uptime-monitoring]
+    if: always()
+    steps:
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: ./artifacts
+
+      - name: Generate performance report
+        run: |
+          echo "# Performance Monitoring Report" > performance-report.md
+          echo "Generated on: $(date)" >> performance-report.md
+          echo "" >> performance-report.md
+          
+          echo "## Test Results Summary" >> performance-report.md
+          echo "- Lighthouse Audit: ${{ needs.lighthouse-audit.result }}" >> performance-report.md
+          echo "- Load Testing: ${{ needs.load-testing.result }}" >> performance-report.md
+          echo "- Uptime Monitoring: ${{ needs.uptime-monitoring.result }}" >> performance-report.md
+          echo "" >> performance-report.md
+          
+          echo "## Recommendations" >> performance-report.md
+          if [[ "${{ needs.lighthouse-audit.result }}" != "success" ]]; then
+            echo "- Review Lighthouse audit results for performance optimizations" >> performance-report.md
+          fi
+          if [[ "${{ needs.load-testing.result }}" != "success" ]]; then
+            echo "- Investigate load testing failures and optimize application performance" >> performance-report.md
+          fi
+          if [[ "${{ needs.uptime-monitoring.result }}" != "success" ]]; then
+            echo "- Check application availability and infrastructure health" >> performance-report.md
+          fi
+
+      - name: Upload performance report
+        uses: actions/upload-artifact@v4
+        with:
+          name: performance-report
+          path: performance-report.md
+          retention-days: 90
+
+      - name: Notify performance results
+        if: failure()
+        run: |
+          if [ -n "${{ secrets.DISCORD_WEBHOOK }}" ]; then
+            curl -H "Content-Type: application/json" \
+                 -d '{
+                   "embeds": [{
+                     "title": "⚠️ Performance Monitoring Alert",
+                     "description": "Performance monitoring detected issues!",
+                     "color": 15158332,
+                     "fields": [
+                       {
+                         "name": "Repository",
+                         "value": "${{ github.repository }}",
+                         "inline": true
+                       },
+                       {
+                         "name": "Workflow",
+                         "value": "Performance Monitoring",
+                         "inline": true
+                       },
+                       {
+                         "name": "Status",
+                         "value": "Failed",
+                         "inline": true
+                       }
+                     ],
+                     "footer": {
+                       "text": "GitHub Actions"
+                     },
+                     "timestamp": "'$(date -u +%Y-%m-%dT%H:%M:%S.000Z)'"
+                   }]
+                 }' \
+                 "${{ secrets.DISCORD_WEBHOOK }}"
+          else
+            echo "Discord webhook not configured, skipping notification"
+          fi
