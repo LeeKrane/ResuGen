@@ -26,9 +26,9 @@ RUN sed -i "/css:.*main\.css/d" nuxt.config.ts
 RUN rm -f app/assets/css/main.css
 # Build the application with build args for secrets
 ARG SUPABASE_URL
-ARG SUPABASE_ANON_KEY
+ARG SUPABASE_KEY
 ENV SUPABASE_URL=${SUPABASE_URL}
-ENV SUPABASE_ANON_KEY=${SUPABASE_ANON_KEY}
+ENV SUPABASE_KEY=${SUPABASE_KEY}
 RUN pnpm run build
 
 # Production stage with minimal runtime footprint

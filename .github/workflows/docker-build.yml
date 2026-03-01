@@ -56,7 +56,7 @@ jobs:
           cache-to: type=gha,mode=max
           build-args: |
             SUPABASE_URL=${{ secrets.SUPABASE_URL }}
-            SUPABASE_ANON_KEY=${{ secrets.SUPABASE_ANON_KEY }}
+            SUPABASE_KEY=${{ secrets.SUPABASE_KEY }}
 
       - name: Run Trivy vulnerability scanner
         if: github.event_name != 'pull_request'
@@ -78,7 +78,7 @@ jobs:
           # Wait for container to be available and test health endpoint
           docker run --rm -d --name health-test -p 3000:3000 \
             -e SUPABASE_URL="${{ secrets.SUPABASE_URL }}" \
-            -e SUPABASE_ANON_KEY="${{ secrets.SUPABASE_ANON_KEY }}" \
+            -e SUPABASE_KEY="${{ secrets.SUPABASE_KEY }}" \
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
           sleep 30
           curl -f http://localhost:3000/api/health || exit 1
