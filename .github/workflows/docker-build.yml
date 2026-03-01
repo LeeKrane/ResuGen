@@ -104,8 +104,9 @@ jobs:
           FROM base AS builder
           COPY --from=deps /app/node_modules ./node_modules
           COPY . .
-          # Use modified nuxt config
+          # Use modified config files (must be after COPY . .)
           COPY nuxt.config.ts.docker nuxt.config.ts
+          COPY pnpm-workspace.yaml.docker pnpm-workspace.yaml
           
           # Build the application
           RUN pnpm run build
