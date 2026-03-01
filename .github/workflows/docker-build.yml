@@ -81,6 +81,23 @@ jobs:
             - vue-demi
           EOF
           
+          # Create a Docker-compatible main.css
+          cp app/assets/css/main.css app/assets/css/main.css.docker
+          cat > app/assets/css/main.css.docker << 'EOF'
+          @import "tailwindcss/base";
+          @import "tailwindcss/components";
+          @import "tailwindcss/utilities";
+          @import "@nuxt/ui";
+
+          @theme {
+              --font-sans: 'Public Sans', sans-serif;
+          }
+
+          html {
+              @apply motion-safe:scroll-smooth;
+          }
+          EOF
+          
           # Debug: show the modified files
           echo "=== Modified package.json.docker (dependencies) ==="
           node -e "const pkg = JSON.parse(require('fs').readFileSync('package.json.docker', 'utf8')); console.log('Dependencies:', Object.keys(pkg.dependencies)); console.log('DevDeps:', Object.keys(pkg.devDependencies));"
@@ -115,6 +132,7 @@ jobs:
           # Use modified config files (must be after COPY . .)
           COPY nuxt.config.ts.docker nuxt.config.ts
           COPY pnpm-workspace.yaml.docker pnpm-workspace.yaml
+          COPY app/assets/css/main.css.docker app/assets/css/main.css
           
           # Build the application
           RUN pnpm run build
