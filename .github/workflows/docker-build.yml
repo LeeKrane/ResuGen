@@ -1,0 +1,201 @@
+name: Docker Build & Push
+
+on:
+  push:
+    branches: [latest, development]
+    tags: ['v*']
+  pull_request:
+    branches: [latest]
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+  build-and-push:
+    name: Build and Push Docker Image
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to Container Registry
+        if: github.event_name != 'pull_request'
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=ref,event=branch
+            type=ref,event=pr
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=semver,pattern={{major}}
+            type=sha,prefix={{branch}}-
+            type=raw,value=latest,enable={{is_default_branch}}
+
+      - name: Create Dockerfile
+        run: |
+          # Remove nuxt-particles dependency for Docker build
+          sed -i 's/"nuxt-particles":.*,//' package.json
+          # Remove nuxt-particles from Nuxt config
+          sed -i "/^[[:space:]]*'nuxt-particles',$/d" nuxt.config.ts
+          # Remove particles config block
+          sed -i '/particles: {/,/},/d' nuxt.config.ts
+          
+          cat > Dockerfile << 'EOF'
+          # Multi-stage build for optimal image size
+          FROM node:20-alpine AS base
+          
+          # Install pnpm
+          RUN corepack enable && corepack prepare pnpm@9 --activate
+          
+          # Set working directory
+          WORKDIR /app
+          
+          # Copy package files
+          COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+          
+          # Install dependencies
+          FROM base AS deps
+          RUN pnpm install --no-frozen-lockfile --prod=false
+          
+          # Build stage
+          FROM base AS builder
+          COPY --from=deps /app/node_modules ./node_modules
+          COPY . .
+          
+          # Build the application
+          RUN pnpm run build
+          
+          # Production stage
+          FROM node:20-alpine AS runner
+          
+          # Install pnpm
+          RUN corepack enable && corepack prepare pnpm@9 --activate
+          
+          WORKDIR /app
+          
+          # Create non-root user
+          RUN addgroup --system --gid 1001 nodejs
+          RUN adduser --system --uid 1001 nuxtjs
+          
+          # Copy built application
+          COPY --from=builder --chown=nuxtjs:nodejs /app/.output ./.output
+          COPY --from=builder --chown=nuxtjs:nodejs /app/package.json ./package.json
+          
+          # Switch to non-root user
+          USER nuxtjs
+          
+          # Expose port
+          EXPOSE 3000
+          
+          # Health check
+          HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+            CMD curl -f http://localhost:3000/health || exit 1
+          
+          # Start the application
+          CMD ["node", ".output/server/index.mjs"]
+          EOF
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          platforms: linux/amd64,linux/arm64
+          push: ${{ github.event_name != 'pull_request' }}
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          build-args: |
+            BUILDTIME=${{ fromJSON(steps.meta.outputs.json).labels['org.opencontainers.image.created'] }}
+            VERSION=${{ fromJSON(steps.meta.outputs.json).labels['org.opencontainers.image.version'] }}
+            REVISION=${{ fromJSON(steps.meta.outputs.json).labels['org.opencontainers.image.revision'] }}
+
+  security-scan:
+    name: Security Scan Docker Image
+    runs-on: ubuntu-latest
+    needs: build-and-push
+    if: github.event_name != 'pull_request'
+    steps:
+      - name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
+          format: 'sarif'
+          output: 'trivy-results.sarif'
+
+      - name: Upload Trivy scan results to GitHub Security tab
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: 'trivy-results.sarif'
+
+  # deploy-to-platforms:
+  #   name: Deploy to Self-hosted Platforms
+  #   runs-on: ubuntu-latest
+  #   needs: [build-and-push, security-scan]
+  #   if: github.ref == 'refs/heads/latest'
+  #   strategy:
+  #     matrix:
+  #       platform: [coolify, dokploy]
+  #   steps:
+  #     - name: Deploy to Coolify
+  #       if: matrix.platform == 'coolify'
+  #       run: |
+  #         echo "Deploying to Coolify..."
+  #         # Trigger Coolify deployment webhook
+  #         curl -X POST "${{ secrets.COOLIFY_WEBHOOK_URL }}" \
+  #           -H "Content-Type: application/json" \
+  #           -d '{
+  #             "image": "${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}",
+  #             "tag": "${{ github.sha }}"
+  #           }'
+
+  #     - name: Deploy to Dokploy
+  #       if: matrix.platform == 'dokploy'
+  #       run: |
+  #         echo "Deploying to Dokploy..."
+  #         # Trigger Dokploy deployment
+  #         curl -X POST "${{ secrets.DOKPLOY_WEBHOOK_URL }}" \
+  #           -H "Authorization: Bearer ${{ secrets.DOKPLOY_API_KEY }}" \
+  #           -H "Content-Type: application/json" \
+  #           -d '{
+  #             "image": "${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}",
+  #             "tag": "${{ github.sha }}"
+  #           }'
+
+  #     - name: Verify deployment
+  #       run: |
+  #         echo "Waiting for deployment to be ready..."
+  #         sleep 60
+          
+  #         # Add health check for deployed application
+  #         # curl -f ${{ vars.PRODUCTION_URL }}/health || exit 1
+
+  # cleanup:
+  #   name: Cleanup Old Images
+  #   runs-on: ubuntu-latest
+  #   needs: deploy-to-platforms
+  #   if: always()
+  #   steps:
+  #     - name: Delete old container images
+  #       uses: actions/delete-package-versions@v5
+  #       with:
+  #         package-name: ${{ github.event.repository.name }}
+  #         package-type: 'container'
+  #         min-versions-to-keep: 10
+  #         delete-only-untagged-versions: true
