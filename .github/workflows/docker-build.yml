@@ -48,15 +48,19 @@ jobs:
             type=sha,prefix={{branch}}-,enable={{is_default_branch}}
             type=raw,value=latest,enable={{is_default_branch}}
 
+      - name: Prepare files for Docker build
+        run: |
+          # Create a clean copy of files without nuxt-particles
+          cp package.json package.json.docker
+          cp nuxt.config.ts nuxt.config.ts.docker
+          
+          # Remove nuxt-particles from Docker versions
+          sed -i 's/"nuxt-particles":.*,//' package.json.docker
+          sed -i "/^[[:space:]]*'nuxt-particles',$/d" nuxt.config.ts.docker
+          sed -i '/particles: {/,/},/d' nuxt.config.ts.docker
+
       - name: Create Dockerfile
         run: |
-          # Remove nuxt-particles dependency for Docker build
-          sed -i 's/"nuxt-particles":.*,//' package.json
-          # Remove nuxt-particles from Nuxt config
-          sed -i "/^[[:space:]]*'nuxt-particles',$/d" nuxt.config.ts
-          # Remove particles config block
-          sed -i '/particles: {/,/},/d' nuxt.config.ts
-          
           cat > Dockerfile << 'EOF'
           # Multi-stage build for optimal image size
           FROM node:20-alpine AS base
@@ -67,8 +71,10 @@ jobs:
           # Set working directory
           WORKDIR /app
           
-          # Copy package files
-          COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+          # Copy modified package files (without nuxt-particles)
+          COPY package.json.docker package.json
+          COPY pnpm-lock.yaml ./
+          COPY pnpm-workspace.yaml ./
           
           # Install dependencies
           FROM base AS deps
@@ -78,6 +84,8 @@ jobs:
           FROM base AS builder
           COPY --from=deps /app/node_modules ./node_modules
           COPY . .
+          # Use modified nuxt config
+          COPY nuxt.config.ts.docker nuxt.config.ts
           
           # Build the application
           RUN pnpm run build
