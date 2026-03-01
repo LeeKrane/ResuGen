@@ -55,12 +55,17 @@ jobs:
           cp nuxt.config.ts nuxt.config.ts.docker
           
           # Remove nuxt-particles from Docker versions
-          sed -i 's/"nuxt-particles":.*,//' package.json.docker
+          node -e "
+            const fs = require('fs');
+            const pkg = JSON.parse(fs.readFileSync('package.json.docker', 'utf8'));
+            delete pkg.dependencies['nuxt-particles'];
+            pkg.devDependencies['tailwindcss'] = '^3.4.0';
+            fs.writeFileSync('package.json.docker', JSON.stringify(pkg, null, 2));
+          "
+          
+          # Remove nuxt-particles from Nuxt config
           sed -i "/^[[:space:]]*'nuxt-particles',$/d" nuxt.config.ts.docker
           sed -i '/particles: {/,/},/d' nuxt.config.ts.docker
-          
-          # Add tailwindcss as devDependency for Docker build
-          sed -i '/"vitest":/a\    "tailwindcss": "^3.4.0",' package.json.docker
           
           # Create a proper pnpm-workspace.yaml for Docker (single package)
           cat > pnpm-workspace.yaml.docker << 'EOF'
@@ -77,8 +82,8 @@ jobs:
           EOF
           
           # Debug: show the modified files
-          echo "=== Modified package.json.docker (devDependencies section) ==="
-          grep -A 15 '"devDependencies"' package.json.docker
+          echo "=== Modified package.json.docker (dependencies) ==="
+          node -e "const pkg = JSON.parse(require('fs').readFileSync('package.json.docker', 'utf8')); console.log('Dependencies:', Object.keys(pkg.dependencies)); console.log('DevDeps:', Object.keys(pkg.devDependencies));"
           echo "=== pnpm-workspace.yaml.docker ==="
           cat pnpm-workspace.yaml.docker
 
