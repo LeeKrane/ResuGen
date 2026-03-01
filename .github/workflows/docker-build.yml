@@ -59,6 +59,9 @@ jobs:
           sed -i "/^[[:space:]]*'nuxt-particles',$/d" nuxt.config.ts.docker
           sed -i '/particles: {/,/},/d' nuxt.config.ts.docker
           
+          # Add tailwindcss as devDependency for Docker build
+          sed -i '/"vitest":/a\    "tailwindcss": "^3.4.0",' package.json.docker
+          
           # Create a proper pnpm-workspace.yaml for Docker (single package)
           cat > pnpm-workspace.yaml.docker << 'EOF'
           packages:
@@ -74,8 +77,8 @@ jobs:
           EOF
           
           # Debug: show the modified files
-          echo "=== Modified package.json.docker ==="
-          head -20 package.json.docker
+          echo "=== Modified package.json.docker (devDependencies section) ==="
+          grep -A 15 '"devDependencies"' package.json.docker
           echo "=== pnpm-workspace.yaml.docker ==="
           cat pnpm-workspace.yaml.docker
 
