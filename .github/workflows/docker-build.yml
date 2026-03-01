@@ -5,7 +5,7 @@ on:
     branches: [latest, development]
     tags: ['v*']
   pull_request:
-    branches: [latest]
+    branches: [latest, development]
 
 env:
   REGISTRY: ghcr.io
