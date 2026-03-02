@@ -26,7 +26,7 @@
     "deploy": "pnpm run clean && pnpm run build && pnpm run start"
   },
   "dependencies": {
-    "@iconify-json/lucide": "^1.2.64",
+    "@iconify-json/lucide": "^1.2.95",
     "@iconify-json/simple-icons": "^1.2.49",
     "@internationalized/date": "^3.9.0",
     "@nuxt/image": "1.10.0",
