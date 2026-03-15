@@ -21,7 +21,8 @@ export const useResumeData: () => { data: ResumeData, avatar: File | null } = ()
 				}]
 			}]).value,
 			links: useState("links", (): Link[] => [{name: "", url: ""}]).value,
-			institutions: useState("institutions", (): Institution[] => [{uuid: v7(), name: ""}]).value,
+			educationInstitutions: useState("educationInstitutions", (): Institution[] => [{uuid: v7(), name: ""}]).value,
+			experienceInstitutions: useState("experienceInstitutions", (): Institution[] => [{uuid: v7(), name: ""}]).value,
 			education: useState("education", (): Education[] => [{degree: "", text: "", collapsibleOpen: true}]).value,
 			experience: useState("experience", (): Experience[] => [{
 				position: "",
@@ -36,6 +37,11 @@ export const useResumeData: () => { data: ResumeData, avatar: File | null } = ()
 				repoLink: {name: "", url: ""},
 				technologies: []
 			}]).value,
+			jobField: useState("jobField", (): "IT" | "Other" => "IT").value,
+			qualifications: useState("qualifications", (): Qualification[] => []).value,
+			coverLetter: useState("coverLetter", (): CoverLetter => ({
+				content: ""
+			})).value,
 		},
 		avatar: useState("avatar", (): File | null => null).value,
 	}

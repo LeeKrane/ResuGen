@@ -8,3 +8,33 @@
 html {
     @apply motion-safe:scroll-smooth;
 }
+
+/* Print pagination - prevent awkward mid-section page breaks */
+@media print {
+    @page {
+        size: A4;
+        /* Zero margins removes browser's default date/title headers and footers */
+        margin: 0;
+    }
+
+    /* Force backgrounds to print (browsers hide them by default) */
+    * {
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+        color-adjust: exact !important;
+    }
+
+    /*
+     * Paint the sidebar color on the body background so it fills every printed
+     * page edge-to-edge - including the bottom of the last page where content
+     * ends before the page boundary. The CSS custom properties are set by
+     * TwoColumn.vue's watchEffect whenever the resume style changes.
+     */
+    body {
+        background: linear-gradient(
+            to right,
+            var(--print-sidebar-color, transparent) var(--print-sidebar-width, 0px),
+            var(--print-bg-color, white) var(--print-sidebar-width, 0px)
+        ) !important;
+    }
+}
