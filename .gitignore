@@ -9,8 +9,6 @@ dist
 # Node dependencies
 node_modules
 package-lock.json
-pnpm-lock.yaml
-pnpm-workspace.yaml
 
 # Logs
 logs
@@ -25,17 +23,8 @@ logs
 .env
 .env.*
 !.env.example
-pnpm-workspace.yaml
-
-# Kiro IDE files
-.kiro
-
-# Test files
-test/
 
 .vscode/
 GITLAB_ISSUES.md
 
-# Thesis documentation 
-ba_implementation.md
-proj_doc_implementation.md
+!.env.docker.example

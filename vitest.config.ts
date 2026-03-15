@@ -1,16 +1,30 @@
 import { defineConfig } from 'vitest/config'
-import { fileURLToPath } from 'node:url'
+import { resolve } from 'path'
 
 export default defineConfig({
   test: {
+    environment: 'happy-dom',
     globals: true,
-    environment: 'jsdom',
-    include: ['test/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}'],
+    setupFiles: ['./test/setup.ts'],
+    coverage: {
+      provider: 'v8',
+      reporter: ['text', 'json', 'html'],
+      exclude: [
+        'node_modules/',
+        'test/',
+        '.nuxt/',
+        'coverage/',
+        '**/*.d.ts',
+        '**/*.config.*'
+      ]
+    }
   },
   resolve: {
     alias: {
-      '~': fileURLToPath(new URL('./', import.meta.url)),
-      '@': fileURLToPath(new URL('./', import.meta.url)),
-    },
-  },
+      '~': resolve(__dirname, '.'),
+      '@': resolve(__dirname, '.'),
+      '~~': resolve(__dirname, '.'),
+      '@@': resolve(__dirname, '.')
+    }
+  }
 })
