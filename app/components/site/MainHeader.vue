@@ -1,17 +1,137 @@
-<script setup lang="ts">
+<script setup lang="ts"> 
 const sideNavOpen = ref(false)
 
 useRouter().beforeEach(() => {
 	sideNavOpen.value = false
 })
 
-const navItems = useNavItems()
+const user = useSupabaseUser()
+const userState = useUserState().userState
 
-const logout = async () => {
-	await useSupabaseClient().auth.signOut()
-	navigateTo('/')
-	useToast().add({ title: 'Successfully logged out', color: 'info', icon: 'i-lucide-info' })
+// Cache admin check result
+const isWebAdmin = ref<boolean | null>(null)
+
+function updateIsWebAdmin() {
+  isWebAdmin.value = useIsWebAdmin()
 }
+
+// Username
+const username = computed(() =>
+  userState.value.fullName ||
+  userState.value.username ||
+  userState.value.email ||
+  'Fallback User'
+)
+
+// Avatar Source
+const avatarSource = computed(() =>
+  userState.value.avatarUrl || userState.value.picture || null
+)
+
+// Avatar (cached in state)
+const avatarBlob = ref('')
+let lastObjectUrl: string | null = null
+async function loadAvatar(url: string | null) {
+  if (lastObjectUrl) {
+    URL.revokeObjectURL(lastObjectUrl)
+    lastObjectUrl = null
+  }
+
+  if (!url) {
+    avatarBlob.value = ''
+    return
+  }
+
+  try {
+    const res = await fetch(url, { cache: 'no-cache' })
+    const blob = await res.blob()
+    lastObjectUrl = URL.createObjectURL(blob)
+    avatarBlob.value = lastObjectUrl
+  } catch {
+    avatarBlob.value = ''
+  }
+}
+
+watch(
+  avatarSource,
+  (newUrl) => {
+    loadAvatar(newUrl)
+  },
+  { immediate: true }
+)
+
+onMounted(() => {
+  if (user.value) loadAvatar(avatarSource.value)
+})
+
+onBeforeUnmount(() => {
+  if (lastObjectUrl) {
+    URL.revokeObjectURL(lastObjectUrl)
+  }
+})
+
+// Dropdown (Menu)
+import type { DropdownMenuItem } from '@nuxt/ui'
+const logout = useLogout()
+const items = ref<DropdownMenuItem[][]>([])
+
+async function dropdownItems() {
+  const base: DropdownMenuItem[][] = [
+    [
+      {
+        label: username.value,
+        avatar: {
+          src: avatarBlob.value || undefined,
+          icon: avatarBlob.value ? undefined : 'i-lucide-user-round',
+        },
+        type: 'label',
+      },
+    ],
+    [
+      { label: 'Profile', icon: 'i-lucide-user', to: '/profile' },
+      { label: 'Settings', icon: 'i-lucide-settings', to: '/settings/general' },
+    ],
+    [
+      {
+        label: 'GitHub',
+        icon: 'i-simple-icons-github',
+        to: 'https://github.com/LeeKrane/ResuGen',
+        target: '_blank',
+      },
+      { label: 'Support', icon: 'i-lucide-mail', to: 'mailto:support+resugen@krane.dev' },
+    ],
+    [
+      {
+        label: 'Logout',
+        color: 'error',
+        icon: 'i-lucide-log-out',
+        onSelect: logout,
+      },
+    ],
+  ]
+
+  if (useIsWebAdmin()) {
+    base.splice(2, 0, [
+      { label: 'Admin', icon: 'i-lucide-shield-check', type: 'label', color: 'primary', },
+      { label: 'Dashboard', icon: 'i-lucide-layout-dashboard', to: 'https://account.krane.dev/admin/dashboard', target: '_blank' }, // Soon: Add admin dashboard page
+      { label: 'Manage Users', icon: 'i-lucide-users', to: 'https://account.krane.dev/admin/users', target: '_blank' } // Soon: Add user management page
+    ])
+  }
+
+  items.value = base
+}
+
+// Update items when relevant state changes
+watch([username, avatarBlob], () => {
+  dropdownItems()
+  updateIsWebAdmin()
+}, { immediate: true })
+
+onMounted(() => {
+  dropdownItems()
+})
+
+const navItems = useNavItems()
 </script>
 
 <template>
@@ -36,30 +156,27 @@ const logout = async () => {
 				/>
 			</UTooltip>
 
-			<UTooltip
-				v-if="!useSupabaseUser().value"
-				text="Login"
-				arrow
-				:delay-duration="0">
-				<UButton
-					color="neutral"
-					variant="ghost"
-					icon="i-lucide-log-in"
-					to="/login"
-				/>
-			</UTooltip>
+			<UDropdownMenu
+				v-if="useSupabaseUser().value"
+				:items="items"
+				:ui="{ content: 'min-w-fit' }">
 
-			<UTooltip
+				<UTooltip
+					text="Menu"
+					arrow
+					:delay-duration="0">
+					
+          <UAvatar :src="avatarBlob" icon="i-lucide-user-round" class="border border-(--ui-border)" :class="isWebAdmin ? 'ring-2 ring-primary' : 'ring-0'" />
+				</UTooltip>
+			</UDropdownMenu>
+
+			<UButton
 				v-else
-				text="Logout"
-				arrow
-				:delay-duration="0">
-				<UButton
-					color="neutral"
-					variant="ghost"
-					icon="i-lucide-log-out"
-					@click="logout"/>
-			</UTooltip>
+				color="neutral"
+				variant="ghost"
+				label="Sign In"
+				trailing-icon="i-lucide-log-in"
+				to="/login"/>
 
 			<aside class="md:hidden">
 				<USlideover

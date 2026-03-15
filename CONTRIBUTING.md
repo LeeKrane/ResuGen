@@ -22,10 +22,10 @@ Thank you for your interest in contributing to ResuGen! This document provides g
 ## Development Guidelines
 
 ### Technology Stack
-- Nuxt 3
+- Nuxt 4
 - Nuxt UI
 - TypeScript
-- Vue 3
+- Vue 4
 - JSZip (for import/export functionality)
 
 ### Component Guidelines

@@ -1,10 +1,10 @@
 <script setup lang="ts">
 const state = reactive({
-	institutions: useRefResumeData().institutions,
+	educationInstitutions: useRefResumeData().educationInstitutions,
 	education: useRefResumeData().education,
 })
 
-const selectableInstitutions = computed(() => state.institutions
+const selectableInstitutions = computed(() => state.educationInstitutions
 	.filter((i) => i.name.length > 0)
 	.map((i) => {
 		return {label: i.name, value: i.uuid}
@@ -15,7 +15,7 @@ const selectableInstitutions = computed(() => state.institutions
 const computedCollapsableNames = computed(() => state.education
 	.map((e) => {
 		return (e.degree || e.institution)
-			? (e.degree || '?') + ' at ' + (state.institutions.find((i) => i.uuid === e.institution)?.name || '?')
+			? (e.degree || '?') + ' at ' + (state.educationInstitutions.find((i) => i.uuid === e.institution)?.name || '?')
 			: undefined
 	})
 )
@@ -25,7 +25,7 @@ const computedCollapsableNames = computed(() => state.education
 	<UForm
 		:state="state"
 		class="flex flex-col gap-8 m-4">
-		<FormInstitutions/>
+		<FormInstitutions v-model="state.educationInstitutions"/>
 
 		<USeparator icon="i-lucide-graduation-cap"/>
 

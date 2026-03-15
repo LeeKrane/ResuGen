@@ -1,4 +1,6 @@
 <script setup lang="ts">
+const { isIT } = useJobField()
+
 const state = reactive({
 	name: useRefResumeData().name,
 	subtitle: useRefResumeData().subtitle,
@@ -18,6 +20,7 @@ const previewImage = useState<string | null>("previewImage", () => null)
 
 const linkiconItems = ref([
 	{label: "Website", value: "website", icon: "i-lucide-globe"},
+	{label: "Other", value: "other", icon: "i-lucide-link"},
 	{label: "GitHub", value: "github", icon: "i-simple-icons-github"},
 	{label: "GitLab", value: "gitlab", icon: "i-simple-icons-gitlab"},
 	{label: "LinkedIn", value: "linkedin", icon: "i-simple-icons-linkedin"},
@@ -228,6 +231,15 @@ watch(
     },
     { deep: true }
 )
+
+// Dynamic labels based on job field
+const skillCategoryPlaceholder = computed(() => 
+	isIT.value ? 'Programming Languages' : 'Professional Skills'
+)
+
+const skillPlaceholder = computed(() => 
+	isIT.value ? 'TypeScript' : 'Communication'
+)
 </script>
 
 <template>
@@ -401,7 +413,7 @@ watch(
 						v-model="state.skillCategories[index].name"
 						icon="i-lucide-folder"
 						variant="soft"
-						placeholder="Programming Languages"
+						:placeholder="skillCategoryPlaceholder"
 						class="flex-1"/>
 					<FormModifyButtons
 						v-model="state.skillCategories"
@@ -444,7 +456,7 @@ watch(
 								v-if="state.skillCategories[index].skills[skillIndex] && state.skillCategories[index].skills[skillIndex].technology && state.skillCategories[index].skills[skillIndex].technology.value === 'custom'"
 								v-model="state.skillCategories[index].skills[skillIndex].name"
 								variant="soft"
-								placeholder="TypeScript"
+								:placeholder="skillPlaceholder"
 								class="flex-1"/>
 							<USelectMenu
 								v-if="state.skillCategories[index].skills[skillIndex] && state.skillCategories[index].skills[skillIndex].technology && state.skillCategories[index].skills[skillIndex].technology.value !== 'custom'"

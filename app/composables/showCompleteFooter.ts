@@ -1,0 +1,1 @@
+export const useShowCompleteFooter = () => useState<boolean>('showCompleteFooter', () => false)

@@ -7,8 +7,8 @@ const { label = "Select a date" } = defineProps<{
 
 const model = defineModel<EmploymentDate | undefined>()
 const calendarDate = ref<CalendarDate | undefined>(
-	model.value
-		? new CalendarDate(model.value.year ?? 0, model.value.month ?? 0, model.value.day ?? 0)
+	model.value && model.value.year != null && model.value.month != null && model.value.day != null
+		? new CalendarDate(model.value.year, model.value.month, model.value.day)
 		: undefined
 )
 
@@ -29,9 +29,9 @@ watch(calendarDate, (newVal) => {
 				color="neutral"
 				class="grow"
 				icon="i-lucide-calendar"
-				:label="model
+				:label="model && model.year != null && model.month != null && model.day != null
 					? new DateFormatter('de-AT', { dateStyle: 'medium' })
-						.format(new Date(model.year!, model.month! - 1, model.day!))
+						.format(new Date(model.year, model.month - 1, model.day))
 					: label">
 			</UButton>
 
