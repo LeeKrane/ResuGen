@@ -88,7 +88,7 @@ async function dropdownItems() {
       },
     ],
     [
-      { label: 'Profile', icon: 'i-lucide-user', to: '/profile' },
+      { label: 'Profile', icon: 'i-lucide-user', to: '/me' },
       { label: 'Settings', icon: 'i-lucide-settings', to: '/settings/general' },
     ],
     [
