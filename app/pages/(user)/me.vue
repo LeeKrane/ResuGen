@@ -28,8 +28,8 @@ onMounted(() => {
 					icon: 'i-lucide-check'
 				})
 
-				// Clean up the URL
-				navigateTo('/me', { replace: true })
+				// Redirect to landing page after OAuth login
+				navigateTo('/', { replace: true })
 			}
 		// eslint-disable-next-line @typescript-eslint/no-unused-vars
 		} catch (error) {

@@ -1,15 +1,27 @@
 export const useNavItems = () => {
-	return useState("navItems", () => [
+	const user = useSupabaseUser()
+
+	// Auth-gated items only shown when logged in
+	const authItems = computed(() => user.value ? [
 		{
-			label: "Edit Data",
-			icon: "i-lucide-square-pen",
-			to: "/edit",
+			label: "Portfolio",
+			icon: "i-lucide-user",
+			to: "/portfolio",
 		},
 		{
-			label: "Resume",
+			label: "Resumes",
+			icon: "i-lucide-file-text",
+			to: "/resumes",
+		},
+		{
+			label: "AI Generate",
 			icon: "i-ri-ai-generate",
-			to: "/resume",
+			to: "/ai-generate",
 		},
+	] : [])
+
+	// Always-visible items
+	const publicItems = [
 		{
 			label: "About",
 			icon: "i-lucide-info",
@@ -20,5 +32,7 @@ export const useNavItems = () => {
 			icon: "i-lucide-book-open",
 			to: "/docs",
 		},
-	])
+	]
+
+	return computed(() => [...authItems.value, ...publicItems])
 }

@@ -1,6 +1,6 @@
 # ResuGen
 
-A modern, intuitive, and open-source resume generator designed to help you create ATS-friendly professional resumes with ease. Built with Nuxt 3 and Nuxt UI.
+A modern, intuitive, and open-source resume generator designed to help you create ATS-friendly professional resumes with ease. Built with Nuxt 4 and Nuxt UI.
 
 <img src="/public/ResuGen-OG-Social-Image.jpg" alt="Marketing Banner Placeholder" width="1151">
 
@@ -11,6 +11,7 @@ A modern, intuitive, and open-source resume generator designed to help you creat
 - **ATS-Friendly**: Optimized for Applicant Tracking Systems
 - **Browser-based PDF Export**: Print to PDF directly through your browser
 - **Data Portability**: Import/Export your resume data as ZIP
+- **AI Resume Import**: Upload a PDF, DOCX, or TXT resume - AI extracts structured data
 - **Flexible Customization**: Personalize colors, spacing, and typography
 - **Type-Safe**: Built with TypeScript for reliability
 - **Aesthetic Design**: Subtle particle animation background
@@ -54,7 +55,7 @@ A modern, intuitive, and open-source resume generator designed to help you creat
 
 ## 🛠️ Tech Stack
 
-- **Framework**: [Nuxt 3](https://nuxt.com/) - Vue.js Framework
+- **Framework**: [Nuxt 4](https://nuxt.com/) - Vue.js Framework
 - **UI Components**: [Nuxt UI](https://ui.nuxt.com/) - Ready-to-use Vue components
 - **Styling**: Tailwind CSS - Utility-first CSS framework
 - **Type Safety**: TypeScript - Static type checking
