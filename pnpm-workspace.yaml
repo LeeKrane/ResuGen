@@ -1,0 +1,11 @@
+packages:
+  - '.'
+
+onlyBuiltDependencies:
+  - '@parcel/watcher'
+  - '@tailwindcss/oxide'
+  - '@tsparticles/engine'
+  - esbuild
+  - sharp
+  - unrs-resolver
+  - vue-demi

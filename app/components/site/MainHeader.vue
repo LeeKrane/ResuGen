@@ -8,15 +8,11 @@ useRouter().beforeEach(() => {
 const user = useSupabaseUser()
 const userState = useUserState().userState
 
-// Cache async admin check result so template doesn't evaluate a Promise
+// Cache admin check result
 const isWebAdmin = ref<boolean | null>(null)
 
-async function updateIsWebAdmin() {
-  try {
-    isWebAdmin.value = await useIsWebAdmin()
-  } catch {
-    isWebAdmin.value = null
-  }
+function updateIsWebAdmin() {
+  isWebAdmin.value = useIsWebAdmin()
 }
 
 // Username
@@ -86,7 +82,7 @@ async function dropdownItems() {
         label: username.value,
         avatar: {
           src: avatarBlob.value || undefined,
-          icon: avatarBlob.value || 'i-lucide-user-round',
+          icon: avatarBlob.value ? undefined : 'i-lucide-user-round',
         },
         type: 'label',
       },
@@ -114,7 +110,7 @@ async function dropdownItems() {
     ],
   ]
 
-  if (await useIsWebAdmin()) {
+  if (useIsWebAdmin()) {
     base.splice(2, 0, [
       { label: 'Admin', icon: 'i-lucide-shield-check', type: 'label', color: 'primary', },
       { label: 'Dashboard', icon: 'i-lucide-layout-dashboard', to: 'https://account.krane.dev/admin/dashboard', target: '_blank' }, // Soon: Add admin dashboard page
