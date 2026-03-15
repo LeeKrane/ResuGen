@@ -43,21 +43,21 @@ const navItems = useNavItems()
 							<span class="text-sm">GitHub</span>
 						</UButton>
 						<UButton
-								to=""
-								target="_blank"
-								color="neutral"
-								variant="ghost"
-								class="flex items-center gap-2">
-							<UIcon name="i-simple-icons-gitlab" class="w-5 h-5"/>
-							<span class="text-sm">?</span>
-						</UButton>
-						<UButton
-							to=""
+							to="/docs"
 							color="neutral"
 							variant="ghost"
 							class="flex items-center gap-2">
-							<UIcon name="i-lucide-presentation" class="w-5 h-5"/>
-							<span class="text-sm">Demo</span>
+							<UIcon name="i-lucide-book-open" class="w-5 h-5"/>
+							<span class="text-sm">Docs</span>
+						</UButton>
+						<UButton
+							to="https://github.com/LeeKrane/ResuGen/issues"
+							target="_blank"
+							color="neutral"
+							variant="ghost"
+							class="flex items-center gap-2">
+							<UIcon name="i-lucide-bug" class="w-5 h-5"/>
+							<span class="text-sm">Issues</span>
 						</UButton>
 						<UButton
 							to="mailto:support+resugen@krane.dev"
