@@ -23,4 +23,8 @@ logs
 .env
 .env.*
 !.env.example
+
+.vscode/
+GITLAB_ISSUES.md
+
 !.env.docker.example
