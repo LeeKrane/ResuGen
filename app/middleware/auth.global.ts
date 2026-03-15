@@ -1,6 +1,6 @@
 export default defineNuxtRouteMiddleware(async (to) => {
 	// publich paths
-	const publicPrefixes = ['/', '/login', '/register', '/reset-password']
+	const publicPrefixes = ['/', '/login', '/register', '/reset-password', '/about', '/docs']
 	const isPublicPath = publicPrefixes.some(p => to.path === p || to.path.startsWith(p + '/'))
 
 	const supabase = useSupabaseClient()
