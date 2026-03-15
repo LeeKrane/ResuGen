@@ -75,6 +75,21 @@ interface Project {
 	end?: EmploymentDate
 }
 
+interface Qualification {
+	name: string
+	issuer?: string
+	date?: EmploymentDate
+	description?: string
+}
+
+
+interface CoverLetter {
+	content: string
+	recipientName?: string
+	companyName?: string
+	position?: string
+}
+
 interface ImgData {
 	filename: string,
 	contentType: string
@@ -98,10 +113,16 @@ interface ResumeData {
 	languages: Language[],
 	skillCategories: SkillCategory[],
 	links: Link[],
-	institutions: Institution[],
+	educationInstitutions: Institution[],
+	experienceInstitutions: Institution[],
 	education: Education[],
 	experience: Experience[],
 	projects: Project[],
+	jobField: "IT" | "Other",
+	qualifications?: Qualification[],
+	coverLetter?: CoverLetter,
+	avatarData?: string,
+	avatarContentType?: string,
 }
 
 interface RefResumeData {
@@ -116,11 +137,15 @@ interface RefResumeData {
 	languages: Ref<Language[]>
 	skillCategories: Ref<SkillCategory[]>
 	links: Ref<Link[]>
-	institutions: Ref<Institution[]>
+	educationInstitutions: Ref<Institution[]>
+	experienceInstitutions: Ref<Institution[]>
 	education: Ref<Education[]>
 	experience: Ref<Experience[]>
 	projects: Ref<Project[]>
 	avatar: Ref<File | null>
+	jobField: Ref<"IT" | "Other">
+	qualifications: Ref<Qualification[]>
+	coverLetter: Ref<CoverLetter>
 }
 
 interface ResumeStyle {
@@ -192,4 +217,68 @@ interface ResumeStyle {
 			certifications: SectionState
 		}
 	}
+}
+
+interface PortfolioProfile {
+	name: string
+	subtitle: string
+	email: string
+	phone: string
+	address: string
+	summary: string
+	birthdate?: EmploymentDate
+	hobbies: string[]
+	avatarData?: string
+	avatarFilename?: string
+	avatarContentType?: string
+}
+
+interface PortfolioData {
+	profile: PortfolioProfile
+	links: Link[]
+	languages: Language[]
+	skillCategories: SkillCategory[]
+	education: Education[]
+	experience: Experience[]
+	projects: Project[]
+	certifications: Qualification[]
+	educationInstitutions: Institution[]
+	experienceInstitutions: Institution[]
+	jobField?: 'IT' | 'Other'
+}
+
+interface ResumeSummary {
+	id: string
+	title: string
+	kind: 'it' | 'other'
+	updatedAt: string
+	createdAt: string
+	duplicatedFrom?: string
+}
+
+interface ExtractRequirementsResponse {
+	keywords: string[]
+	responsibilities: string[]
+	mustHaves: string[]
+	niceToHaves: string[]
+}
+
+interface GenerateResumeDraftResponse {
+	jobField: 'IT' | 'Other'
+	name: string | null
+	subtitle: string | null
+	summary: string | null
+	experience: Array<{ position: string; text: string; technologies: string[] }>
+	education: Array<{ degree: string; text: string }>
+	skillCategories: Array<{ name: string; skills: Array<{ name: string }> }>
+	projects: Array<{ name: string; description: string }>
+	languages: Array<{ name: string; level: 'A1' | 'A2' | 'B1' | 'B2' | 'C1' | 'C2' | 'Native' }>
+	coverLetter: {
+		content: string
+		recipientName: string | null
+		companyName: string | null
+		position: string | null
+	}
+	provenance: string[]
+	missing_info: string[]
 }
