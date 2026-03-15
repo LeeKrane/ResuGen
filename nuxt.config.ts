@@ -70,7 +70,7 @@ export default defineNuxtConfig({
                 'script-src': ["'self'", "'nonce-{{nonce}}'"],
                 'script-src-attr': ["'none'"],
                 'style-src': ["'self'", "'unsafe-inline'"],
-                'img-src': ["'self'", "data:", "blob:", "https://ui.nuxt.com", "https://picsum.photos"],
+                'img-src': ["'self'", "data:", "blob:", "https://ui.nuxt.com", "https://picsum.photos", "https://fastly.picsum.photos"],
                 'connect-src': [
                                 "'self'",
                                 'https://heklocdxpjudwmutdpvb.supabase.co',
