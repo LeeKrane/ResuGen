@@ -1,0 +1,41 @@
+name: Issue Auto-Close
+
+on:
+  issues:
+    types: [labeled]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.issue.number }}
+  cancel-in-progress: true
+
+jobs:
+  auto-close-issues:
+    if: |
+      github.event.label.name == 'auto-close' &&
+      github.event.action == 'labeled'
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Close issue as "not planned"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+        run: |
+          # Remove the auto-close label first
+          gh issue edit $ISSUE_NUMBER --remove-label "auto-close"
+          
+          # Add a comment to the issue
+          gh issue comment $ISSUE_NUMBER --body "## 🔒 Issue Auto-Closed
+          
+          This issue has been automatically closed, because it was labeled with \`auto-close\`.
+          
+          **Please note:** For security vulnerabilities, always report via email to security+resugen@krane.dev
+          
+          *This action was performed automatically by the Issue Auto-Close workflow.*"
+          
+          # Close the issue with "not planned" reason
+          gh issue close $ISSUE_NUMBER --reason "not planned"
