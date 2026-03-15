@@ -112,9 +112,9 @@ export default defineNuxtConfig({
                 "web-share": [], // tbd - could be used for sharing resumes
                 "xr-spatial-tracking": [] // not used on this website
             },
-            "crossOriginEmbedderPolicy": "require-corp",
+            "crossOriginEmbedderPolicy": "credentialless", // TODO: [TEMP] change back to "require-corp" once ui.nuxt.com is no image source anymore
             "crossOriginOpenerPolicy": "same-origin",
-            "crossOriginResourcePolicy": "same-origin",
+            "crossOriginResourcePolicy": "cross-origin",
             "originAgentCluster": "?1",
             "referrerPolicy": "no-referrer",
             "strictTransportSecurity": {
