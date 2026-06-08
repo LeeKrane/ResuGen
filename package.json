@@ -27,7 +27,7 @@
   },
   "dependencies": {
     "@iconify-json/lucide": "^1.2.64",
-    "@iconify-json/simple-icons": "^1.2.49",
+    "@iconify-json/simple-icons": "^1.2.71",
     "@internationalized/date": "^3.9.0",
     "@nuxt/image": "1.10.0",
     "@nuxt/ui": "3.3.0",
