@@ -158,5 +158,12 @@ export default defineNuxtConfig({
                 },
             },
         },
-    }
+    },
+	nitro: {
+		externals: {
+			external: [
+				'pdf-parse'
+			]
+		}
+	}
 })

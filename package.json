@@ -8,7 +8,7 @@
     "build": "nuxt build",
     "build:analyze": "nuxt build --analyze",
     "preview": "nuxt preview",
-    "start": "node .output/server/index.mjs",
+    "start": "NODE_PATH=./node_modules node .output/server/index.mjs",
     "serve": "pnpm run build && pnpm run start",
     "generate": "nuxt generate",
     "generate:modern": "nuxt generate --modern",
@@ -36,7 +36,7 @@
     "jszip": "^3.10.1",
     "mammoth": "^1.11.0",
     "nuxt": "^4.0.3",
-    "nuxt-particles": "https://github.com/LeeKrane/nuxt-particles.git#main",
+    "nuxt-particles": "^0.3.0",
     "nuxt-security": "^2.5.0",
     "openai": "^4.77.0",
     "pdf-parse": "^2.4.5",
@@ -62,8 +62,18 @@
   },
   "pnpm": {
     "supportedArchitectures": {
-      "os": ["current", "linux"],
-      "cpu": ["current", "x64", "arm64"]
+      "os": [
+        "current",
+        "linux"
+      ],
+      "cpu": [
+        "current",
+        "x64",
+        "arm64"
+      ]
     }
+  },
+  "engines": {
+    "node": "22"
   }
 }
