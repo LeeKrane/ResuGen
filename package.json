@@ -14,7 +14,7 @@
     "generate:modern": "nuxt generate --modern",
     "clean": "rm -rf .nuxt .output dist .cache",
     "clean:all": "npm run clean && rm -rf node_modules",
-    "postinstall": "nuxt prepare",
+    "postinstall": "pnpm add @oxc-parser/binding-linux-x64-gnu --save-optional && nuxt prepare",
     "update-deps": "pnpm update",
     "lint": "eslint .",
     "lint:fix": "eslint --fix .",
