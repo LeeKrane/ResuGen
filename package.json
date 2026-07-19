@@ -36,7 +36,7 @@
     "jszip": "^3.10.1",
     "mammoth": "^1.11.0",
     "nuxt": "^4.0.3",
-    "nuxt-particles": "https://github.com/LeeKrane/nuxt-particles.git#main",
+    "nuxt-particles": "^0.3.0",
     "nuxt-security": "^2.5.0",
     "openai": "^4.77.0",
     "pdf-parse": "^2.4.5",
@@ -60,10 +60,8 @@
     "typescript": "^5.9.2",
     "vitest": "^4.0.18"
   },
-  "pnpm": {
-    "supportedArchitectures": {
-      "os": ["current", "linux"],
-      "cpu": ["current", "x64", "arm64"]
-    }
-  }
+  "engines": {
+    "node": "22.x"
+  },
+  "packageManager": "pnpm@9.15.9"
 }

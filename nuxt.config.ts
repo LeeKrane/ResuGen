@@ -34,6 +34,13 @@ export default defineNuxtConfig({
         disableTransition: false
     },
 
+    nitro: {
+        externals: {
+            inline: [],
+            external: ['pdf-parse', 'pdfjs-dist', '@napi-rs/canvas'],
+        },
+    },
+
     compatibilityDate: '2024-11-27',
 
     router: {

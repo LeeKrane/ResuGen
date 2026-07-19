@@ -1,8 +1,5 @@
 import mammoth from 'mammoth'
-import { createRequire } from 'module'
-
-const require = createRequire(import.meta.url)
-const pdfParse = require('pdf-parse') as (buffer: Buffer) => Promise<{ text: string }>
+import { PDFParse } from 'pdf-parse'
 
 /**
  * Extracts plain text from an uploaded resume file buffer.
@@ -22,7 +19,8 @@ export async function extractText(buffer: Buffer, fileType: 'pdf' | 'docx' | 'tx
   }
 
   if (fileType === 'pdf') {
-    const result = await pdfParse(buffer)
+    const pdf = new PDFParse({ data: buffer })
+    const result = await pdf.getText()
     return result.text
   }
 

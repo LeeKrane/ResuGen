@@ -9,3 +9,7 @@ onlyBuiltDependencies:
   - sharp
   - unrs-resolver
   - vue-demi
+
+allowBuilds:
+  '@tsparticles/engine': true
+  nuxt-particles: true
