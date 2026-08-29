@@ -233,14 +233,16 @@ jobs:
           echo "### Lighthouse audit" >> "$GITHUB_STEP_SUMMARY"
           echo "" >> "$GITHUB_STEP_SUMMARY"
 
-          if compgen -G ".lighthouseci/lhr-*.json" > /dev/null; then
-            RUN_COUNT=$(ls .lighthouseci/lhr-*.json | wc -l)
+          mapfile -d '' -t LHR_FILES < <(find .lighthouseci -maxdepth 1 -name 'lhr-*.json' -print0 2>/dev/null)
+
+          if [ "${#LHR_FILES[@]}" -gt 0 ]; then
+            RUN_COUNT=${#LHR_FILES[@]}
             SCORES=$(jq -s '{
               performance: ([.[].categories.performance.score] | sort | .[length/2|floor]),
               accessibility: ([.[].categories.accessibility.score] | sort | .[length/2|floor]),
               "best-practices": ([.[].categories["best-practices"].score] | sort | .[length/2|floor]),
               seo: ([.[].categories.seo.score] | sort | .[length/2|floor])
-            }' .lighthouseci/lhr-*.json)
+            }' "${LHR_FILES[@]}")
 
             PERF=$(echo "$SCORES" | jq -r '.performance')
             A11Y=$(echo "$SCORES" | jq -r '.accessibility')
@@ -258,6 +260,7 @@ jobs:
               echo "| SEO | $SEO |"
             } >> "$GITHUB_STEP_SUMMARY"
           else
+            echo "::warning::No Lighthouse results were produced (.lighthouseci/lhr-*.json not found -- the collect step likely failed before completing a run; see the job log)."
             echo "No Lighthouse results were produced (the collect step likely failed before completing a run -- see the job log)." >> "$GITHUB_STEP_SUMMARY"
           fi
 
@@ -272,6 +275,8 @@ jobs:
         with:
           name: lighthouse-report
           path: .lighthouseci/
+          # .output/.lighthouseci are dot-dirs; upload-artifact skips hidden by default
+          include-hidden-files: true
           retention-days: 30
           if-no-files-found: warn
 
