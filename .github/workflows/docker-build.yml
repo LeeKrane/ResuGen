@@ -100,9 +100,11 @@ jobs:
         env:
           IMAGE: ${{ steps.image.outputs.image }}
           TAG_SHA: ${{ steps.image.outputs.tag_sha }}
+          EVENT_NAME: ${{ github.event_name }}
+          META_TAGS: ${{ steps.meta.outputs.tags }}
         run: |
-          if [ "${{ github.event_name }}" = "pull_request" ]; then
-            REF=$(echo "${{ steps.meta.outputs.tags }}" | head -n1)
+          if [ "$EVENT_NAME" = "pull_request" ]; then
+            REF=$(echo "$META_TAGS" | head -n1)
           else
             docker pull "${IMAGE}:${TAG_SHA}"
             REF="${IMAGE}:${TAG_SHA}"
@@ -388,7 +390,13 @@ jobs:
           RUN_URL="https://github.com/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
           COMMIT_SHA=$(git rev-parse HEAD)
           COMMIT_TIMESTAMP=$(git show -s --format=%cI HEAD)
-          DEPLOY_RESPONSE=$(cat deploy-response.json 2>/dev/null || echo '{}')
+          if jq -e . deploy-response.json > /dev/null 2>&1; then
+            DEPLOY_RESPONSE=$(jq -c . deploy-response.json)
+          elif [ -s deploy-response.json ]; then
+            DEPLOY_RESPONSE=$(jq -Rs . deploy-response.json)
+          else
+            DEPLOY_RESPONSE='{}'
+          fi
 
           {
             echo "### Deploy Trigger"
