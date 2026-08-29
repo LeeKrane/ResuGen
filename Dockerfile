@@ -1,6 +1,6 @@
 # Multi-stage Dockerfile for Nuxt.js application
-# Base stage with Node.js 20 Alpine and pnpm 9
-FROM node:20-alpine AS base
+# Base stage with Node.js 22 Alpine and pnpm 9
+FROM node:22-alpine AS base
 RUN apk add --no-cache git
 RUN corepack enable && corepack prepare pnpm@9 --activate
 WORKDIR /app
@@ -30,7 +30,7 @@ RUN node -e "\
   }, null, 2));"
 
 # Production stage with minimal runtime footprint
-FROM node:20-alpine AS production
+FROM node:22-alpine AS production
 RUN apk add --no-cache wget
 RUN corepack enable && corepack prepare pnpm@9 --activate
 
