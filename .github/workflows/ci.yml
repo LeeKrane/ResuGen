@@ -150,6 +150,8 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: nuxt-output
+          # .output/.lighthouseci are dot-dirs; upload-artifact skips hidden by default
+          include-hidden-files: true
           path: .output/
           retention-days: 7
 
