@@ -1,26 +1,48 @@
-name: Docker Build & Push Pipeline
+name: Docker Build, Scan & Deploy
 
 on:
   push:
-    branches: [latest, development]
+    branches: [latest, development, bscp-hotfix, 'ci/**']
   pull_request:
-    branches: [latest]
+  workflow_dispatch:
+    inputs:
+      deploy:
+        description: 'Trigger platform deploy webhook after build'
+        type: boolean
+        default: true
+
+permissions:
+  contents: read
+
+concurrency:
+  group: docker-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository }}
 
 jobs:
-  build-and-push:
+  build:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     permissions:
       contents: read
       packages: write
-      security-events: write
-
+    outputs:
+      image: ${{ steps.image.outputs.image }}
+      tag_sha: ${{ steps.image.outputs.tag_sha }}
+      digest: ${{ steps.build.outputs.digest }}
+      size_bytes: ${{ steps.measure.outputs.size_bytes }}
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
+
+      - name: Compute lowercase image reference
+        id: image
+        run: |
+          echo "image=${REGISTRY}/${GITHUB_REPOSITORY,,}" >> "$GITHUB_OUTPUT"
+          SHORT_SHA=$(echo "${GITHUB_SHA}" | cut -c1-7)
+          echo "tag_sha=sha-${SHORT_SHA}" >> "$GITHUB_OUTPUT"
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -37,49 +59,404 @@ jobs:
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          images: ${{ env.REGISTRY }}/${{ github.repository }}
           tags: |
+            type=sha,prefix=sha-,format=short
             type=ref,event=branch
             type=ref,event=pr
-            type=sha
             type=raw,value=latest,enable={{is_default_branch}}
 
+      - name: Record build start time
+        id: started
+        run: |
+          echo "epoch=$(date -u +%s)" >> "$GITHUB_OUTPUT"
+          echo "iso=$(date -u +%Y-%m-%dT%H:%M:%SZ)" >> "$GITHUB_OUTPUT"
+
       - name: Build and push Docker image
-        uses: docker/build-push-action@v5
+        id: build
+        uses: docker/build-push-action@v6
         with:
           context: .
-          platforms: linux/amd64,linux/arm64
+          platforms: linux/amd64
           push: ${{ github.event_name != 'pull_request' }}
+          load: ${{ github.event_name == 'pull_request' }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+          provenance: false
           build-args: |
             SUPABASE_URL=${{ secrets.SUPABASE_URL }}
-            SUPABASE_KEY=${{ secrets.SUPABASE_KEY }}
+            SUPABASE_KEY=${{ secrets.SUPABASE_ANON_KEY }}
 
-      - name: Run Trivy vulnerability scanner
-        if: github.event_name != 'pull_request'
-        uses: aquasecurity/trivy-action@master
-        with:
-          image-ref: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
-          format: 'sarif'
-          output: 'trivy-results.sarif'
-
-      - name: Upload Trivy scan results to GitHub Security tab
-        uses: github/codeql-action/upload-sarif@v3
-        if: always() && github.event_name != 'pull_request'
-        with:
-          sarif_file: 'trivy-results.sarif'
-
-      - name: Test health endpoint
-        if: github.event_name != 'pull_request'
+      - name: Record build finish time
+        id: finished
         run: |
-          # Wait for container to be available and test health endpoint
-          docker run --rm -d --name health-test -p 3000:3000 \
-            -e SUPABASE_URL="${{ secrets.SUPABASE_URL }}" \
-            -e SUPABASE_KEY="${{ secrets.SUPABASE_KEY }}" \
-            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
-          sleep 30
-          curl -f http://localhost:3000/api/health || exit 1
-          docker stop health-test
+          echo "epoch=$(date -u +%s)" >> "$GITHUB_OUTPUT"
+          echo "iso=$(date -u +%Y-%m-%dT%H:%M:%SZ)" >> "$GITHUB_OUTPUT"
+
+      - name: Measure image size
+        id: measure
+        env:
+          IMAGE: ${{ steps.image.outputs.image }}
+          TAG_SHA: ${{ steps.image.outputs.tag_sha }}
+        run: |
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            REF=$(echo "${{ steps.meta.outputs.tags }}" | head -n1)
+          else
+            docker pull "${IMAGE}:${TAG_SHA}"
+            REF="${IMAGE}:${TAG_SHA}"
+          fi
+          SIZE=$(docker image inspect --format '{{.Size}}' "${REF}")
+          echo "size_bytes=${SIZE}" >> "$GITHUB_OUTPUT"
+
+      - name: Write build metrics summary
+        env:
+          IMAGE: ${{ steps.image.outputs.image }}
+          TAG_SHA: ${{ steps.image.outputs.tag_sha }}
+          TAGS: ${{ steps.meta.outputs.tags }}
+          DIGEST: ${{ steps.build.outputs.digest }}
+          SIZE_BYTES: ${{ steps.measure.outputs.size_bytes }}
+          START_EPOCH: ${{ steps.started.outputs.epoch }}
+          FINISH_EPOCH: ${{ steps.finished.outputs.epoch }}
+        run: |
+          BUILD_SECONDS=$(( FINISH_EPOCH - START_EPOCH ))
+          SIZE_MB=$(awk "BEGIN { printf \"%.1f\", ${SIZE_BYTES}/1000000 }")
+          {
+            echo "### Docker Build"
+            echo ""
+            echo "| Field | Value |"
+            echo "|---|---|"
+            echo "| Image | \`${IMAGE}\` |"
+            echo "| Tags | \`${TAGS//$'\n'/, }\` |"
+            echo "| Digest | \`${DIGEST}\` |"
+            echo "| Size | ${SIZE_MB} MB |"
+            echo "| Build time | ${BUILD_SECONDS}s |"
+            echo "| Cache | type=gha (mode=max) |"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Write build-metrics.json
+        env:
+          IMAGE: ${{ steps.image.outputs.image }}
+          TAGS: ${{ steps.meta.outputs.tags }}
+          DIGEST: ${{ steps.build.outputs.digest }}
+          SIZE_BYTES: ${{ steps.measure.outputs.size_bytes }}
+          START_ISO: ${{ steps.started.outputs.iso }}
+          FINISH_ISO: ${{ steps.finished.outputs.iso }}
+          START_EPOCH: ${{ steps.started.outputs.epoch }}
+          FINISH_EPOCH: ${{ steps.finished.outputs.epoch }}
+        run: |
+          BUILD_SECONDS=$(( FINISH_EPOCH - START_EPOCH ))
+          jq -n \
+            --arg run_id "${GITHUB_RUN_ID}" \
+            --arg sha "${GITHUB_SHA}" \
+            --arg ref "${GITHUB_REF}" \
+            --arg image "${IMAGE}" \
+            --arg tags "${TAGS}" \
+            --arg digest "${DIGEST}" \
+            --argjson size_bytes "${SIZE_BYTES}" \
+            --argjson build_seconds "${BUILD_SECONDS}" \
+            --arg started_at "${START_ISO}" \
+            --arg finished_at "${FINISH_ISO}" \
+            '{run_id: $run_id, sha: $sha, ref: $ref, image: $image, tags: ($tags | split("\n") | map(select(length > 0))), digest: $digest, size_bytes: $size_bytes, build_seconds: $build_seconds, started_at: $started_at, finished_at: $finished_at}' \
+            > build-metrics.json
+          cat build-metrics.json
+
+      - name: Upload build metrics artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-metrics
+          path: build-metrics.json
+          retention-days: 90
+
+  scan:
+    needs: build
+    if: github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+      packages: read
+      security-events: write
+    env:
+      IMAGE_REF: ${{ needs.build.outputs.image }}:${{ needs.build.outputs.tag_sha }}
+    steps:
+      - name: Log in to Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Trivy scan (SARIF for code scanning)
+        uses: aquasecurity/trivy-action@0.36.0
+        with:
+          image-ref: ${{ env.IMAGE_REF }}
+          format: sarif
+          output: trivy-results.sarif
+          severity: CRITICAL,HIGH
+          ignore-unfixed: true
+          exit-code: '0'
+
+      - name: Upload SARIF to code scanning
+        uses: github/codeql-action/upload-sarif@v3
+        if: always()
+        with:
+          sarif_file: trivy-results.sarif
+          category: trivy-image
+
+      - name: Trivy scan (JSON, all severities)
+        uses: aquasecurity/trivy-action@0.36.0
+        with:
+          image-ref: ${{ env.IMAGE_REF }}
+          format: json
+          output: trivy.json
+          severity: CRITICAL,HIGH,MEDIUM,LOW
+          ignore-unfixed: true
+          exit-code: '0'
+
+      - name: Write vulnerability counts to summary
+        run: |
+          {
+            echo "### Trivy Vulnerability Summary"
+            echo ""
+            echo "Image: \`${IMAGE_REF}\`"
+            echo ""
+            echo '```json'
+            jq '[.Results[].Vulnerabilities[]?] | group_by(.Severity) | map({(.[0].Severity): length}) | add' trivy.json
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload Trivy results artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: trivy-results
+          path: |
+            trivy.json
+            trivy-results.sarif
+          retention-days: 90
+
+      - name: Trivy gate (fail on fixable CRITICAL)
+        uses: aquasecurity/trivy-action@0.36.0
+        with:
+          image-ref: ${{ env.IMAGE_REF }}
+          format: table
+          severity: CRITICAL
+          ignore-unfixed: true
+          exit-code: '1'
+
+  smoke-test:
+    needs: build
+    if: github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      packages: read
+    env:
+      IMAGE_REF: ${{ needs.build.outputs.image }}:${{ needs.build.outputs.tag_sha }}
+      SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+      SUPABASE_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+    steps:
+      - name: Log in to Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Run container
+        run: |
+          docker run -d --name smoke -p 3000:3000 \
+            -e SUPABASE_URL \
+            -e SUPABASE_KEY \
+            "${IMAGE_REF}"
+
+      - name: Wait for health endpoint
+        id: wait
+        run: |
+          START=$(date -u +%s)
+          for i in $(seq 1 30); do
+            if BODY=$(curl -fsS http://localhost:3000/api/health 2>/dev/null); then
+              END=$(date -u +%s)
+              echo "healthy=true" >> "$GITHUB_OUTPUT"
+              echo "time_to_healthy_s=$((END - START))" >> "$GITHUB_OUTPUT"
+              echo "$BODY"
+              echo "body=$BODY" >> "$GITHUB_OUTPUT"
+              exit 0
+            fi
+            sleep 2
+          done
+          echo "healthy=false" >> "$GITHUB_OUTPUT"
+          exit 1
+
+      - name: Show container logs on failure
+        if: failure()
+        run: docker logs smoke
+
+      - name: Inspect Docker HEALTHCHECK status (informational)
+        if: always()
+        run: docker inspect --format '{{.State.Health.Status}}' smoke || true
+
+      - name: Write summary
+        if: always()
+        env:
+          HEALTHY: ${{ steps.wait.outputs.healthy }}
+          TIME_TO_HEALTHY_S: ${{ steps.wait.outputs.time_to_healthy_s }}
+          BODY: ${{ steps.wait.outputs.body }}
+        run: |
+          {
+            echo "### Smoke Test"
+            echo ""
+            echo "| Field | Value |"
+            echo "|---|---|"
+            echo "| Image | \`${IMAGE_REF}\` |"
+            echo "| Healthy | ${HEALTHY:-false} |"
+            echo "| Time to healthy | ${TIME_TO_HEALTHY_S:-n/a}s |"
+            echo "| Response | \`${BODY:-n/a}\` |"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Stop container
+        if: always()
+        run: docker stop smoke || true
+
+  deploy:
+    needs: [build, scan, smoke-test]
+    if: github.event_name != 'pull_request' && vars.DEPLOY_TARGET != '' && (github.event_name != 'workflow_dispatch' || inputs.deploy)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    concurrency:
+      group: deploy-${{ github.ref }}
+      cancel-in-progress: false
+    permissions:
+      contents: read
+      actions: read
+    env:
+      IMAGE_REF: ${{ needs.build.outputs.image }}:${{ needs.build.outputs.tag_sha }}
+      DIGEST: ${{ needs.build.outputs.digest }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      - name: Trigger Coolify deploy
+        if: vars.DEPLOY_TARGET == 'coolify'
+        id: coolify
+        env:
+          COOLIFY_WEBHOOK_URL: ${{ secrets.COOLIFY_WEBHOOK_URL }}
+          COOLIFY_TOKEN: ${{ secrets.COOLIFY_TOKEN }}
+        run: |
+          MISSING=""
+          [ -z "$COOLIFY_WEBHOOK_URL" ] && MISSING="${MISSING}COOLIFY_WEBHOOK_URL "
+          [ -z "$COOLIFY_TOKEN" ] && MISSING="${MISSING}COOLIFY_TOKEN "
+          if [ -n "$MISSING" ]; then
+            echo "::error::Missing required secrets for Coolify deploy: $MISSING"
+            exit 1
+          fi
+          echo "triggered_at=$(date -u +%Y-%m-%dT%H:%M:%SZ)" >> "$GITHUB_OUTPUT"
+          echo "triggered_epoch=$(date -u +%s)" >> "$GITHUB_OUTPUT"
+          curl -fsS -H "Authorization: Bearer $COOLIFY_TOKEN" "$COOLIFY_WEBHOOK_URL" -o deploy-response.json
+          cat deploy-response.json
+          echo "target=coolify" >> "$GITHUB_OUTPUT"
+
+      - name: Trigger Dokploy deploy
+        if: vars.DEPLOY_TARGET == 'dokploy'
+        id: dokploy
+        env:
+          DOKPLOY_WEBHOOK_URL: ${{ secrets.DOKPLOY_WEBHOOK_URL }}
+        run: |
+          if [ -z "$DOKPLOY_WEBHOOK_URL" ]; then
+            echo "::error::Missing required secret for Dokploy deploy: DOKPLOY_WEBHOOK_URL"
+            exit 1
+          fi
+          echo "triggered_at=$(date -u +%Y-%m-%dT%H:%M:%SZ)" >> "$GITHUB_OUTPUT"
+          echo "triggered_epoch=$(date -u +%s)" >> "$GITHUB_OUTPUT"
+          curl -fsS -X POST "$DOKPLOY_WEBHOOK_URL" -o deploy-response.json || true
+          cat deploy-response.json 2>/dev/null || echo "(no response body)"
+          echo "target=dokploy" >> "$GITHUB_OUTPUT"
+
+      - name: Record deploy trigger
+        id: record
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TRIGGERED_AT: ${{ steps.coolify.outputs.triggered_at || steps.dokploy.outputs.triggered_at }}
+          TRIGGERED_EPOCH: ${{ steps.coolify.outputs.triggered_epoch || steps.dokploy.outputs.triggered_epoch }}
+          TARGET: ${{ steps.coolify.outputs.target || steps.dokploy.outputs.target }}
+        run: |
+          CREATED_AT=$(gh run view "$GITHUB_RUN_ID" -R "$GITHUB_REPOSITORY" --json createdAt --jq '.createdAt')
+          CREATED_EPOCH=$(date -u -d "$CREATED_AT" +%s)
+          LEAD_TIME_S=$((TRIGGERED_EPOCH - CREATED_EPOCH))
+          RUN_URL="https://github.com/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
+          COMMIT_SHA=$(git rev-parse HEAD)
+          COMMIT_TIMESTAMP=$(git show -s --format=%cI HEAD)
+          DEPLOY_RESPONSE=$(cat deploy-response.json 2>/dev/null || echo '{}')
+
+          {
+            echo "### Deploy Trigger"
+            echo ""
+            echo "| Field | Value |"
+            echo "|---|---|"
+            echo "| Target | ${TARGET} |"
+            echo "| Image | \`${IMAGE_REF}\` |"
+            echo "| Digest | \`${DIGEST}\` |"
+            echo "| Run started (UTC) | ${CREATED_AT} |"
+            echo "| Deploy triggered (UTC) | ${TRIGGERED_AT} |"
+            echo "| Lead time | ${LEAD_TIME_S}s |"
+            echo "| Run URL | ${RUN_URL} |"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+          jq -n \
+            --arg target "$TARGET" \
+            --arg image "$IMAGE_REF" \
+            --arg digest "$DIGEST" \
+            --arg run_started_at "$CREATED_AT" \
+            --arg deploy_triggered_at "$TRIGGERED_AT" \
+            --argjson lead_time_s "$LEAD_TIME_S" \
+            --arg run_url "$RUN_URL" \
+            --arg commit_sha "$COMMIT_SHA" \
+            --arg commit_timestamp "$COMMIT_TIMESTAMP" \
+            --argjson deploy_response "$DEPLOY_RESPONSE" \
+            '{target: $target, image: $image, digest: $digest, run_started_at: $run_started_at, deploy_triggered_at: $deploy_triggered_at, lead_time_s: $lead_time_s, run_url: $run_url, commit_sha: $commit_sha, commit_timestamp: $commit_timestamp, deploy_response: $deploy_response}' \
+            > deploy-trigger.json
+          cat deploy-trigger.json
+
+      - name: Upload deploy trigger artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: deploy-trigger
+          path: deploy-trigger.json
+          retention-days: 90
+
+      - name: Wait for healthy (informational)
+        continue-on-error: true
+        env:
+          TARGET_URL: ${{ vars.PRODUCTION_URL || secrets.PRODUCTION_URL }}
+        run: |
+          if [ -z "$TARGET_URL" ]; then
+            echo "PRODUCTION_URL not set, skipping health wait." >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+          START=$(date -u +%s)
+          HEALTHY=false
+          for i in $(seq 1 60); do
+            if curl -fsS -o /dev/null "$TARGET_URL/api/health" 2>/dev/null; then
+              HEALTHY=true
+              break
+            fi
+            sleep 10
+          done
+          END=$(date -u +%s)
+          {
+            echo ""
+            echo "### Post-deploy Health Check (informational)"
+            echo ""
+            if [ "$HEALTHY" = "true" ]; then
+              echo "| Field | Value |"
+              echo "|---|---|"
+              echo "| Healthy at (UTC) | $(date -u +%Y-%m-%dT%H:%M:%SZ) |"
+              echo "| Healthy after | $((END - START))s |"
+            else
+              echo "Target did not report healthy within 10 minutes."
+            fi
+            echo ""
+            echo "_Note: the health endpoint carries no commit sha, so this only proves the URL is up, not that the new version is live._"
+          } >> "$GITHUB_STEP_SUMMARY"
