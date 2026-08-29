@@ -356,7 +356,7 @@ jobs:
           fi
           echo "triggered_at=$(date -u +%Y-%m-%dT%H:%M:%SZ)" >> "$GITHUB_OUTPUT"
           echo "triggered_epoch=$(date -u +%s)" >> "$GITHUB_OUTPUT"
-          curl -fsS -H "Authorization: Bearer $COOLIFY_TOKEN" "$COOLIFY_WEBHOOK_URL" -o deploy-response.json
+          curl -fsS -X POST -H "Authorization: Bearer $COOLIFY_TOKEN" "$COOLIFY_WEBHOOK_URL" -o deploy-response.json
           cat deploy-response.json
           echo "target=coolify" >> "$GITHUB_OUTPUT"
 
