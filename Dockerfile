@@ -31,6 +31,14 @@ ENV SUPABASE_URL=${SUPABASE_URL}
 ENV SUPABASE_KEY=${SUPABASE_KEY}
 RUN pnpm run build
 
+# pdf-parse is loaded via createRequire and not bundled by Nitro
+RUN node -e "\
+  const v = require('./node_modules/pdf-parse/package.json').version; \
+  require('fs').mkdirSync('/app/runtime', { recursive: true }); \
+  require('fs').writeFileSync('/app/runtime/package.json', JSON.stringify({ \
+    name: 'nuxt-app-runtime-externals', private: true, dependencies: { 'pdf-parse': v } \
+  }, null, 2));"
+
 # Production stage with minimal runtime footprint
 FROM node:20-alpine AS production
 RUN apk add --no-cache wget
@@ -45,10 +53,12 @@ WORKDIR /app
 # Copy built application
 COPY --from=builder --chown=nuxtjs:nodejs /app/.output ./.output
 
-COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
-RUN pnpm install --prod --frozen-lockfile --ignore-scripts && \
-    chown -R nuxtjs:nodejs /app/node_modules
-ENV NODE_PATH=/app/node_modules
+COPY --from=builder /app/runtime ./runtime
+RUN cd runtime && pnpm install --prod --ignore-scripts && \
+    chown -R nuxtjs:nodejs /app/runtime/node_modules && \
+    rm -rf /root/.cache /root/.local/share/pnpm \
+           /usr/local/lib/node_modules/npm /usr/local/bin/npm /usr/local/bin/npx /usr/local/bin/corepack
+ENV NODE_PATH=/app/runtime/node_modules
 
 # Switch to non-root user
 USER nuxtjs
