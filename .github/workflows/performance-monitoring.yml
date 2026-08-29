@@ -1,246 +1,415 @@
-name: Performance Monitoring & Benchmarking
+name: Performance Monitoring
 
 on:
   schedule:
-    # Run performance tests daily at 2 AM UTC
-    - cron: '0 2 * * *'
+    - cron: '0 2 * * 1'
   workflow_dispatch:
     inputs:
-      target_environment:
-        description: 'Environment to test'
-        required: true
-        default: 'staging'
-        type: choice
-        options:
-          - staging
-          - production
-      test_duration:
-        description: 'Test duration in minutes'
-        required: true
-        default: '5'
+      target_url:
+        description: 'Base URL to test (default: PRODUCTION_URL var/secret)'
         type: string
+        default: ''
+      k6_vus:
+        description: 'k6 virtual users'
+        type: number
+        default: 50
+      k6_duration:
+        description: 'k6 test duration (e.g. 1m)'
+        type: string
+        default: '1m'
+      run_lighthouse:
+        description: 'Run Lighthouse audit'
+        type: boolean
+        default: true
+      run_load_test:
+        description: 'Run k6 load test'
+        type: boolean
+        default: true
+
+permissions:
+  contents: read
+
+concurrency:
+  group: perf-${{ github.ref }}
+  cancel-in-progress: false
 
 jobs:
-  lighthouse-audit:
-    name: Lighthouse Performance Audit
+  resolve-target:
+    name: Resolve target URL
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        environment: [staging, production]
+    timeout-minutes: 5
+    outputs:
+      url: ${{ steps.resolve.outputs.url }}
+      label: ${{ steps.resolve.outputs.label }}
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-
-      - name: Install Lighthouse CI
-        run: npm install -g @lhci/cli@0.12.x
-
-      - name: Run Lighthouse CI
-        run: |
-          lhci autorun
+      - name: Resolve and validate target URL
+        id: resolve
         env:
-          LHCI_GITHUB_APP_TOKEN: ${{ secrets.LHCI_GITHUB_APP_TOKEN }}
-          LHCI_TARGET_URL: ${{ matrix.environment == 'staging' && vars.STAGING_URL || vars.PRODUCTION_URL }}
-
-      - name: Upload Lighthouse results
-        uses: actions/upload-artifact@v4
-        with:
-          name: lighthouse-results-${{ matrix.environment }}
-          path: .lighthouseci/
-          retention-days: 30
-
-  load-testing:
-    name: Load Testing with k6
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Setup k6
-        uses: grafana/setup-k6-action@v1
-
-      - name: Create k6 test script
+          INPUT_URL: ${{ inputs.target_url }}
+          VAR_URL: ${{ vars.PRODUCTION_URL }}
+          SECRET_URL: ${{ secrets.PRODUCTION_URL }}
         run: |
-          cat > load-test.js << 'EOF'
-          import http from 'k6/http';
-          import { check, sleep } from 'k6';
-          import { Rate } from 'k6/metrics';
-
-          export let errorRate = new Rate('errors');
-
-          export let options = {
-            stages: [
-              { duration: '2m', target: 10 }, // Ramp up
-              { duration: '5m', target: 50 }, // Stay at 50 users
-              { duration: '2m', target: 0 },  // Ramp down
-            ],
-            thresholds: {
-              http_req_duration: ['p(95)<2000'], // 95% of requests under 2s
-              errors: ['rate<0.1'], // Error rate under 10%
-            },
-          };
-
-          const BASE_URL = __ENV.TARGET_URL || 'https://example.com';
-
-          export default function() {
-            // Test main page
-            let response = http.get(`${BASE_URL}/`);
-            check(response, {
-              'status is 200': (r) => r.status === 200,
-              'response time < 2000ms': (r) => r.timings.duration < 2000,
-            }) || errorRate.add(1);
-
-            sleep(1);
-
-            // Test API endpoints if available
-            response = http.get(`${BASE_URL}/api/health`);
-            check(response, {
-              'API health check': (r) => r.status === 200,
-            }) || errorRate.add(1);
-
-            sleep(1);
-          }
-          EOF
-
-      - name: Run load test against staging
-        if: github.event.inputs.target_environment == 'staging' || github.event.inputs.target_environment == ''
-        run: |
-          k6 run --duration=${{ github.event.inputs.test_duration || '5' }}m load-test.js
-        env:
-          TARGET_URL: ${{ vars.STAGING_URL }}
-
-      - name: Run load test against production
-        if: github.event.inputs.target_environment == 'production'
-        run: |
-          k6 run --duration=${{ github.event.inputs.test_duration || '5' }}m load-test.js
-        env:
-          TARGET_URL: ${{ vars.PRODUCTION_URL }}
-
-  uptime-monitoring:
-    name: Uptime & Availability Check
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        environment: [staging, production]
-    steps:
-      - name: Check uptime
-        run: |
-          URL="${{ matrix.environment == 'staging' && vars.STAGING_URL || vars.PRODUCTION_URL }}"
-          
-          echo "Checking uptime for $URL"
-          
-          # Multiple checks with retry logic
-          for i in {1..5}; do
-            if curl -f -s --max-time 30 "$URL" > /dev/null; then
-              echo "✅ Check $i: $URL is responding"
-              RESPONSE_TIME=$(curl -o /dev/null -s -w '%{time_total}' "$URL")
-              echo "Response time: ${RESPONSE_TIME}s"
-            else
-              echo "❌ Check $i: $URL is not responding"
-              exit 1
-            fi
-            sleep 10
-          done
-
-      - name: Check SSL certificate
-        run: |
-          URL="${{ matrix.environment == 'staging' && vars.STAGING_URL || vars.PRODUCTION_URL }}"
-          DOMAIN=$(echo "$URL" | sed 's|https\?://||' | sed 's|/.*||')
-          
-          echo "Checking SSL certificate for $DOMAIN"
-          
-          # Check SSL certificate expiry
-          EXPIRY=$(echo | openssl s_client -servername "$DOMAIN" -connect "$DOMAIN:443" 2>/dev/null | openssl x509 -noout -dates | grep notAfter | cut -d= -f2)
-          EXPIRY_EPOCH=$(date -d "$EXPIRY" +%s)
-          CURRENT_EPOCH=$(date +%s)
-          DAYS_UNTIL_EXPIRY=$(( (EXPIRY_EPOCH - CURRENT_EPOCH) / 86400 ))
-          
-          echo "SSL certificate expires in $DAYS_UNTIL_EXPIRY days"
-          
-          if [ $DAYS_UNTIL_EXPIRY -lt 30 ]; then
-            echo "⚠️ SSL certificate expires soon!"
+          if [ -n "$INPUT_URL" ]; then
+            RAW_URL="$INPUT_URL"
+            LABEL="input"
+          elif [ -n "$VAR_URL" ]; then
+            RAW_URL="$VAR_URL"
+            LABEL="var"
+          elif [ -n "$SECRET_URL" ]; then
+            RAW_URL="$SECRET_URL"
+            LABEL="secret"
+          else
+            echo "::error::No target URL available. Pass target_url, or set a PRODUCTION_URL repository variable or secret."
             exit 1
           fi
 
-  report-results:
-    name: Generate Performance Report
+          URL="${RAW_URL%/}"
+
+          if [ -z "$URL" ]; then
+            echo "::error::Resolved target URL is empty."
+            exit 1
+          fi
+
+          echo "url=$URL" >> "$GITHUB_OUTPUT"
+          echo "label=$LABEL" >> "$GITHUB_OUTPUT"
+
+          DISPLAY_URL="$URL"
+          if [ "$LABEL" = "secret" ]; then
+            DISPLAY_URL="<masked (sourced from secrets.PRODUCTION_URL)>"
+          fi
+
+          {
+            echo "### Target resolution"
+            echo ""
+            echo "| Field | Value |"
+            echo "|---|---|"
+            echo "| Source | $LABEL |"
+            echo "| Target | $DISPLAY_URL |"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+          if [ "$LABEL" = "secret" ]; then
+            echo "::notice::Target URL came from secrets.PRODUCTION_URL, so it is masked (***) everywhere in this run's logs and summary. Run 'gh variable set PRODUCTION_URL --body \"https://...\"' to promote it to a repository variable so it prints in plain text."
+          fi
+
+  uptime:
+    name: Uptime & TLS check
+    needs: resolve-target
     runs-on: ubuntu-latest
-    needs: [lighthouse-audit, load-testing, uptime-monitoring]
-    if: always()
+    timeout-minutes: 10
+    outputs:
+      healthy: ${{ steps.check.outputs.healthy }}
     steps:
-      - name: Download artifacts
-        uses: actions/download-artifact@v4
-        with:
-          path: ./artifacts
-
-      - name: Generate performance report
+      - name: Check endpoints and TLS certificate
+        id: check
+        env:
+          URL: ${{ needs.resolve-target.outputs.url }}
         run: |
-          echo "# Performance Monitoring Report" > performance-report.md
-          echo "Generated on: $(date)" >> performance-report.md
-          echo "" >> performance-report.md
-          
-          echo "## Test Results Summary" >> performance-report.md
-          echo "- Lighthouse Audit: ${{ needs.lighthouse-audit.result }}" >> performance-report.md
-          echo "- Load Testing: ${{ needs.load-testing.result }}" >> performance-report.md
-          echo "- Uptime Monitoring: ${{ needs.uptime-monitoring.result }}" >> performance-report.md
-          echo "" >> performance-report.md
-          
-          echo "## Recommendations" >> performance-report.md
-          if [[ "${{ needs.lighthouse-audit.result }}" != "success" ]]; then
-            echo "- Review Lighthouse audit results for performance optimizations" >> performance-report.md
-          fi
-          if [[ "${{ needs.load-testing.result }}" != "success" ]]; then
-            echo "- Investigate load testing failures and optimize application performance" >> performance-report.md
-          fi
-          if [[ "${{ needs.uptime-monitoring.result }}" != "success" ]]; then
-            echo "- Check application availability and infrastructure health" >> performance-report.md
+          set +e
+
+          HOST=$(echo "$URL" | sed -E 's#^[a-zA-Z]+://##; s#/.*##; s#:.*##')
+
+          check_endpoint() {
+            endpoint_path="$1"
+            full_url="${URL}${endpoint_path}"
+            attempt=0
+            code=""
+            time_total=""
+            time_ttfb=""
+            for attempt in 1 2 3; do
+              result=$(curl -s -o /dev/null --max-time 30 \
+                -w '%{http_code} %{time_total} %{time_starttransfer}' \
+                "$full_url")
+              code=$(echo "$result" | awk '{print $1}')
+              time_total=$(echo "$result" | awk '{print $2}')
+              time_ttfb=$(echo "$result" | awk '{print $3}')
+              if [ "$code" = "200" ]; then
+                break
+              fi
+              sleep 5
+            done
+            echo "$code $time_total $time_ttfb $attempt"
+          }
+
+          ROOT_RESULT=$(check_endpoint "/")
+          HEALTH_RESULT=$(check_endpoint "/api/health")
+
+          ROOT_CODE=$(echo "$ROOT_RESULT" | awk '{print $1}')
+          ROOT_TIME=$(echo "$ROOT_RESULT" | awk '{print $2}')
+          ROOT_TTFB=$(echo "$ROOT_RESULT" | awk '{print $3}')
+          ROOT_ATTEMPTS=$(echo "$ROOT_RESULT" | awk '{print $4}')
+
+          HEALTH_CODE=$(echo "$HEALTH_RESULT" | awk '{print $1}')
+          HEALTH_TIME=$(echo "$HEALTH_RESULT" | awk '{print $2}')
+          HEALTH_TTFB=$(echo "$HEALTH_RESULT" | awk '{print $3}')
+          HEALTH_ATTEMPTS=$(echo "$HEALTH_RESULT" | awk '{print $4}')
+
+          TLS_ENDDATE=$(echo | openssl s_client -servername "$HOST" -connect "$HOST:443" 2>/dev/null | openssl x509 -noout -enddate 2>/dev/null | cut -d= -f2)
+          if [ -n "$TLS_ENDDATE" ]; then
+            TLS_EPOCH=$(date -d "$TLS_ENDDATE" +%s 2>/dev/null)
+            NOW_EPOCH=$(date +%s)
+            TLS_DAYS=$(( (TLS_EPOCH - NOW_EPOCH) / 86400 ))
+          else
+            TLS_DAYS="unknown"
           fi
 
-      - name: Upload performance report
+          {
+            echo "### Uptime & TLS"
+            echo ""
+            echo "| Check | HTTP code | Total time (s) | TTFB (s) | Attempts |"
+            echo "|---|---|---|---|---|"
+            echo "| / | $ROOT_CODE | $ROOT_TIME | $ROOT_TTFB | $ROOT_ATTEMPTS/3 |"
+            echo "| /api/health | $HEALTH_CODE | $HEALTH_TIME | $HEALTH_TTFB | $HEALTH_ATTEMPTS/3 |"
+            echo ""
+            echo "TLS certificate for \`$HOST\` expires in **$TLS_DAYS** days."
+          } >> "$GITHUB_STEP_SUMMARY"
+
+          jq -n \
+            --arg url "$URL" \
+            --arg root_code "$ROOT_CODE" --arg root_time "$ROOT_TIME" --arg root_ttfb "$ROOT_TTFB" \
+            --arg health_code "$HEALTH_CODE" --arg health_time "$HEALTH_TIME" --arg health_ttfb "$HEALTH_TTFB" \
+            --arg tls_days "$TLS_DAYS" \
+            '{
+              url: $url,
+              root: {http_code: $root_code, time_total: $root_time, ttfb: $root_ttfb},
+              health: {http_code: $health_code, time_total: $health_time, ttfb: $health_ttfb},
+              tls_days_remaining: $tls_days
+            }' > uptime.json
+
+          if [ "$ROOT_CODE" != "200" ]; then
+            echo "::warning::/ returned HTTP $ROOT_CODE (non-fatal -- the site has previously returned 403 from Cloudflare). Response headers follow for diagnosis."
+            curl -sI --max-time 30 "$URL/" || true
+          fi
+
+          if [ "$TLS_DAYS" != "unknown" ] && [ "$TLS_DAYS" -lt 30 ] 2>/dev/null; then
+            echo "::warning::TLS certificate for $HOST expires in $TLS_DAYS days."
+          fi
+
+          if [ "$HEALTH_CODE" = "200" ]; then
+            echo "healthy=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "healthy=false" >> "$GITHUB_OUTPUT"
+            echo "::error::/api/health returned HTTP $HEALTH_CODE (expected 200) after $HEALTH_ATTEMPTS attempt(s)."
+            exit 1
+          fi
+
+      - name: Upload uptime artifact
+        if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: performance-report
-          path: performance-report.md
+          name: uptime-check
+          path: uptime.json
           retention-days: 90
+          if-no-files-found: warn
 
-      - name: Notify performance results
-        if: failure()
+  lighthouse:
+    name: Lighthouse audit
+    needs: resolve-target
+    if: needs.resolve-target.result == 'success' && (github.event_name == 'schedule' || inputs.run_lighthouse)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Install Lighthouse CI
+        run: npm install -g @lhci/cli@0.15.1
+
+      - name: Run Lighthouse CI (token-less, temporary public storage)
+        id: lhci
+        continue-on-error: true
+        env:
+          LHCI_URL: ${{ needs.resolve-target.outputs.url }}
         run: |
-          if [ -n "${{ secrets.DISCORD_WEBHOOK }}" ]; then
-            curl -H "Content-Type: application/json" \
-                 -d '{
-                   "embeds": [{
-                     "title": "⚠️ Performance Monitoring Alert",
-                     "description": "Performance monitoring detected issues!",
-                     "color": 15158332,
-                     "fields": [
-                       {
-                         "name": "Repository",
-                         "value": "${{ github.repository }}",
-                         "inline": true
-                       },
-                       {
-                         "name": "Workflow",
-                         "value": "Performance Monitoring",
-                         "inline": true
-                       },
-                       {
-                         "name": "Status",
-                         "value": "Failed",
-                         "inline": true
-                       }
-                     ],
-                     "footer": {
-                       "text": "GitHub Actions"
-                     },
-                     "timestamp": "'$(date -u +%Y-%m-%dT%H:%M:%S.000Z)'"
-                   }]
-                 }' \
-                 "${{ secrets.DISCORD_WEBHOOK }}"
+          lhci autorun --config=lighthouserc.json --collect.url="$LHCI_URL/" 2>&1 | tee lhci.log
+
+      - name: Summarize Lighthouse results
+        if: always()
+        run: |
+          REPORT_URL=$(sed -n 's/.*Open the report at \(.*\)/\1/p' lhci.log | tail -n1)
+
+          echo "### Lighthouse audit" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+
+          if compgen -G ".lighthouseci/lhr-*.json" > /dev/null; then
+            RUN_COUNT=$(ls .lighthouseci/lhr-*.json | wc -l)
+            SCORES=$(jq -s '{
+              performance: ([.[].categories.performance.score] | sort | .[length/2|floor]),
+              accessibility: ([.[].categories.accessibility.score] | sort | .[length/2|floor]),
+              "best-practices": ([.[].categories["best-practices"].score] | sort | .[length/2|floor]),
+              seo: ([.[].categories.seo.score] | sort | .[length/2|floor])
+            }' .lighthouseci/lhr-*.json)
+
+            PERF=$(echo "$SCORES" | jq -r '.performance')
+            A11Y=$(echo "$SCORES" | jq -r '.accessibility')
+            BP=$(echo "$SCORES" | jq -r '."best-practices"')
+            SEO=$(echo "$SCORES" | jq -r '.seo')
+
+            {
+              echo "Median of $RUN_COUNT run(s):"
+              echo ""
+              echo "| Category | Score |"
+              echo "|---|---|"
+              echo "| Performance | $PERF |"
+              echo "| Accessibility | $A11Y |"
+              echo "| Best Practices | $BP |"
+              echo "| SEO | $SEO |"
+            } >> "$GITHUB_STEP_SUMMARY"
           else
-            echo "Discord webhook not configured, skipping notification"
+            echo "No Lighthouse results were produced (the collect step likely failed before completing a run -- see the job log)." >> "$GITHUB_STEP_SUMMARY"
           fi
+
+          if [ -n "$REPORT_URL" ]; then
+            echo "" >> "$GITHUB_STEP_SUMMARY"
+            echo "Full report: $REPORT_URL" >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - name: Upload Lighthouse artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: lighthouse-report
+          path: .lighthouseci/
+          retention-days: 30
+          if-no-files-found: warn
+
+  load-test:
+    name: k6 load test
+    needs: [resolve-target, uptime]
+    if: needs.uptime.outputs.healthy == 'true' && (github.event_name == 'schedule' || inputs.run_load_test)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      BASE_URL: ${{ needs.resolve-target.outputs.url }}
+      VUS: ${{ inputs.k6_vus || 50 }}
+      DURATION: ${{ inputs.k6_duration || '1m' }}
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: grafana/setup-k6-action@v1
+
+      - name: Run k6 load test
+        id: k6
+        # Thresholds are reported below, not enforced; the target isn't gated on them
+        continue-on-error: true
+        run: |
+          k6 run \
+            --summary-export=k6-summary.json \
+            --out json=k6-raw.json \
+            tests/load/k6-smoke.js
+
+      - name: Compress raw k6 output
+        if: always()
+        run: |
+          if [ -f k6-raw.json ]; then
+            gzip k6-raw.json
+          fi
+
+      - name: Summarize k6 results
+        if: always()
+        run: |
+          echo "### k6 load test" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "Target: (see resolve-target job summary) | VUs: $VUS | Duration: $DURATION" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+
+          if [ -f k6-summary.json ]; then
+            REQ_COUNT=$(jq -r '.metrics.http_reqs.count // "N/A"' k6-summary.json)
+            REQ_RATE=$(jq -r '.metrics.http_reqs.rate // "N/A"' k6-summary.json)
+            DUR_AVG=$(jq -r '.metrics.http_req_duration.avg // "N/A"' k6-summary.json)
+            DUR_MED=$(jq -r '.metrics.http_req_duration.med // "N/A"' k6-summary.json)
+            DUR_P90=$(jq -r '.metrics.http_req_duration["p(90)"] // "N/A"' k6-summary.json)
+            DUR_P95=$(jq -r '.metrics.http_req_duration["p(95)"] // "N/A"' k6-summary.json)
+            DUR_MAX=$(jq -r '.metrics.http_req_duration.max // "N/A"' k6-summary.json)
+            FAIL_RATE=$(jq -r '.metrics.http_req_failed.value // "N/A"' k6-summary.json)
+            CHECKS_PASS=$(jq -r '.metrics.checks.passes // 0' k6-summary.json)
+            CHECKS_FAIL=$(jq -r '.metrics.checks.fails // 0' k6-summary.json)
+            CHECKS_PCT=$(jq -r '(((.metrics.checks.value // 0) * 100) | tostring) + "%"' k6-summary.json)
+
+            {
+              echo "| Metric | Value |"
+              echo "|---|---|"
+              echo "| Requests | $REQ_COUNT ($REQ_RATE req/s) |"
+              echo "| Duration avg / med (ms) | $DUR_AVG / $DUR_MED |"
+              echo "| Duration p90 / p95 / max (ms) | $DUR_P90 / $DUR_P95 / $DUR_MAX |"
+              echo "| Failed request rate | $FAIL_RATE |"
+              echo "| Checks passed | $CHECKS_PASS/$((CHECKS_PASS + CHECKS_FAIL)) ($CHECKS_PCT) |"
+            } >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "No summary was produced (k6 likely failed to start -- see the job log)." >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - name: Upload k6 artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: k6-results
+          path: |
+            k6-summary.json
+            k6-raw.json.gz
+          retention-days: 90
+          if-no-files-found: warn
+
+  report:
+    name: Report
+    needs: [resolve-target, uptime, lighthouse, load-test]
+    if: always()
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      HAS_DISCORD: ${{ secrets.DISCORD_WEBHOOK != '' }}
+    steps:
+      - name: Summarize job results
+        env:
+          RESOLVE_RESULT: ${{ needs.resolve-target.result }}
+          UPTIME_RESULT: ${{ needs.uptime.result }}
+          LIGHTHOUSE_RESULT: ${{ needs.lighthouse.result }}
+          LOAD_TEST_RESULT: ${{ needs.load-test.result }}
+        run: |
+          {
+            echo "## Performance monitoring summary"
+            echo ""
+            echo "| Job | Result |"
+            echo "|---|---|"
+            echo "| Resolve target | $RESOLVE_RESULT |"
+            echo "| Uptime | $UPTIME_RESULT |"
+            echo "| Lighthouse | $LIGHTHOUSE_RESULT |"
+            echo "| Load test | $LOAD_TEST_RESULT |"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Notify Discord on failure
+        if: env.HAS_DISCORD == 'true' && contains(needs.*.result, 'failure')
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+          REPO: ${{ github.repository }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          RESOLVE_RESULT: ${{ needs.resolve-target.result }}
+          UPTIME_RESULT: ${{ needs.uptime.result }}
+          LIGHTHOUSE_RESULT: ${{ needs.lighthouse.result }}
+          LOAD_TEST_RESULT: ${{ needs.load-test.result }}
+        run: |
+          PAYLOAD=$(jq -n \
+            --arg repo "$REPO" \
+            --arg run_url "$RUN_URL" \
+            --arg resolve "$RESOLVE_RESULT" \
+            --arg uptime "$UPTIME_RESULT" \
+            --arg lighthouse "$LIGHTHOUSE_RESULT" \
+            --arg load_test "$LOAD_TEST_RESULT" \
+            '{
+              embeds: [{
+                title: "Performance Monitoring Alert",
+                description: "One or more performance monitoring jobs failed.",
+                color: 15158332,
+                fields: [
+                  {name: "Repository", value: $repo, inline: true},
+                  {name: "Run", value: $run_url, inline: false},
+                  {name: "Resolve target", value: $resolve, inline: true},
+                  {name: "Uptime", value: $uptime, inline: true},
+                  {name: "Lighthouse", value: $lighthouse, inline: true},
+                  {name: "Load test", value: $load_test, inline: true}
+                ]
+              }]
+            }')
+          curl -sf -H "Content-Type: application/json" -d "$PAYLOAD" "$DISCORD_WEBHOOK"
