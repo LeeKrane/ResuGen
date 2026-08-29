@@ -7,23 +7,13 @@ WORKDIR /app
 
 # Dependencies stage with optimized package installation
 FROM base AS deps
-COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
-# Remove problematic nuxt-particles dependency for Docker builds
-RUN sed -i '/"nuxt-particles":/d' package.json
-# Install dependencies with flexibility for Docker environment
-RUN pnpm install --no-frozen-lockfile
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml .npmrc ./
+RUN pnpm install --frozen-lockfile
 
 # Builder stage with application compilation
 FROM base AS builder
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
-# Remove nuxt-particles from nuxt.config.ts for Docker builds
-RUN sed -i "/nuxt-particles/d" nuxt.config.ts
-RUN sed -i "/particles:/,/}/d" nuxt.config.ts
-# Remove CSS reference that causes Tailwind v4 issues
-RUN sed -i "/css:.*main\.css/d" nuxt.config.ts
-# Remove custom CSS that causes Tailwind v4 build issues in Docker
-RUN rm -f app/assets/css/main.css
 # Build the application with build args for secrets
 ARG SUPABASE_URL
 ARG SUPABASE_KEY
