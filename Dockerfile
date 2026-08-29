@@ -44,7 +44,11 @@ WORKDIR /app
 
 # Copy built application
 COPY --from=builder --chown=nuxtjs:nodejs /app/.output ./.output
-COPY --from=builder --chown=nuxtjs:nodejs /app/package.json ./package.json
+
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+RUN pnpm install --prod --frozen-lockfile --ignore-scripts && \
+    chown -R nuxtjs:nodejs /app/node_modules
+ENV NODE_PATH=/app/node_modules
 
 # Switch to non-root user
 USER nuxtjs
