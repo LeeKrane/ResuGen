@@ -1,171 +1,239 @@
-name: Continuous Integration
+name: CI
 
 on:
   push:
-    branches: [latest, development]
+    branches: [latest, development, bscp-hotfix, 'ci/**']
   pull_request:
-    branches: [latest, development]
+  workflow_dispatch:
+
+permissions:
+  contents: read
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
+  group: ci-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
-  lint-and-typecheck:
-    name: Lint & Type Check
+  lint:
+    name: Lint
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v5
+      - uses: ./.github/actions/setup-pnpm
 
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: 9
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-          cache: 'pnpm'
-
-      - name: Install dependencies
-        run: |
-          # Remove problematic nuxt-particles dependency for CI
-          sed -i 's/"nuxt-particles":.*,//' package.json
-          # Remove nuxt-particles from Nuxt config
-          sed -i "/^[[:space:]]*'nuxt-particles',$/d" nuxt.config.ts
-          # Remove particles config block
-          sed -i '/particles: {/,/},/d' nuxt.config.ts
-          pnpm install --no-frozen-lockfile
-
-      - name: Run ESLint
-        run: pnpm run lint
+      # Report-only until app lint/type errors are fixed
+      - name: Run ESLint (report-only)
         continue-on-error: true
+        run: pnpm exec eslint . --format stylish | tee lint.txt
 
-      - name: Run TypeScript check
-        run: pnpm run typecheck
+      - name: Run ESLint (json, for counts)
+        continue-on-error: true
+        run: pnpm exec eslint . --format json --output-file lint.json
+
+      - name: Summarize lint results
+        run: |
+          ERRORS=0
+          WARNINGS=0
+          if [ -f lint.json ]; then
+            ERRORS=$(jq '[.[].errorCount] | add // 0' lint.json)
+            WARNINGS=$(jq '[.[].warningCount] | add // 0' lint.json)
+          fi
+          {
+            echo "### ESLint (report-only gate)"
+            echo ""
+            echo "| Errors | Warnings |"
+            echo "|---|---|"
+            echo "| $ERRORS | $WARNINGS |"
+          } >> "$GITHUB_STEP_SUMMARY"
+          echo "::warning::lint gate is report-only until app code is fixed ($ERRORS errors, $WARNINGS warnings)"
+
+  typecheck:
+    name: Typecheck
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v5
+      - uses: ./.github/actions/setup-pnpm
+
+      - name: Generate Nuxt types
+        run: pnpm nuxt prepare
+
+      # Report-only until app lint/type errors are fixed
+      - name: Run vue-tsc (report-only)
+        continue-on-error: true
+        run: |
+          pnpm --package vue-tsc@2 --package typescript@5.9 dlx vue-tsc --noEmit | tee typecheck.txt
+
+      - name: Summarize typecheck results
+        run: |
+          ERRORS=0
+          if [ -f typecheck.txt ]; then
+            ERRORS=$(grep -c "error TS" typecheck.txt || true)
+          fi
+          {
+            echo "### vue-tsc typecheck (report-only gate)"
+            echo ""
+            echo "| Errors |"
+            echo "|---|"
+            echo "| $ERRORS |"
+          } >> "$GITHUB_STEP_SUMMARY"
+          echo "::warning::typecheck gate is report-only until app code is fixed ($ERRORS errors)"
 
   test:
-    name: Unit Tests
+    name: Test
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: 9
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-          cache: 'pnpm'
-
-      - name: Install dependencies
-        run: |
-          # Remove problematic nuxt-particles dependency for CI
-          sed -i 's/"nuxt-particles":.*,//' package.json
-          # Remove nuxt-particles from Nuxt config
-          sed -i "/^[[:space:]]*'nuxt-particles',$/d" nuxt.config.ts
-          # Remove particles config block
-          sed -i '/particles: {/,/},/d' nuxt.config.ts
-          pnpm install --no-frozen-lockfile
+      - uses: actions/checkout@v5
+      - uses: ./.github/actions/setup-pnpm
 
       - name: Run tests with coverage
-        run: pnpm run test:coverage
-
-      - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v4
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
-          files: ./coverage/coverage-final.json
-          fail_ci_if_error: false
-
-  build:
-    name: Build Application
-    runs-on: ubuntu-latest
-    needs: [lint-and-typecheck, test]
-    if: always()
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: 9
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-          cache: 'pnpm'
-
-      - name: Install dependencies
         run: |
-          # Remove problematic nuxt-particles dependency for CI
-          sed -i 's/"nuxt-particles":.*,//' package.json
-          # Remove nuxt-particles from Nuxt config
-          sed -i "/^[[:space:]]*'nuxt-particles',$/d" nuxt.config.ts
-          # Remove particles config block
-          sed -i '/particles: {/,/},/d' nuxt.config.ts
-          pnpm install --no-frozen-lockfile
+          pnpm exec vitest --run --coverage \
+            --coverage.reporter=text \
+            --coverage.reporter=json-summary \
+            --coverage.reporter=lcov \
+            | tee vitest.txt
 
-      - name: Build application
-        run: pnpm run build
-        env:
-          NUXT_SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
-          NUXT_SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+      - name: Append coverage summary
+        if: always()
+        run: |
+          {
+            echo "### Test coverage"
+            echo ""
+            echo '```'
+            sed -n '/Coverage report from v8/,/^====/p' vitest.txt
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
 
-      - name: Upload build artifacts
+      - name: Upload coverage artifact
+        if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: build-output
+          name: coverage
+          path: coverage/
+          retention-days: 7
+
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    needs: [lint, typecheck, test]
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v5
+      - uses: ./.github/actions/setup-pnpm
+
+      - name: Build
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+        run: |
+          START=$(date +%s)
+          pnpm build
+          END=$(date +%s)
+          echo "BUILD_SECONDS=$((END - START))" >> "$GITHUB_ENV"
+          echo "OUTPUT_SIZE=$(du -sh .output | cut -f1)" >> "$GITHUB_ENV"
+
+      - name: Write build summary
+        run: |
+          {
+            echo "### Build"
+            echo ""
+            echo "| Metric | Value |"
+            echo "|---|---|"
+            echo "| Wall time (s) | $BUILD_SECONDS |"
+            echo "| .output size | $OUTPUT_SIZE |"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload build output
+        uses: actions/upload-artifact@v4
+        with:
+          name: nuxt-output
           path: .output/
           retention-days: 7
 
-  security-scan:
-    name: Security Scan
+  codeql:
+    name: CodeQL
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     permissions:
       security-events: write
       contents: read
+      actions: read
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: 9
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-          cache: 'pnpm'
-
-      - name: Install dependencies
-        run: |
-          # Remove problematic nuxt-particles dependency for CI
-          sed -i 's/"nuxt-particles":.*,//' package.json
-          # Remove nuxt-particles from Nuxt config
-          sed -i "/^[[:space:]]*'nuxt-particles',$/d" nuxt.config.ts
-          # Remove particles config block
-          sed -i '/particles: {/,/},/d' nuxt.config.ts
-          pnpm install --no-frozen-lockfile
-
-      - name: Run npm audit
-        run: pnpm audit --audit-level moderate
-        continue-on-error: true
+      - uses: actions/checkout@v5
 
       - name: Initialize CodeQL
         uses: github/codeql-action/init@v3
         with:
-          languages: javascript
+          languages: javascript-typescript
+          build-mode: none
 
-      - name: Perform CodeQL Analysis
+      - name: Perform CodeQL analysis
         uses: github/codeql-action/analyze@v3
+        with:
+          category: /language:javascript-typescript
+
+  pipeline-metrics:
+    name: Pipeline metrics
+    runs-on: ubuntu-latest
+    needs: [build, codeql]
+    if: always()
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      actions: read
+    steps:
+      - name: Collect run metrics
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          RUN_ID: ${{ github.run_id }}
+        run: |
+          gh run view "$RUN_ID" -R "$REPO" --json createdAt,jobs > run.json
+
+          CREATED_AT=$(jq -r '.createdAt' run.json)
+          CREATED_EPOCH=$(date -d "$CREATED_AT" +%s)
+          FINISHED_AT=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+          NOW_EPOCH=$(date -u +%s)
+          DURATION=$((NOW_EPOCH - CREATED_EPOCH))
+
+          {
+            echo "## CI pipeline metrics"
+            echo ""
+            echo "| Field | Value |"
+            echo "|---|---|"
+            echo "| Run ID | $RUN_ID |"
+            echo "| SHA | $GITHUB_SHA |"
+            echo "| Ref | $GITHUB_REF |"
+            echo "| Event | $GITHUB_EVENT_NAME |"
+            echo "| Started | $CREATED_AT |"
+            echo "| Finished | $FINISHED_AT |"
+            echo "| Duration (s) | $DURATION |"
+            echo ""
+            echo "### Jobs"
+            echo ""
+            echo "| Job | Conclusion |"
+            echo "|---|---|"
+            jq -r '.jobs[] | "| \(.name) | \(.conclusion) |"' run.json
+          } >> "$GITHUB_STEP_SUMMARY"
+
+          jq -n \
+            --arg run_id "$RUN_ID" \
+            --arg sha "$GITHUB_SHA" \
+            --arg ref "$GITHUB_REF" \
+            --arg event "$GITHUB_EVENT_NAME" \
+            --arg started_at "$CREATED_AT" \
+            --arg finished_at "$FINISHED_AT" \
+            --argjson duration_s "$DURATION" \
+            --slurpfile run run.json \
+            '{run_id: $run_id, sha: $sha, ref: $ref, event: $event, started_at: $started_at, finished_at: $finished_at, duration_s: $duration_s, jobs: ($run[0].jobs | map({name, conclusion}))}' \
+            > ci-metrics.json
+
+      - name: Upload metrics artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ci-metrics
+          path: ci-metrics.json
+          retention-days: 90

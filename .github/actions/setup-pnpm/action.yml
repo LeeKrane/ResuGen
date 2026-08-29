@@ -1,0 +1,24 @@
+name: Setup pnpm
+description: >
+  Install pnpm, set up Node 22 with the pnpm store cache, and install
+  dependencies with a frozen lockfile. Assumes the repo has already been
+  checked out.
+
+runs:
+  using: composite
+  steps:
+    # No packageManager version pin in package.json, so it's pinned here instead
+    - name: Setup pnpm
+      uses: pnpm/action-setup@v4
+      with:
+        version: 10
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v5
+      with:
+        node-version: 22
+        cache: pnpm
+
+    - name: Install dependencies
+      shell: bash
+      run: pnpm install --frozen-lockfile
