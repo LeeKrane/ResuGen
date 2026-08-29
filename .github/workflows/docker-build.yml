@@ -292,13 +292,26 @@ jobs:
           echo "healthy=false" >> "$GITHUB_OUTPUT"
           exit 1
 
+      - name: Fetch landing page
+        run: |
+          CODE=$(curl -s -o /dev/null -w '%{http_code}' http://localhost:3000/)
+          echo "GET / -> $CODE"
+          [ "$CODE" = "200" ] || { echo "::error::Landing page returned HTTP $CODE"; exit 1; }
+
+      - name: Wait for Docker HEALTHCHECK to report healthy
+        run: |
+          for i in $(seq 1 45); do
+            STATUS=$(docker inspect --format '{{.State.Health.Status}}' smoke)
+            echo "health status: $STATUS"
+            [ "$STATUS" = "healthy" ] && exit 0
+            sleep 2
+          done
+          echo "::error::Container never became healthy"
+          exit 1
+
       - name: Show container logs on failure
         if: failure()
         run: docker logs smoke
-
-      - name: Inspect Docker HEALTHCHECK status (informational)
-        if: always()
-        run: docker inspect --format '{{.State.Health.Status}}' smoke || true
 
       - name: Write summary
         if: always()
