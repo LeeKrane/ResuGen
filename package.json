@@ -61,6 +61,9 @@
     "vitest": "^4.0.18"
   },
   "pnpm": {
+    "overrides": {
+      "tar": ">=7.5.19"
+    },
     "supportedArchitectures": {
       "os": [
         "current",

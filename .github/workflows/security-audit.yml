@@ -1,0 +1,182 @@
+name: Security Audit
+
+on:
+  schedule: [{ cron: '0 9 * * 1' }]
+  workflow_dispatch:
+  pull_request: { paths: ['package.json', 'pnpm-lock.yaml', '.github/workflows/security-audit.yml'] }
+  push:
+    branches: [latest, development, bscp-hotfix, 'ci/**']
+    paths: ['package.json', 'pnpm-lock.yaml', '.github/workflows/security-audit.yml']
+
+permissions: { contents: read }
+
+concurrency: { group: 'security-audit-${{ github.ref }}', cancel-in-progress: true }
+
+jobs:
+  audit:
+    name: Dependency Audit
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v5
+      - uses: ./.github/actions/setup-pnpm
+
+      # || true: pnpm audit exits non-zero on findings; the real gate is below
+      - name: Run pnpm audit (all dependencies)
+        run: pnpm audit --json > audit.json || true
+
+      - name: Run pnpm audit (production dependencies only)
+        run: pnpm audit --prod --json > audit-prod.json || true
+
+      - name: Run pnpm audit --audit-level=high (log only)
+        run: |
+          set +e
+          pnpm audit --audit-level=high
+          echo "exit=$?"
+
+      - name: Summarize audit results
+        run: |
+          CRIT=$(jq '.metadata.vulnerabilities.critical' audit.json)
+          HIGH=$(jq '.metadata.vulnerabilities.high' audit.json)
+          MODERATE=$(jq '.metadata.vulnerabilities.moderate' audit.json)
+          LOW=$(jq '.metadata.vulnerabilities.low' audit.json)
+
+          CRIT_PROD=$(jq '.metadata.vulnerabilities.critical' audit-prod.json)
+          HIGH_PROD=$(jq '.metadata.vulnerabilities.high' audit-prod.json)
+          MODERATE_PROD=$(jq '.metadata.vulnerabilities.moderate' audit-prod.json)
+          LOW_PROD=$(jq '.metadata.vulnerabilities.low' audit-prod.json)
+
+          {
+            echo "### pnpm audit — all dependencies"
+            echo ""
+            echo "| Severity | Count |"
+            echo "|---|---|"
+            echo "| Critical | $CRIT |"
+            echo "| High | $HIGH |"
+            echo "| Moderate | $MODERATE |"
+            echo "| Low | $LOW |"
+            echo ""
+            echo "### pnpm audit — production dependencies only"
+            echo ""
+            echo "Production dependencies are what actually ships in the built image; this is the count the gate below acts on."
+            echo ""
+            echo "| Severity | Count |"
+            echo "|---|---|"
+            echo "| Critical | $CRIT_PROD |"
+            echo "| High | $HIGH_PROD |"
+            echo "| Moderate | $MODERATE_PROD |"
+            echo "| Low | $LOW_PROD |"
+            echo ""
+            echo "### Top advisories (HIGH/CRITICAL, all dependencies, max 30)"
+            echo ""
+            echo "| Severity | Module | Title | Patched |"
+            echo "|---|---|---|---|"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+          jq -r '
+            [.advisories[] | select(.severity == "high" or .severity == "critical")]
+            | sort_by(.severity == "critical" | not)
+            | .[:30]
+            | .[] | [.severity, .module_name, .title, .patched_versions] | "| " + join(" | ") + " |"
+          ' audit.json >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload audit reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: pnpm-audit
+          path: |
+            audit.json
+            audit-prod.json
+          retention-days: 90
+
+      # Gate: fail only on CRITICAL in production deps; HIGH warns
+      - name: Enforce gate (production CRITICAL vulnerabilities)
+        run: |
+          CRIT_PROD=$(jq '.metadata.vulnerabilities.critical' audit-prod.json)
+          HIGH_PROD=$(jq '.metadata.vulnerabilities.high' audit-prod.json)
+
+          if [ "$HIGH_PROD" -gt 0 ]; then
+            echo "::warning::${HIGH_PROD} HIGH severity vulnerabilities in production dependencies (non-blocking, see step summary)."
+          fi
+
+          if [ "$CRIT_PROD" -gt 0 ]; then
+            echo "::error::${CRIT_PROD} CRITICAL severity vulnerabilities in production dependencies. Failing the job."
+            exit 1
+          fi
+
+          echo "No CRITICAL vulnerabilities in production dependencies."
+
+  licenses:
+    name: License Compliance
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v5
+      - uses: ./.github/actions/setup-pnpm
+
+      - name: Generate license report (production dependencies)
+        run: pnpm licenses list --json --prod > licenses.json
+
+      - name: Upload license report
+        uses: actions/upload-artifact@v4
+        with:
+          name: pnpm-licenses
+          path: licenses.json
+          retention-days: 90
+
+      - name: Check licenses against allow-list (report-only)
+        continue-on-error: true
+        run: |
+          ALLOWED='["MIT","Apache-2.0","BSD-2-Clause","BSD-3-Clause","ISC","0BSD","Unlicense","CC0-1.0","MPL-2.0","BlueOak-1.0.0","Python-2.0","CC-BY-4.0","LGPL-3.0-or-later"]'
+          echo "$ALLOWED" > allow.json
+
+          jq -r --slurpfile allow allow.json '
+            ($allow[0]) as $allowed
+            | to_entries[]
+            | .key as $lic
+            | ($lic | sub("^\\(";"") | sub("\\)$";"") | split(" OR ") | map(gsub("^\\s+|\\s+$";""))) as $opts
+            | (any($opts[]; . as $o | $allowed | index($o) != null)) as $ok
+            | select($ok | not)
+            | .value[] | [$lic, .name, (.versions | join(","))] | @tsv
+          ' licenses.json > disallowed.tsv
+
+          COUNT=$(wc -l < disallowed.tsv)
+
+          {
+            echo "### License compliance (production dependencies, report-only)"
+            echo ""
+            if [ "$COUNT" -eq 0 ]; then
+              echo "All production dependency licenses are on the allow-list."
+            else
+              echo "${COUNT} package(s) with a license not on the allow-list (or reported \`Unknown\`):"
+              echo ""
+              echo "| License | Package | Version |"
+              echo "|---|---|---|"
+              awk -F'\t' '{ print "| " $1 " | " $2 " | " $3 " |" }' disallowed.tsv
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
+
+          if [ "$COUNT" -gt 0 ]; then
+            echo "::warning::${COUNT} production package(s) have a license outside the allow-list (see step summary)."
+          fi
+
+  summary:
+    name: Overall Status
+    runs-on: ubuntu-latest
+    needs: [audit, licenses]
+    if: always()
+    timeout-minutes: 5
+    steps:
+      - name: Write overall status
+        env:
+          AUDIT_RESULT: ${{ needs.audit.result }}
+          LICENSES_RESULT: ${{ needs.licenses.result }}
+        run: |
+          {
+            echo "### Security Audit — overall status"
+            echo ""
+            echo "| Job | Result |"
+            echo "|---|---|"
+            echo "| Dependency Audit | $AUDIT_RESULT |"
+            echo "| License Compliance | $LICENSES_RESULT |"
+          } >> "$GITHUB_STEP_SUMMARY"
