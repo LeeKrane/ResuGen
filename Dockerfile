@@ -1,29 +1,19 @@
 # Multi-stage Dockerfile for Nuxt.js application
-# Base stage with Node.js 20 Alpine and pnpm 9
-FROM node:20-alpine AS base
+# Base stage with Node.js 22 Alpine and pnpm 9
+FROM node:22-alpine AS base
 RUN apk add --no-cache git
 RUN corepack enable && corepack prepare pnpm@9 --activate
 WORKDIR /app
 
 # Dependencies stage with optimized package installation
 FROM base AS deps
-COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
-# Remove problematic nuxt-particles dependency for Docker builds
-RUN sed -i '/"nuxt-particles":/d' package.json
-# Install dependencies with flexibility for Docker environment
-RUN pnpm install --no-frozen-lockfile
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml .npmrc ./
+RUN pnpm install --frozen-lockfile
 
 # Builder stage with application compilation
 FROM base AS builder
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
-# Remove nuxt-particles from nuxt.config.ts for Docker builds
-RUN sed -i "/nuxt-particles/d" nuxt.config.ts
-RUN sed -i "/particles:/,/}/d" nuxt.config.ts
-# Remove CSS reference that causes Tailwind v4 issues
-RUN sed -i "/css:.*main\.css/d" nuxt.config.ts
-# Remove custom CSS that causes Tailwind v4 build issues in Docker
-RUN rm -f app/assets/css/main.css
 # Build the application with build args for secrets
 ARG SUPABASE_URL
 ARG SUPABASE_KEY
@@ -31,8 +21,16 @@ ENV SUPABASE_URL=${SUPABASE_URL}
 ENV SUPABASE_KEY=${SUPABASE_KEY}
 RUN pnpm run build
 
+# pdf-parse is loaded via createRequire and not bundled by Nitro
+RUN node -e "\
+  const v = require('./node_modules/pdf-parse/package.json').version; \
+  require('fs').mkdirSync('/app/runtime', { recursive: true }); \
+  require('fs').writeFileSync('/app/runtime/package.json', JSON.stringify({ \
+    name: 'nuxt-app-runtime-externals', private: true, dependencies: { 'pdf-parse': v } \
+  }, null, 2));"
+
 # Production stage with minimal runtime footprint
-FROM node:20-alpine AS production
+FROM node:22-alpine AS production
 RUN apk add --no-cache wget
 RUN corepack enable && corepack prepare pnpm@9 --activate
 
@@ -44,7 +42,13 @@ WORKDIR /app
 
 # Copy built application
 COPY --from=builder --chown=nuxtjs:nodejs /app/.output ./.output
-COPY --from=builder --chown=nuxtjs:nodejs /app/package.json ./package.json
+
+COPY --from=builder /app/runtime ./runtime
+RUN cd runtime && pnpm install --prod --ignore-scripts && \
+    chown -R nuxtjs:nodejs /app/runtime/node_modules && \
+    rm -rf /root/.cache /root/.local/share/pnpm \
+           /usr/local/lib/node_modules/npm /usr/local/bin/npm /usr/local/bin/npx /usr/local/bin/corepack
+ENV NODE_PATH=/app/runtime/node_modules
 
 # Switch to non-root user
 USER nuxtjs
@@ -54,7 +58,7 @@ EXPOSE 3000
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-  CMD wget --no-verbose --tries=1 --spider http://localhost:3000/api/health || exit 1
+  CMD wget --no-verbose --tries=1 -O /dev/null http://127.0.0.1:3000/api/health || exit 1
 
 # Set environment variables
 ENV NODE_ENV=production
